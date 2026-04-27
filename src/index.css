@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* CareFit Brand Colors - Convertidas para HSL correto */
+    --primary: 186 59% 16%; /* Verde petróleo #0E3C41 convertido para HSL */
+    --primary-glow: 186 59% 25%; /* Verde petróleo mais claro */
+    --secondary: 19 64% 51%; /* Terracota #C8643D convertido para HSL */
+    --warm: 30 50% 93%; /* Bege claro #F4EDE4 convertido para HSL */
+    --earth: 44 42% 66%; /* Dourado #D4A656 convertido para HSL */
+    
+    /* Semantic Colors */
+    --background: 0 0% 100%; /* Branco #FFFFFF */
+    --foreground: 186 59% 16%; /* Verde petróleo para texto */
+    --card: 0 0% 100%; /* Branco para cards */
+    --card-foreground: 186 59% 16%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 186 59% 16%;
+    --primary-foreground: 0 0% 100%; /* Branco em botões primários */
+    --secondary-foreground: 0 0% 100%; /* Branco em botões terracota */
+    --muted: 30 50% 93%; /* Bege claro para backgrounds sutis */
+    --muted-foreground: 186 59% 16%; /* Verde petróleo para texto muted */
+    --accent: 44 42% 66%; /* Dourado para acentos */
+    --accent-foreground: 186 59% 16%;
+    --destructive: 0 65% 51%; /* Vermelho para erros */
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 50% 90%; /* Bege claro para bordas */
+    --input: 30 50% 90%;
+    --ring: 186 59% 16%; /* Verde petróleo para focus */
+    --warm-foreground: 186 59% 16%;
+    --earth-foreground: 186 59% 16%;
+
+    --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    --gradient-warm: linear-gradient(135deg, hsl(var(--warm)), hsl(var(--accent)));
+    --gradient-earth: linear-gradient(135deg, hsl(var(--earth)), hsl(var(--accent)));
+
+    /* Shadows */
+    --shadow-elevation: 0 4px 20px -4px hsl(var(--primary) / 0.2);
+    --shadow-glow: 0 0 30px hsl(var(--accent) / 0.3);
+
+    /* Animations */
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* CareFit Brand Colors - Dark mode em HSL correto */
+    --primary: 186 59% 25%; /* Verde petróleo mais claro para contraste */
+    --primary-glow: 186 59% 35%; /* Verde petróleo ainda mais claro */
+    --secondary: 19 64% 51%; /* Terracota mantém */
+    --warm: 30 25% 20%; /* Bege escuro */
+    --earth: 44 42% 66%; /* Dourado mantém */
+    
+    /* Semantic Colors - Dark mode */
+    --background: 186 30% 8%; /* Fundo escuro baseado no verde petróleo */
+    --foreground: 30 50% 93%; /* Bege claro para texto */
+    --card: 186 30% 12%; /* Card escuro */
+    --card-foreground: 30 50% 93%;
+    --popover: 186 30% 12%;
+    --popover-foreground: 30 50% 93%;
+    --primary-foreground: 0 0% 100%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 186 30% 15%; /* Muted escuro */
+    --muted-foreground: 30 25% 70%; /* Texto muted claro */
+    --accent: 44 42% 66%; /* Dourado mantém */
+    --accent-foreground: 186 59% 16%;
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 30 50% 93%;
+    --border: 186 30% 18%; /* Borda escura */
+    --input: 186 30% 18%;
+    --ring: 186 59% 25%; /* Verde petróleo para focus */
+    --warm-foreground: 30 50% 93%;
+    --earth-foreground: 186 59% 16%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  /* Typography System */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+  }
+
+  /* Utilities for CareFit brand */
+  .text-carefit-primary {
+    color: hsl(186 59% 16%);
+  }
+
+  .text-carefit-secondary {
+    color: hsl(19 64% 51%);
+  }
+
+  .text-carefit-earth {
+    color: hsl(44 42% 66%);
+  }
+
+  .bg-carefit-warm {
+    background-color: hsl(30 50% 93%);
+  }
+
+  .bg-carefit-primary {
+    background-color: hsl(186 59% 16%);
+  }
+
+  .bg-carefit-secondary {
+    background-color: hsl(19 64% 51%);
+  }
+}

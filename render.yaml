@@ -1,0 +1,59 @@
+services:
+  # Frontend React App
+  - type: web
+    name: carefit-frontend
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    domains:
+      - carefitrunbase.com.br
+      - www.carefitrunbase.com.br
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /assets/*
+        name: Cache-Control
+        value: max-age=31536000
+
+  # Backend API
+  - type: web
+    name: carefit-api
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: cd api && npm install
+    startCommand: cd api && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://carefitrunbase.com.br
+      - key: DATABASE_URL
+        fromDatabase:
+          name: carefit-db
+          property: connectionString
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: GOOGLE_CLIENT_EMAIL
+        sync: false
+      - key: GOOGLE_PRIVATE_KEY
+        sync: false
+      - key: GOOGLE_CALENDAR_ID
+        sync: false
+
+databases:
+  - name: carefit-db
+    databaseName: carefit
+    user: carefit_user
+    region: oregon
+    plan: starter
