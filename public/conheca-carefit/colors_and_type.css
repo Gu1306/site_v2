@@ -1,0 +1,403 @@
+/* ============================================================
+   CareFit Run Base — Design Tokens
+   "Relax. Recharge. Run Again."
+   ============================================================ */
+
+/* ---------- Fonts (self-hosted, supplied by brand) ---------- */
+/* Path is relative to this file (colors_and_type.css lives at project root,
+   fonts live at /fonts). Each card under /preview/* loads this file via
+   `@import url("../colors_and_type.css")`, so url("/conheca-carefit/fonts/…") resolves correctly. */
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("/conheca-carefit/fonts/Montserrat-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: url("/conheca-carefit/fonts/Montserrat-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: url("/conheca-carefit/fonts/Montserrat-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+/* Bold serves the 800/black tier as well — closest available. */
+@font-face {
+  font-family: "Montserrat";
+  src: url("/conheca-carefit/fonts/Montserrat-Bold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Playfair Display";
+  src: url("/conheca-carefit/fonts/PlayfairDisplay-Italic.ttf") format("truetype");
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/conheca-carefit/fonts/Poppins-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("/conheca-carefit/fonts/Poppins-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("/conheca-carefit/fonts/Poppins-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+/* Poppins-Regular as 300 fallback (Light not supplied). */
+@font-face {
+  font-family: "Poppins";
+  src: url("/conheca-carefit/fonts/Poppins-Regular.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* ============================================================
+     COLOR — Brand
+     ============================================================ */
+
+  /* Brand spec colors (from the brief) */
+  --cf-verde-floresta:  #1A3C34; /* base institucional, headers, primary buttons */
+  --cf-verde-medio:     #2A5C50; /* hover, secondary surfaces, "Mente" tag */
+  --cf-laranja:         #C8622A; /* CTAs, destaque, "Fortalecimento" tag */
+  --cf-dourado:         #D4A853; /* selos, dividers, premium accents, "Nutrição" */
+  --cf-off-white:       #F5F5F0; /* main bg, cards, body reads */
+  --cf-branco:          #FFFFFF; /* secondary surfaces, whitespace */
+
+  /* Production-codebase colors (slightly different — kept for parity with carefit-run-base) */
+  --cf-verde-petroleo:  #0E3C41; /* HSL(186 59% 16%) — Tailwind --primary in code */
+  --cf-terracota:       #C8643D; /* HSL(19 64% 51%)  — Tailwind --secondary */
+  --cf-bege-claro:      #F4EDE4; /* HSL(30 50% 93%)  — Tailwind --warm */
+  --cf-dourado-tw:      #D4A656; /* HSL(44 42% 66%)  — Tailwind --earth */
+
+  /* Tints + shades (derived) */
+  --cf-floresta-95: #142e28;
+  --cf-floresta-80: #2c5046;
+  --cf-floresta-60: #5e7a73;
+  --cf-floresta-40: #8fa6a1;
+  --cf-floresta-20: #c1cfcc;
+  --cf-floresta-08: #ebf0ee;
+
+  --cf-laranja-95: #b85726;
+  --cf-laranja-80: #d07b50;
+  --cf-laranja-20: #f1ddcd;
+  --cf-laranja-08: #fbf2eb;
+
+  --cf-dourado-80: #ddbd7c;
+  --cf-dourado-20: #f4eadb;
+
+  /* ============================================================
+     COLOR — Semantic
+     ============================================================ */
+  --bg:                 var(--cf-off-white);
+  --bg-elevated:        var(--cf-branco);
+  --bg-inverse:         var(--cf-verde-floresta);
+  --bg-warm:            var(--cf-bege-claro);
+
+  --fg:                 var(--cf-verde-floresta);
+  --fg-muted:           color-mix(in srgb, var(--cf-verde-floresta) 70%, transparent);
+  --fg-soft:            color-mix(in srgb, var(--cf-verde-floresta) 50%, transparent);
+  --fg-inverse:         var(--cf-off-white);
+
+  --accent:             var(--cf-laranja);    /* primary accent / CTA */
+  --accent-hover:       var(--cf-laranja-95);
+  --accent-soft:        var(--cf-laranja-08);
+
+  --gold:               var(--cf-dourado);    /* premium / divider accent */
+  --gold-soft:          var(--cf-dourado-20);
+
+  --border:             color-mix(in srgb, var(--cf-verde-floresta) 14%, transparent);
+  --border-soft:        color-mix(in srgb, var(--cf-verde-floresta) 8%, transparent);
+  --ring:               var(--cf-verde-floresta);
+
+  /* Pillar tags */
+  --tag-recovery-bg:        var(--cf-verde-floresta);
+  --tag-recovery-fg:        var(--cf-off-white);
+  --tag-fortalecimento-bg:  var(--cf-laranja);
+  --tag-fortalecimento-fg:  var(--cf-off-white);
+  --tag-nutricao-bg:        var(--cf-dourado);
+  --tag-nutricao-fg:        var(--cf-verde-floresta);
+  --tag-mente-bg:           var(--cf-verde-medio);
+  --tag-mente-fg:           var(--cf-off-white);
+
+  /* States */
+  --state-success:      #4a7c59;
+  --state-warning:      var(--cf-dourado);
+  --state-danger:       #b94a3a;
+
+  /* ============================================================
+     TYPE — Families
+     ============================================================ */
+  --font-display:   "Montserrat", "Helvetica Neue", Arial, sans-serif; /* h1, h2, headlines */
+  --font-quote:     "Playfair Display", Georgia, "Times New Roman", serif; /* manifesto / quotes (italic) */
+  --font-body:      "Poppins", "Helvetica Neue", Arial, sans-serif; /* body, labels, captions */
+
+  /* Weights */
+  --w-light:        300;
+  --w-regular:      400;
+  --w-medium:       500;
+  --w-semibold:     600;
+  --w-bold:         700;
+  --w-black:        800;
+
+  /* Sizes (modular scale, 1.25) */
+  --fs-12: 0.75rem;
+  --fs-14: 0.875rem;
+  --fs-16: 1rem;
+  --fs-18: 1.125rem;
+  --fs-20: 1.25rem;
+  --fs-24: 1.5rem;
+  --fs-30: 1.875rem;
+  --fs-36: 2.25rem;
+  --fs-48: 3rem;
+  --fs-60: 3.75rem;
+  --fs-72: 4.5rem;
+
+  /* Line heights */
+  --lh-tight:   1.1;
+  --lh-snug:    1.25;
+  --lh-normal:  1.5;
+  --lh-relaxed: 1.65;
+
+  /* Tracking */
+  --tr-tight:    -0.02em;
+  --tr-normal:    0;
+  --tr-wide:      0.02em;
+  --tr-wider:     0.08em;   /* eyebrows, footer headers (uppercase) */
+
+  /* ============================================================
+     SPACING — 4px base
+     ============================================================ */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --sp-20: 80px;
+  --sp-24: 96px;
+  --sp-32: 128px;
+
+  /* ============================================================
+     RADII
+     ============================================================ */
+  --r-sm:    4px;
+  --r-md:    8px;     /* spec: buttons */
+  --r-lg:   12px;     /* spec from code: --radius 0.75rem */
+  --r-xl:   16px;
+  --r-2xl:  24px;
+  --r-pill: 9999px;
+
+  /* ============================================================
+     SHADOWS — warm, low-key (boutique, never clinical)
+     ============================================================ */
+  --shadow-xs: 0 1px 2px rgba(26, 60, 52, 0.06);
+  --shadow-sm: 0 2px 6px rgba(26, 60, 52, 0.08);
+  --shadow-md: 0 4px 16px rgba(26, 60, 52, 0.10);
+  --shadow-lg: 0 8px 28px rgba(26, 60, 52, 0.14);
+  --shadow-glow: 0 0 30px rgba(212, 168, 83, 0.30);
+
+  /* ============================================================
+     MOTION
+     ============================================================ */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --t-fast:   180ms;
+  --t-base:   300ms;
+  --t-slow:   600ms;
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  --container-max: 1200px;
+  --container-pad: var(--sp-6);
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+
+html, body {
+  font-family: var(--font-body);
+  font-weight: var(--w-regular);
+  font-size: var(--fs-16);
+  line-height: var(--lh-relaxed);
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: var(--w-bold);
+  color: var(--fg);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-tight);
+  margin: 0;
+  text-wrap: balance;
+}
+
+h1 { font-size: clamp(2.5rem, 5vw + 1rem, var(--fs-72)); font-weight: var(--w-bold); }
+h2 { font-size: clamp(2rem, 3vw + 1rem, var(--fs-48)); font-weight: var(--w-bold); }
+h3 { font-size: var(--fs-30); font-weight: var(--w-semibold); }
+h4 { font-size: var(--fs-24); font-weight: var(--w-semibold); }
+h5 { font-size: var(--fs-20); font-weight: var(--w-semibold); }
+h6 { font-size: var(--fs-16); font-weight: var(--w-semibold); letter-spacing: var(--tr-wider); text-transform: uppercase; }
+
+p { margin: 0; line-height: var(--lh-relaxed); text-wrap: pretty; }
+
+.eyebrow {
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: var(--w-semibold);
+  letter-spacing: var(--tr-wider);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.quote {
+  font-family: var(--font-quote);
+  font-style: italic;
+  font-weight: var(--w-regular);
+  line-height: var(--lh-snug);
+  color: var(--fg);
+  text-wrap: balance;
+}
+
+.label {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  font-weight: var(--w-semibold);
+  letter-spacing: var(--tr-wider);
+  text-transform: uppercase;
+}
+
+code, kbd, samp {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.95em;
+}
+
+/* ============================================================
+   COMPONENT PRIMITIVES (used by preview cards + UI kit)
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: 12px 24px;
+  font-family: var(--font-display);
+  font-size: var(--fs-14);
+  font-weight: var(--w-semibold);
+  letter-spacing: var(--tr-wide);
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--t-base) var(--ease-smooth);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.btn--primary {
+  background: var(--cf-verde-floresta);
+  color: var(--cf-off-white);
+  box-shadow: var(--shadow-sm);
+}
+.btn--primary:hover {
+  background: var(--cf-verde-medio);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.btn--secondary {
+  background: var(--cf-laranja);
+  color: var(--cf-off-white);
+  box-shadow: var(--shadow-sm);
+}
+.btn--secondary:hover {
+  background: var(--cf-laranja-95);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.btn--ghost {
+  background: transparent;
+  color: var(--cf-verde-floresta);
+  border-color: var(--border);
+}
+.btn--ghost:hover {
+  background: var(--cf-floresta-08);
+  border-color: var(--cf-verde-floresta);
+}
+.btn--gold {
+  background: var(--cf-dourado);
+  color: var(--cf-verde-floresta);
+}
+.btn--gold:hover {
+  background: var(--cf-dourado-80);
+}
+
+.card {
+  background: var(--bg-elevated);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--sp-8);
+  transition: box-shadow var(--t-base) var(--ease-smooth),
+              transform var(--t-base) var(--ease-smooth);
+}
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+}
+.card__title {
+  font-family: var(--font-display);
+  font-weight: var(--w-bold);
+  font-size: var(--fs-20);
+  color: var(--cf-verde-floresta);
+  margin-bottom: var(--sp-3);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: var(--w-semibold);
+  letter-spacing: var(--tr-wider);
+  text-transform: uppercase;
+}
+.tag--recovery        { background: var(--tag-recovery-bg);       color: var(--tag-recovery-fg); }
+.tag--fortalecimento  { background: var(--tag-fortalecimento-bg); color: var(--tag-fortalecimento-fg); }
+.tag--nutricao        { background: var(--tag-nutricao-bg);       color: var(--tag-nutricao-fg); }
+.tag--mente           { background: var(--tag-mente-bg);          color: var(--tag-mente-fg); }

@@ -2,8 +2,16 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navigation from "./components/Navigation";
+
+const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto"];
+
+const ConditionalNavigation = () => {
+  const { pathname } = useLocation();
+  if (HIDE_NAV_ON.includes(pathname)) return null;
+  return <Navigation />;
+};
 import Index from "./pages/Index";
 import Manifesto from "./pages/Manifesto";
 import Servicos from "./pages/Servicos";
@@ -36,6 +44,7 @@ import DorNoJoelho from "./pages/DorNoJoelho";
 import BandaIliotibial from "./pages/BandaIliotibial";
 import FraturaEstresse from "./pages/FraturaEstresse";
 import LandingPerformance from "./pages/LandingPerformance";
+import ConhecaCareFit from "./pages/ConhecaCareFit";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,7 +55,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Navigation />
+        <ConditionalNavigation />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/manifesto" element={<Manifesto />} />
@@ -80,6 +89,7 @@ const App = () => (
           <Route path="/banda-iliotibial-ribeirao-preto" element={<BandaIliotibial />} />
           <Route path="/fratura-por-estresse-ribeirao-preto" element={<FraturaEstresse />} />
           <Route path="/performance-ribeirao-preto" element={<LandingPerformance />} />
+          <Route path="/conheca-a-carefit" element={<ConhecaCareFit />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
