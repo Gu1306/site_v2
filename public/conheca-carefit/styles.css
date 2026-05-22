@@ -1595,3 +1595,153 @@ body { margin: 0; overflow-x: hidden; }
 }
 .t-card__ig svg { transition: transform var(--t-fast) var(--ease-smooth); }
 .t-card:hover .t-card__ig svg { transform: translateX(2px); }
+
+/* ============================================================
+   Hero with YouTube Short — added
+   ============================================================ */
+.hero--video { padding-bottom: 56px; }
+.hero--video .hero__photo { display: none; }
+
+.hero__inner--video {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+@media (max-width: 960px) {
+  .hero__inner--video {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  /* Mobile-first: video first, copy second */
+  .hero__inner--video .hero__video-side { order: -1; }
+}
+
+.hero__copy { min-width: 0; }
+
+.hero__video-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.hero__video-frame {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 9 / 16;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #000;
+  box-shadow:
+    0 30px 80px -20px rgba(0,0,0,0.55),
+    0 0 0 1px color-mix(in srgb, var(--cf-dourado) 35%, transparent),
+    0 0 60px -10px color-mix(in srgb, var(--cf-dourado) 25%, transparent);
+}
+.hero__video-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.hero__video-caption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: color-mix(in srgb, var(--cf-off-white) 85%, transparent);
+  letter-spacing: 0.02em;
+}
+.hero__video-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: color-mix(in srgb, var(--cf-off-white) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cf-off-white) 18%, transparent);
+  border-radius: 9999px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.hero__video-live .live-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--cf-laranja);
+  box-shadow: 0 0 0 0 var(--cf-laranja);
+  animation: heroLivePulse 1.6s ease-out infinite;
+}
+@keyframes heroLivePulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cf-laranja) 55%, transparent); }
+  70%  { box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.hero__video-tag {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--cf-dourado);
+}
+
+/* Price chip (replaces entry-card in hero) */
+.hero__price-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px 18px;
+  margin: 22px 0 18px;
+  background: color-mix(in srgb, var(--cf-off-white) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cf-dourado) 35%, transparent);
+  border-radius: 12px;
+  font-family: var(--font-body);
+  flex-wrap: wrap;
+}
+.hero__price-chip-label {
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--cf-dourado);
+  align-self: center;
+}
+.hero__price-chip-value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--cf-off-white);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.hero__price-chip-prefix {
+  font-size: 15px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--cf-off-white) 80%, transparent);
+  margin-right: 2px;
+}
+.hero__price-chip-sub {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: color-mix(in srgb, var(--cf-off-white) 75%, transparent);
+  align-self: center;
+}
+
+/* Accent CTA variant — bright orange for primary action in hero */
+.btn--accent {
+  background: var(--cf-laranja);
+  color: #fff;
+  border-color: var(--cf-laranja);
+}
+.btn--accent:hover {
+  background: var(--cf-laranja-95);
+  border-color: var(--cf-laranja-95);
+}

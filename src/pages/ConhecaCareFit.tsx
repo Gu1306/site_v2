@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import Nav from "./conheca-carefit/Nav";
 import Hero from "./conheca-carefit/Hero";
-import VideoCTA from "./conheca-carefit/VideoCTA";
 import Method from "./conheca-carefit/Method";
 import DualSession from "./conheca-carefit/DualSession";
 import Feelings from "./conheca-carefit/Feelings";
@@ -69,7 +68,6 @@ const ConhecaCareFit = () => {
       <Nav wappUrl={WAPP_URL} />
       <main>
         <Hero wappUrl={WAPP_URL} onScrollToPricing={scrollToPricing} />
-        <VideoCTA wappUrl={WAPP_URL} />
         <Method />
         <DualSession />
         <Feelings />

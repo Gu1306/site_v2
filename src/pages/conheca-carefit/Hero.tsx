@@ -6,23 +6,23 @@ interface Props {
   onScrollToPricing: () => void;
 }
 
+const YT_VIDEO_ID = "BlOgSub8ylM";
+
 export default function Hero({ wappUrl, onScrollToPricing }: Props) {
   const [refRunners, runners] = useCountUp(300);
   const [refMar, mar] = useCountUp(110);
   const [refYears, years] = useCountUp(3);
 
   return (
-    <section className="hero" id="top">
-      <div
-        className="hero__photo"
-        style={{ backgroundImage: "url(/conheca-carefit/assets/hero-runners.jpg)" }}
-      ></div>
+    <section className="hero hero--video" id="top">
       <div className="hero__bg"></div>
       <div className="hero__grain"></div>
 
-      <div className="container hero__inner">
-        <div>
-          <div className="hero__eyebrow">CareFit Run Base · Ribeirão Preto</div>
+      <div className="container hero__inner hero__inner--video">
+        <div className="hero__copy">
+          <div className="hero__eyebrow">
+            Mensagem do fundador · 60 segundos
+          </div>
 
           <h1 className="hero__h1">
             Você não compra <em>uma sessão</em>.<br />
@@ -30,26 +30,33 @@ export default function Hero({ wappUrl, onScrollToPricing }: Props) {
           </h1>
 
           <p className="hero__lede">
-            A primeira sessão a CareFit começa escutando a sua história. Depois,
-            mostra como o nosso método funciona na prática e desenha a primeira
-            jornada feita para você.
+            Antes de marcar, assista 60 segundos do convite do Gustavo.
+            Se fizer sentido, clica no WhatsApp e a gente conversa.
           </p>
+
+          <div className="hero__price-chip">
+            <span className="hero__price-chip-label">Porta de entrada</span>
+            <span className="hero__price-chip-value">
+              <span className="hero__price-chip-prefix">R$</span>230
+            </span>
+            <span className="hero__price-chip-sub">1:30 + 1h · duas sessões</span>
+          </div>
 
           <div className="hero__ctas">
             <a
-              className="btn btn-xl btn--gold-strong btn-block"
+              className="btn btn-xl btn--accent btn-block"
               href={wappUrl}
               target="_blank"
               rel="noreferrer"
             >
-              <Icon name="whatsapp" size={18} />
-              Quero conhecer a CareFit
+              <Icon name="whatsapp" size={20} />
+              Quero agendar pelo WhatsApp
             </a>
             <button
               className="btn btn-xl btn--ghost-light btn-block"
               onClick={onScrollToPricing}
             >
-              Ver como funciona
+              Ver o que está incluído
               <Icon name="arrowDown" size={16} />
             </button>
           </div>
@@ -70,74 +77,23 @@ export default function Hero({ wappUrl, onScrollToPricing }: Props) {
           </div>
         </div>
 
-        <aside className="entry-card">
-          <div className="entry-card__label">Porta de entrada</div>
-          <h2 className="entry-card__title">
-            Primeira Sessão{" "}
-            <em
-              style={{
-                fontFamily: "var(--font-quote)",
-                fontStyle: "italic",
-                fontWeight: 500,
-                color: "var(--cf-dourado)",
-              }}
-            >
-              Dupla
-            </em>
-          </h2>
-          <div className="entry-card__price">
-            <span className="amount-prefix">R$</span>
-            <span className="amount">230</span>
-            <span className="label-small">à vista</span>
+        <aside className="hero__video-side">
+          <div className="hero__video-frame" aria-label="Vídeo do convite">
+            <iframe
+              src={`https://www.youtube.com/embed/${YT_VIDEO_ID}?rel=0&modestbranding=1&playsinline=1`}
+              title="Convite do Gustavo · CareFit Run Base"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              loading="eager"
+            />
           </div>
-          <div className="entry-card__meta">
-            <div className="entry-card__meta-item">
-              <span className="dot">
-                <Icon name="clock" size={14} />
-              </span>
-              <div>
-                <strong>1:30</strong>
-                de avaliação
-              </div>
-            </div>
-            <div className="entry-card__meta-item">
-              <span className="dot">
-                <Icon name="refresh" size={14} />
-              </span>
-              <div>
-                <strong>1h de retorno</strong>
-                em até 15 dias
-              </div>
-            </div>
-            <div className="entry-card__meta-item">
-              <span className="dot">
-                <Icon name="clipboard" size={14} />
-              </span>
-              <div>
-                <strong>Protocolo</strong>
-                personalizado
-              </div>
-            </div>
-            <div className="entry-card__meta-item">
-              <span className="dot">
-                <Icon name="route" size={14} />
-              </span>
-              <div>
-                <strong>Plano</strong>
-                de jornada
-              </div>
-            </div>
+          <div className="hero__video-caption">
+            <span className="hero__video-live">
+              <span className="live-dot"></span>
+              Gustavo · Fundador
+            </span>
+            <span className="hero__video-tag">▶ Aperta play</span>
           </div>
-          <a
-            className="btn btn--accent btn-xl btn-block"
-            href={wappUrl}
-            target="_blank"
-            rel="noreferrer"
-            style={{ marginTop: 8 }}
-          >
-            Agendar agora pelo WhatsApp
-            <Icon name="arrowRight" size={16} />
-          </a>
         </aside>
       </div>
     </section>
