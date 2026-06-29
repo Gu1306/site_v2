@@ -19,6 +19,13 @@ const episodes: Episode[] = [
   // ↓ O PRIMEIRO da lista é sempre o destaque. Para adicionar um novo episódio,
   //   basta colar um novo objeto aqui no TOPO do array.
   {
+    youtubeId: "mj84l_XH-A4",
+    title: "EP 11 — Porto Alegre vs. Rio: Qual é a Melhor Maratona do Brasil?",
+    guest: "Lívia Dias, Gustavo Garbelline (For One) e Paulo Galvão (Corre Galva)",
+    description:
+      "Bate-papo de peso sobre as duas maratonas mais emblemáticas do Brasil: a Internacional de Porto Alegre e a Maratona do Rio, ambas recém-realizadas. Lívia Dias relembra sua primeira meia maratona em Porto Alegre, enquanto Gustavo Garbelline e Paulo Galvão — que correram as duas provas — comparam percursos, energia, organização e emoção. Treinamento, mentalidade e as histórias por trás de cada prova.",
+  },
+  {
     youtubeId: "ASQJVCNmqJ0",
     spotifyUrl: "https://open.spotify.com/episode/4hGBdijnPhBEP5ThjXTMmw",
     title: "EP 10 — Série Assessorias de RP – Rangel Racing Team",
