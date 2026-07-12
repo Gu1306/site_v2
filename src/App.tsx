@@ -45,6 +45,7 @@ import BandaIliotibial from "./pages/BandaIliotibial";
 import FraturaEstresse from "./pages/FraturaEstresse";
 import LandingPerformance from "./pages/LandingPerformance";
 import ConhecaCareFit from "./pages/ConhecaCareFit";
+import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -90,6 +91,7 @@ const App = () => (
           <Route path="/fratura-por-estresse-ribeirao-preto" element={<FraturaEstresse />} />
           <Route path="/performance-ribeirao-preto" element={<LandingPerformance />} />
           <Route path="/conheca-a-carefit" element={<ConhecaCareFit />} />
+          <Route path="/feedback" element={<Feedback />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
