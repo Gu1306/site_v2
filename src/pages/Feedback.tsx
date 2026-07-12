@@ -14,7 +14,7 @@ import logoCareFit from "@/assets/carefit-logo.png";
  *    estrelas). Formato típico: https://g.page/r/XXXXXXXX/review
  * ========================================================================= */
 const N8N_WEBHOOK_URL = "https://n8n.carefitrunbase.com.br/webhook/carefit-feedback";
-const GOOGLE_REVIEW_URL = "https://g.page/r/COLOCAR_ID_DO_GOOGLE/review";
+const GOOGLE_REVIEW_URL = "https://g.page/r/CfIfJAC5di2EEBM/review";
 
 interface Option {
   emoji: string;
