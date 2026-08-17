@@ -5,11 +5,32 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import nataliaFoto from "@/assets/natalia_foto.jpg";
 import gustavoFoto from "@/assets/gustavo_foto.jpg";
 import { CountdownTimer } from "@/components/CountdownTimer";
+
+// ─────────────────────────────────────────────────────────────
+// PRÓXIMA TURMA DO ICE MIND
+// Para anunciar uma nova edição, altere SÓ este bloco.
+// Enquanto `data` estiver no passado, a página entra em modo
+// "lista de espera": some o contador, as datas e o preço fixo,
+// e o CTA passa a ser o WhatsApp. Assim ela nunca anuncia
+// um evento que já aconteceu.
+// ─────────────────────────────────────────────────────────────
+const EVENTO = {
+  data: new Date("2026-09-20T08:15:00"),
+  dataLabel: "20 de Setembro de 2026",
+  chamadaDia: "Domingo! Venha começar um domingo diferente",
+  horario: "08:15 às 10:30 (2h15 de Imersão)",
+  vagas: "Máximo 10 Participantes",
+  preco: "R$349",
+};
+
+const WHATSAPP_LISTA_ESPERA =
+  "https://api.whatsapp.com/send?phone=5516996008849&text=Ol%C3%A1!%20Quero%20entrar%20na%20lista%20de%20espera%20da%20pr%C3%B3xima%20turma%20do%20Ice%20Mind%20Experience";
+
 const IceMindExperience = () => {
   const agendamentoLink = "https://calendar.google.com/calendar/appointments/schedules/AcZssZ2npLe6qCUpbwJTGStwst0pzCITxu_FuSzFO5QwrZ7_iP4JlY5pVfxbZ-prFUTT_moZve7sqC00?gv=true";
 
-  // Data do evento: 15 de Março de 2026 às 08:15
-  const eventDate = new Date("2026-03-15T08:15:00");
+  const eventDate = EVENTO.data;
+  const turmaAberta = eventDate.getTime() > Date.now();
 
   // Carrega o script do Instagram para embeds
   useEffect(() => {
@@ -58,37 +79,52 @@ const IceMindExperience = () => {
 
           </p>
             
-            <CountdownTimer targetDate={eventDate} />
-            
+            {turmaAberta && <CountdownTimer targetDate={eventDate} />}
+
             {/* Event Info Badges */}
             <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 mb-8">
-              <div className="flex flex-col items-center gap-1 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 md:w-5 md:h-5 text-[#E8933D]" />
-                  <span className="text-white text-sm md:text-base font-medium">15 de Março de 2026</span>
+              {turmaAberta ? (
+                <div className="flex flex-col items-center gap-1 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 md:w-5 md:h-5 text-[#E8933D]" />
+                    <span className="text-white text-sm md:text-base font-medium">{EVENTO.dataLabel}</span>
+                  </div>
+                  <span className="text-white/70 text-xs md:text-sm">{EVENTO.chamadaDia}</span>
                 </div>
-                <span className="text-white/70 text-xs md:text-sm">Domingo! Venha começar um domingo diferente</span>
-              </div>
+              ) : (
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
+                  <Calendar className="w-4 h-4 md:w-5 md:h-5 text-[#E8933D]" />
+                  <span className="text-white text-sm md:text-base font-medium">Próxima turma em definição</span>
+                </div>
+              )}
               <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
                 <Clock className="w-4 h-4 md:w-5 md:h-5 text-[#E8933D]" />
-                <span className="text-white text-sm md:text-base font-medium">08:15 às 10:30 (2h15 de Imersão)</span>
+                <span className="text-white text-sm md:text-base font-medium">{EVENTO.horario}</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
                 <Users className="w-4 h-4 md:w-5 md:h-5 text-[#E8933D]" />
-                <span className="text-white text-sm md:text-base font-medium">Máximo 10 Participantes</span>
+                <span className="text-white text-sm md:text-base font-medium">{EVENTO.vagas}</span>
               </div>
             </div>
-            
-            <Button size="lg" className="bg-[#E8933D] hover:bg-[#d4832f] text-white text-sm md:text-lg px-6 md:px-10 py-5 md:py-6 rounded-full font-bold shadow-lg shadow-[#E8933D]/30 transition-all hover:scale-105" asChild>
-              <a href="#agendamento" onClick={e => {
-              e.preventDefault();
-              document.getElementById("agendamento")?.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-              });
-            }}>GARANTIR MINHA VAGA POR R$349<ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
-              </a>
-            </Button>
+
+            {turmaAberta ? (
+              <Button size="lg" className="bg-[#E8933D] hover:bg-[#d4832f] text-white text-sm md:text-lg px-6 md:px-10 py-5 md:py-6 rounded-full font-bold shadow-lg shadow-[#E8933D]/30 transition-all hover:scale-105" asChild>
+                <a href="#agendamento" onClick={e => {
+                e.preventDefault();
+                document.getElementById("agendamento")?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start"
+                });
+              }}>GARANTIR MINHA VAGA POR {EVENTO.preco}<ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
+                </a>
+              </Button>
+            ) : (
+              <Button size="lg" className="bg-[#E8933D] hover:bg-[#d4832f] text-white text-sm md:text-lg px-6 md:px-10 py-5 md:py-6 rounded-full font-bold shadow-lg shadow-[#E8933D]/30 transition-all hover:scale-105" asChild>
+                <a href={WHATSAPP_LISTA_ESPERA} target="_blank" rel="noopener noreferrer">
+                  ENTRAR NA LISTA DE ESPERA<ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
+                </a>
+              </Button>
+            )}
           </div>
         </div>
         
@@ -575,13 +611,19 @@ const IceMindExperience = () => {
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-bold text-[#3D3D3D] mb-4">
-                Agende Sua <span className="text-[#E8933D]">Imersão</span>
+                {turmaAberta ? (
+                  <>Agende Sua <span className="text-[#E8933D]">Imersão</span></>
+                ) : (
+                  <>Entre na Lista de <span className="text-[#E8933D]">Espera</span></>
+                )}
               </h2>
               <p className="text-xl text-[#3D3D3D]/70">
-                Escolha a data e horário que melhor se encaixa na sua agenda.
+                {turmaAberta
+                  ? "Escolha a data e horário que melhor se encaixa na sua agenda."
+                  : "A data da próxima turma ainda está sendo definida. Deixe seu nome com a gente e você é avisado antes de abrirmos as vagas."}
               </p>
             </div>
-            
+
             {/* Event Info Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <div className="bg-white rounded-xl p-5 shadow-lg flex items-center gap-4 border-l-4 border-[#E8933D]">
@@ -590,11 +632,17 @@ const IceMindExperience = () => {
                 </div>
                 <div>
                   <p className="text-sm text-[#3D3D3D]/60 font-medium">Data do Evento</p>
-                  <p className="text-lg font-bold text-[#3D3D3D]">15 de Março de 2026</p>
-                  <p className="text-sm text-[#E8933D] font-medium">Domingo! Venha começar um domingo diferente</p>
+                  {turmaAberta ? (
+                    <>
+                      <p className="text-lg font-bold text-[#3D3D3D]">{EVENTO.dataLabel}</p>
+                      <p className="text-sm text-[#E8933D] font-medium">{EVENTO.chamadaDia}</p>
+                    </>
+                  ) : (
+                    <p className="text-lg font-bold text-[#3D3D3D]">Próxima turma em definição</p>
+                  )}
                 </div>
               </div>
-              
+
               <div className="bg-white rounded-xl p-5 shadow-lg flex items-center gap-4 border-l-4 border-[#2C5F6F]">
                 <div className="w-12 h-12 bg-[#2C5F6F]/10 rounded-full flex items-center justify-center flex-shrink-0">
                   <Clock className="w-6 h-6 text-[#2C5F6F]" />
@@ -616,12 +664,27 @@ const IceMindExperience = () => {
               </div>
             </div>
             
-            {/* Google Calendar Iframe */}
-            <div className="bg-white rounded-2xl shadow-xl p-4 md:p-8">
-              <iframe src={agendamentoLink} style={{
-              border: 0
-            }} width="100%" height="600" frameBorder="0" title="Agendamento Ice Mind Experience" />
-            </div>
+            {turmaAberta ? (
+              /* Google Calendar Iframe */
+              <div className="bg-white rounded-2xl shadow-xl p-4 md:p-8">
+                <iframe src={agendamentoLink} style={{
+                border: 0
+              }} width="100%" height="600" frameBorder="0" title="Agendamento Ice Mind Experience" loading="lazy" />
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 text-center">
+                <p className="text-lg text-[#3D3D3D]/80 mb-8 max-w-xl mx-auto">
+                  As turmas do Ice Mind são pequenas — no máximo 10 pessoas — e costumam encher rápido.
+                  Quem está na lista de espera recebe a data e o link de inscrição antes de todo mundo.
+                </p>
+                <Button size="lg" className="bg-green-500 hover:bg-green-600 text-white px-8 py-6 rounded-full font-semibold shadow-lg transition-all hover:scale-105" asChild>
+                  <a href={WHATSAPP_LISTA_ESPERA} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="mr-2 h-5 w-5" />
+                    Quero ser avisado da próxima turma
+                  </a>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </section>

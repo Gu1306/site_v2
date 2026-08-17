@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { Heart, Zap, Target, Users, MapPin, Calendar, Star, Award, Clock, CheckCircle, Sparkles, Activity, Utensils, Dumbbell, Timer, Stethoscope, Shield, Microscope, TreeDeciduous, UserCheck, Layers } from "lucide-react";
+import { Heart, Zap, Target, Users, MapPin, Star, Award, CheckCircle, Sparkles, Activity, Dumbbell, Timer, Stethoscope, Microscope, TreeDeciduous, UserCheck, Layers } from "lucide-react";
 import { Link } from "react-router-dom";
 import Footer from "@/components/Footer";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
@@ -34,9 +34,9 @@ const Index = () => {
   }, {
     icon: Target,
     title: "Nutrição",
-    subtitle: "Nutrição esportiva para corredores e triatletas",
-    description: "Nutrição esportiva especializada para corredores, otimizando rendimento e acelerando a recuperação com acompanhamento individualizado.",
-    produtos: "Presente em: Nutrição, Jornada Propósito"
+    subtitle: "Orientação nutricional aplicada à corrida",
+    description: "Estratégia alimentar orientada dentro do acompanhamento, para sustentar o volume de treino e acelerar a recuperação.",
+    produtos: "Presente em: Jornada Propósito"
   }, {
     icon: Users,
     title: "Mente",
@@ -136,7 +136,7 @@ Viva com equilíbrio.</span>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-montserrat font-bold text-primary mb-6">
-              Nossas 6 Soluções Complementares para Cada Etapa da Sua Jornada
+              Nossas 5 Soluções Complementares para Cada Etapa da Sua Jornada
             </h2>
             <p className="text-xl text-primary/80 max-w-4xl mx-auto font-poppins">
               Na CareFit Run Base, entendemos que cada corredor tem necessidades únicas. Por isso, desenvolvemos um portfólio de produtos que trabalham juntos para sua transformação completa.
@@ -220,26 +220,6 @@ Viva com equilíbrio.</span>
                 </div>
                 <Button className="w-full bg-primary hover:bg-primary/90 text-white font-montserrat font-semibold" onClick={handleWhatsApp}>
                   Conhecer Fast Recovery
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Nutrição para Corredores */}
-            <Card className="group bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col">
-              <CardContent className="p-8 flex flex-col flex-1">
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Utensils className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-2xl font-montserrat font-bold text-primary mb-4">Nutrição para Corredores</h3>
-                <p className="text-primary/70 font-poppins leading-relaxed mb-4 flex-1">
-                  Consultas com nutricionistas especializados em corrida. Plano nutricional personalizado com acompanhamento contínuo via bioimpedância a cada sessão, ajustando sua alimentação conforme sua evolução.
-                </p>
-                <div className="space-y-2 mb-6">
-                  <p className="text-secondary font-montserrat font-semibold text-sm">✓ Nutrição personalizada com acompanhamento contínuo</p>
-                  <p className="text-primary/60 font-poppins text-sm">Ideal para: Corredores que querem otimizar rendimento através da alimentação</p>
-                </div>
-                <Button className="w-full bg-primary hover:bg-primary/90 text-white font-montserrat font-semibold" onClick={handleWhatsApp}>
-                  Agendar Consulta Nutricional
                 </Button>
               </CardContent>
             </Card>
@@ -444,7 +424,7 @@ Viva com equilíbrio.</span>
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <Card className="bg-white border-0 shadow-lg overflow-hidden">
               <CardContent className="p-6 text-center">
                 <div className="aspect-[9/16] w-full max-w-[200px] mx-auto mb-6 rounded-xl overflow-hidden shadow-md">
@@ -454,6 +434,7 @@ Viva com equilíbrio.</span>
                     className="w-full h-full"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
+                    loading="lazy"
                   />
                 </div>
                 <h3 className="text-2xl font-montserrat font-bold text-primary mb-2">Gustavo Rosa</h3>
@@ -471,6 +452,7 @@ Viva com equilíbrio.</span>
                     className="w-full h-full"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
+                    loading="lazy"
                   />
                 </div>
                 <h3 className="text-2xl font-montserrat font-bold text-primary mb-2">Lívia Dias</h3>
@@ -479,37 +461,15 @@ Viva com equilíbrio.</span>
               </CardContent>
             </Card>
 
+            {/* TODO: trocar o avatar pela foto/vídeo de apresentação da Lais quando disponível */}
             <Card className="bg-white border-0 shadow-lg overflow-hidden">
               <CardContent className="p-6 text-center">
-                <div className="aspect-[9/16] w-full max-w-[200px] mx-auto mb-6 rounded-xl overflow-hidden shadow-md">
-                  <iframe
-                    src="https://www.youtube.com/embed/GVK59sOcLa8"
-                    title="Guilherme Coelho"
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
+                <div className="aspect-[9/16] w-full max-w-[200px] mx-auto mb-6 rounded-xl overflow-hidden shadow-md bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                  <span className="text-6xl font-montserrat font-bold text-white/90">L</span>
                 </div>
-                <h3 className="text-2xl font-montserrat font-bold text-primary mb-2">Guilherme Coelho</h3>
-                <p className="text-secondary font-montserrat font-semibold mb-4">Educador Físico</p>
-                <p className="text-primary/70 font-poppins text-sm">Corredor dos rápidos e especialista em fortalecimento funcional para corredores, focado em construir a base que sustenta cada quilômetro da jornada.</p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white border-0 shadow-lg overflow-hidden">
-              <CardContent className="p-6 text-center">
-                <div className="aspect-[9/16] w-full max-w-[200px] mx-auto mb-6 rounded-xl overflow-hidden shadow-md">
-                  <iframe
-                    src="https://www.youtube.com/embed/LexNeth1JUg"
-                    title="Arthur Angelotti"
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-                <h3 className="text-2xl font-montserrat font-bold text-primary mb-2">Arthur Angelotti</h3>
-                <p className="text-secondary font-montserrat font-semibold mb-4">Nutricionista Esportivo</p>
-                <p className="text-primary/70 font-poppins text-sm">Maratonista e especialista em nutrição para performance, desenvolvendo estratégias alimentares que transformam treinos em conquistas.</p>
+                <h3 className="text-2xl font-montserrat font-bold text-primary mb-2">Lais</h3>
+                <p className="text-secondary font-montserrat font-semibold mb-4">Fisioterapeuta Esportiva</p>
+                <p className="text-primary/70 font-poppins text-sm">Mais recente integrante do time, cuida do atendimento diário dos corredores na base — avaliação, reabilitação e recovery.</p>
               </CardContent>
             </Card>
           </div>

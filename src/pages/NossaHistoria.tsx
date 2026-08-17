@@ -8,6 +8,7 @@ import gustavoFoto from "@/assets/gustavo_foto.jpg";
 import liviaFoto from "@/assets/livia_foto.jpg";
 import guilhermeFoto from "@/assets/guilherme_foto.jpg";
 import arthurFoto from "@/assets/arthur_foto.jpg";
+import Footer from "@/components/Footer";
 
 // Timeline Item Component
 interface TimelineItemProps {
@@ -897,7 +898,7 @@ const NossaHistoria = () => {
         </div>
       </section>
 
-      {/* PÁGINA COMPLETA ✅ PRONTA PARA PRODUÇÃO */}
+      <Footer />
     </main>
   );
 };

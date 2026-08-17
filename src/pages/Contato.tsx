@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, MapPin, Clock, Phone, Mail, Calendar } from "lucide-react";
+import Footer from "@/components/Footer";
 const Contato = () => {
   return <div className="min-h-screen pt-16">
       {/* Hero Section */}
@@ -228,6 +229,7 @@ const Contato = () => {
           </div>
         </div>
       </section>
+      <Footer />
     </div>;
 };
 export default Contato;

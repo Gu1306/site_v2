@@ -8,6 +8,7 @@ import gustavoFoto from "@/assets/gustavo_foto.jpg";
 import liviaFoto from "@/assets/livia_foto.jpg";
 import guilhermeFoto from "@/assets/guilherme_foto.jpg";
 import arthurFoto from "@/assets/arthur_foto.jpg";
+import Footer from "@/components/Footer";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -2211,7 +2212,7 @@ const CicloCompleto = () => {
       {/* SEÇÃO 13: CTA FINAL */}
       <Section13CTAFinal />
 
-      {/* PÁGINA COMPLETA ✅ PRONTA PARA PRODUÇÃO */}
+      <Footer />
     </main>
   );
 };

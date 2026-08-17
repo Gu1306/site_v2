@@ -23,11 +23,6 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/nutricao-para-corredores-ribeirao-preto" className="text-sm text-primary-foreground/70 hover:text-accent transition-colors">
-                  Nutrição para Corredores
-                </Link>
-              </li>
-              <li>
                 <Link to="/recovery-corredores-ribeirao-preto" className="text-sm text-primary-foreground/70 hover:text-accent transition-colors">
                   Recovery
                 </Link>

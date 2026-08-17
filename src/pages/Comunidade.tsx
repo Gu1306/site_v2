@@ -1,336 +1,241 @@
+import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Users, Heart, MessageSquare, Instagram, MapPin, Clock, Trophy } from "lucide-react";
+import { Mic, Play, Activity, BookOpen, Instagram, MessageSquare, ArrowRight } from "lucide-react";
+import Footer from "@/components/Footer";
+import { episodes, ytThumb, ytWatch } from "@/data/episodes";
+import maratonaGrupo from "@/assets/maratona_grupo.jpg";
+
+const guiasLesoes = [
+  { nome: "Lesões na corrida: o panorama completo", href: "/lesoes-na-corrida", desc: "As lesões mais comuns em corredores, por que acontecem e o que fazer em cada caso." },
+  { nome: "Canelite", href: "/canelite-ribeirao-preto", desc: "Dor na canela por sobrecarga repetitiva: causas, sinais de alerta e tratamento." },
+  { nome: "Fascite plantar", href: "/fascite-plantar-ribeirao-preto", desc: "Dor no calcanhar ao levantar da cama? Entenda a fáscia plantar e como tratá-la." },
+  { nome: "Tendinite do Aquiles", href: "/tendinite-aquiles-ribeirao-preto", desc: "O tendão mais forte do corpo também é o que mais sofre com aumento rápido de carga." },
+  { nome: "Dor no joelho", href: "/dor-no-joelho-corrida-ribeirao-preto", desc: "A queixa nº 1 do corredor. Quase nunca o problema está no joelho." },
+  { nome: "Banda iliotibial", href: "/banda-iliotibial-ribeirao-preto", desc: "Dor lateral no joelho, ligada a fraqueza de glúteo e volume de treino." },
+  { nome: "Fratura por estresse", href: "/fratura-por-estresse-ribeirao-preto", desc: "A lesão que exige parar. Como reconhecer cedo e evitar meses fora." },
+  { nome: "Prevenção de lesões", href: "/prevencao-de-lesoes-na-corrida-ribeirao-preto", desc: "O que realmente reduz risco de lesão — e o que é mito na corrida." },
+];
+
+const guiasPerformance = [
+  { nome: "Fisioterapia para corredores", href: "/fisioterapia-para-corredores-ribeirao-preto", desc: "Como funciona a fisioterapia esportiva pensada para quem corre." },
+  { nome: "Avaliação do corredor", href: "/avaliacao-do-corredor-ribeirao-preto", desc: "O que medimos antes de montar qualquer plano — e por quê." },
+  { nome: "Fortalecimento para corredores", href: "/fortalecimento-para-corredores-ribeirao-preto", desc: "Força não é hipertrofia. É o que sustenta cada quilômetro." },
+  { nome: "Recovery para corredores", href: "/recovery-corredores-ribeirao-preto", desc: "Gelo, calor, compressão, liberação: o que cada técnica faz de verdade." },
+  { nome: "Biomecânica da corrida", href: "/biomecanica-da-corrida-ribeirao-preto", desc: "Cadência, pisada, tronco: o que muda a economia de corrida." },
+  { nome: "Treinamento para maratona", href: "/treinamento-para-maratona-ribeirao-preto", desc: "Do volume à recuperação: como chegar inteiro nos 42 km." },
+];
 
 const Comunidade = () => {
   const handleWhatsApp = () => {
     window.open("https://api.whatsapp.com/send?phone=5516996008849", "_blank");
   };
 
-  const eventos = [
-    {
-      titulo: "Workshop: Nutrição para Corredores",
-      data: "15 de Dezembro, 2024",
-      horario: "9h às 12h",
-      local: "CareFit RunBase",
-      vagas: "15 vagas",
-      status: "Inscrições Abertas"
-    },
-    {
-      titulo: "Corrida da Comunidade CareFit",
-      data: "22 de Dezembro, 2024", 
-      horario: "6h30",
-      local: "Parque Curupira",
-      vagas: "Ilimitado",
-      status: "Em Breve"
-    },
-    {
-      titulo: "Palestra: Mindset do Corredor",
-      data: "5 de Janeiro, 2025",
-      horario: "19h às 21h",
-      local: "CareFit RunBase",
-      vagas: "20 vagas",
-      status: "Em Breve"
-    }
-  ];
+  const handleInstagram = () => {
+    window.open("https://instagram.com/carefitrunbase", "_blank");
+  };
 
-  const parcerias = [
-    {
-      nome: "Team Ribeirão Running",
-      tipo: "Assessoria Esportiva",
-      descricao: "Parceria para treinos específicos e preparação para provas"
-    },
-    {
-      nome: "Ribeirão Runners",
-      tipo: "Grupo de Corrida",
-      descricao: "Encontros semanais e participação em eventos regionais"
-    },
-    {
-      nome: "Maratona de Ribeirão Preto",
-      tipo: "Evento Oficial",
-      descricao: "Apoio técnico e suporte aos participantes"
-    },
-    {
-      nome: "Ultra Trail Ribeirão",
-      tipo: "Prova de Trail",
-      descricao: "Preparação específica para corridas de montanha"
+  useEffect(() => {
+    document.title = "Conteúdo para corredores — guias, lesões e CareFit Cast | CareFit Run Base";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) {
+      meta.setAttribute(
+        "content",
+        "Guias sobre lesões na corrida, recovery, fortalecimento e performance, além dos episódios do CareFit Cast. Conteúdo da CareFit Run Base, em Ribeirão Preto."
+      );
     }
-  ];
+  }, []);
 
-  const depoimentos = [
-    {
-      nome: "Maria Silva",
-      evento: "Maratona de São Paulo 2024",
-      texto: "A preparação na CareFit foi fundamental. Terminei minha primeira maratona sem dor e com um sorriso no rosto!",
-      tempo: "4h15min"
-    },
-    {
-      nome: "João Santos",
-      evento: "Ultra Trail 50k",
-      texto: "O fortalecimento e recovery fizeram toda diferença. Consegui completar meu primeiro ultra sem lesões.",
-      tempo: "5h30min"
-    },
-    {
-      nome: "Ana Costa",
-      evento: "Meia Maratona RP",
-      texto: "Não apenas melhorei meu tempo, mas descobri o prazer de correr sem dor. A CareFit mudou minha relação com a corrida.",
-      tempo: "1h45min"
-    }
-  ];
+  const ultimosEpisodios = episodes.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <div 
+      {/* Hero */}
+      <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('/src/assets/maratona_grupo.jpg')`,
-          }}
+          style={{ backgroundImage: `url(${maratonaGrupo})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-transparent" />
-        
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-primary/60" />
+
         <div className="relative z-10 container mx-auto px-4 text-center text-white">
           <Badge className="mb-6 bg-secondary hover:bg-secondary/90 text-secondary-foreground text-sm px-4 py-2">
-            Juntos Somos Mais Fortes
+            Conteúdo CareFit
           </Badge>
-          
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-montserrat font-bold mb-6 leading-tight">
-            A comunidade que<br />
-            <span className="text-earth">te acolhe</span>
+          <h1 className="text-4xl md:text-6xl font-montserrat font-bold mb-6 leading-tight">
+            Tudo que a gente aprendeu<br />
+            <span className="text-earth">correndo com você</span>
           </h1>
-          
-          <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed font-poppins font-light">
-            Mais que um centro de tratamento, somos o HUB da comunidade de corredores<br />
-            de Ribeirão Preto. Aqui você encontra apoio, motivação e amizades para a vida toda.
+          <p className="text-lg md:text-xl max-w-3xl mx-auto leading-relaxed font-poppins font-light">
+            Guias sobre lesões, recovery e performance escritos pela nossa equipe, mais os episódios
+            do CareFit Cast. Conhecimento aberto para qualquer corredor — cliente ou não.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg"
-              className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8 py-4 text-lg font-montserrat font-semibold"
-              onClick={handleWhatsApp}
-            >
-              Faça Parte da Comunidade
-            </Button>
-            <Button 
-              variant="outline"
-              size="lg"
-              className="border-2 border-white text-white hover:bg-white hover:text-primary px-8 py-4 text-lg font-montserrat font-semibold"
-            >
-              <Instagram className="mr-2 h-5 w-5" />
-              Siga no Instagram
-            </Button>
-          </div>
         </div>
       </section>
 
-      {/* Próximos Eventos */}
+      {/* CareFit Cast */}
       <section className="py-20 bg-warm">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-montserrat font-bold text-primary mb-6">
-              Próximos Eventos
+          <div className="text-center mb-14">
+            <Mic className="h-10 w-10 text-secondary mx-auto mb-4" />
+            <h2 className="text-3xl md:text-4xl font-montserrat font-bold text-primary mb-4">
+              CareFit Cast
             </h2>
-            <p className="text-xl text-primary/80 max-w-3xl mx-auto font-poppins">
-              Workshops, corridas e encontros para fortalecer nossa comunidade
+            <p className="text-lg text-primary/80 max-w-3xl mx-auto font-poppins">
+              Conversas com atletas, treinadores e assessorias sobre treino, mentalidade e as histórias
+              por trás de cada linha de chegada.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            {eventos.map((evento, index) => (
-              <Card key={index} className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <Badge 
-                      className={`${evento.status === 'Inscrições Abertas' 
-                        ? 'bg-secondary text-secondary-foreground' 
-                        : 'bg-earth text-earth-foreground'
-                      }`}
-                    >
-                      {evento.status}
-                    </Badge>
-                    <Calendar className="h-5 w-5 text-primary" />
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {ultimosEpisodios.map((ep) => (
+              <Card key={ep.youtubeId} className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col">
+                <a
+                  href={ytWatch(ep.youtubeId)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative aspect-video overflow-hidden group"
+                >
+                  <img
+                    src={ytThumb(ep.youtubeId)}
+                    alt={ep.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-primary/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Play className="w-12 h-12 text-white" />
                   </div>
-                  
-                  <h3 className="text-xl font-montserrat font-bold text-primary mb-4">{evento.titulo}</h3>
-                  
-                  <div className="space-y-2 text-primary/70 font-poppins">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      <span>{evento.data}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      <span>{evento.horario}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      <span>{evento.local}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      <span>{evento.vagas}</span>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    className="w-full mt-6 bg-primary hover:bg-primary/90 text-primary-foreground"
-                    onClick={handleWhatsApp}
-                  >
-                    Inscrever-se
-                  </Button>
+                </a>
+                <CardContent className="p-6 flex flex-col flex-1">
+                  <h3 className="text-lg font-montserrat font-bold text-primary mb-2 line-clamp-2">
+                    {ep.title}
+                  </h3>
+                  <p className="text-sm text-secondary font-montserrat font-semibold mb-3">
+                    {ep.guest}
+                  </p>
+                  <p className="text-sm text-primary/70 font-poppins leading-relaxed line-clamp-3 flex-1">
+                    {ep.description}
+                  </p>
                 </CardContent>
               </Card>
             ))}
           </div>
+
+          <div className="text-center mt-10">
+            <Link to="/carefit-cast">
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg font-montserrat font-semibold">
+                Ver todos os {episodes.length} episódios
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Parcerias */}
+      {/* Guias de lesões */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-montserrat font-bold text-primary mb-6">
-              Nossas Parcerias
+          <div className="text-center mb-14">
+            <Activity className="h-10 w-10 text-accent mx-auto mb-4" />
+            <h2 className="text-3xl md:text-4xl font-montserrat font-bold text-primary mb-4">
+              Guias de lesões na corrida
             </h2>
-            <p className="text-xl text-primary/80 max-w-3xl mx-auto font-poppins">
-              Conectados com os principais grupos e eventos de corrida da região
+            <p className="text-lg text-primary/80 max-w-3xl mx-auto font-poppins">
+              O que dói, por que dói e o que fazer. Escrito para corredor entender, não para impressionar.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {parcerias.map((parceria, index) => (
-              <Card key={index} className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                      <Heart className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-montserrat font-bold text-primary mb-2">{parceria.nome}</h3>
-                      <Badge className="mb-3 bg-earth text-earth-foreground">{parceria.tipo}</Badge>
-                      <p className="text-primary/70 font-poppins">{parceria.descricao}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            {guiasLesoes.map((guia) => (
+              <Link key={guia.href} to={guia.href} className="group">
+                <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 h-full">
+                  <CardContent className="p-6 flex flex-col h-full">
+                    <h3 className="text-lg font-montserrat font-bold text-primary mb-2">{guia.nome}</h3>
+                    <p className="text-sm text-primary/70 font-poppins leading-relaxed flex-1">{guia.desc}</p>
+                    <span className="text-accent font-montserrat font-semibold text-sm mt-4 inline-flex items-center gap-1">
+                      Ler guia <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Histórias de Sucesso */}
-      <section className="py-20 bg-primary text-white">
+      {/* Guias de performance */}
+      <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-montserrat font-bold mb-6">
-              Histórias da Nossa Comunidade
+          <div className="text-center mb-14">
+            <BookOpen className="h-10 w-10 text-secondary mx-auto mb-4" />
+            <h2 className="text-3xl md:text-4xl font-montserrat font-bold text-primary mb-4">
+              Guias de treino, recovery e performance
             </h2>
-            <p className="text-xl opacity-90 max-w-3xl mx-auto font-poppins">
-              Conquistas reais de pessoas reais que fazem parte da família CareFit
+            <p className="text-lg text-primary/80 max-w-3xl mx-auto font-poppins">
+              Como a gente pensa cada peça do cuidado ao corredor — e como você pode aplicar.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            {depoimentos.map((depoimento, index) => (
-              <Card key={index} className="bg-white/10 backdrop-blur border-0 text-white">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-earth rounded-full flex items-center justify-center">
-                      <Trophy className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <h4 className="font-montserrat font-semibold">{depoimento.nome}</h4>
-                      <p className="text-sm opacity-80">{depoimento.evento}</p>
-                    </div>
-                  </div>
-                  
-                  <p className="font-poppins italic mb-4 leading-relaxed">"{depoimento.texto}"</p>
-                  
-                  <div className="text-center">
-                    <Badge className="bg-earth text-earth-foreground font-montserrat font-bold">
-                      Tempo: {depoimento.tempo}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {guiasPerformance.map((guia) => (
+              <Link key={guia.href} to={guia.href} className="group">
+                <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 h-full">
+                  <CardContent className="p-6 flex flex-col h-full">
+                    <h3 className="text-lg font-montserrat font-bold text-primary mb-2">{guia.nome}</h3>
+                    <p className="text-sm text-primary/70 font-poppins leading-relaxed flex-1">{guia.desc}</p>
+                    <span className="text-secondary font-montserrat font-semibold text-sm mt-4 inline-flex items-center gap-1">
+                      Ler guia <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Feed do Instagram Simulado */}
-      <section className="py-20 bg-warm">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-montserrat font-bold text-primary mb-6">
-              Acompanhe Nossa Jornada
-            </h2>
-            <p className="text-xl text-primary/80 max-w-3xl mx-auto font-poppins">
-              Siga @carefitrunbase no Instagram e veja o dia a dia da nossa comunidade
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {[1, 2, 3, 4, 5, 6].map((index) => (
-              <Card key={index} className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                <div className="aspect-square bg-gradient-to-br from-primary via-secondary to-earth flex items-center justify-center">
-                  <Instagram className="h-12 w-12 text-white" />
-                </div>
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary/70 font-poppins">Post do Instagram #{index}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="text-center mt-8">
-            <Button 
+      {/* Comunidade / CTA */}
+      <section className="py-20 bg-gradient-to-r from-primary via-secondary to-primary text-white">
+        <div className="container mx-auto px-4 text-center max-w-3xl">
+          <h2 className="text-3xl md:text-4xl font-montserrat font-bold mb-6">
+            O dia a dia acontece no Instagram
+          </h2>
+          <p className="text-lg mb-4 font-poppins opacity-90">
+            É lá que a gente publica bastidor de treino, prova, recovery e a rotina real da base.
+            Se você quer conversar com a equipe, o WhatsApp está sempre aberto.
+          </p>
+          <p className="text-base mb-8 font-poppins opacity-75">
+            Prefere conhecer a comunidade de perto?{" "}
+            <Link to="/comunidade-carefit" className="underline hover:text-earth transition-colors">
+              Veja como funciona a Comunidade CareFit
+            </Link>.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
               size="lg"
-              className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8 py-4 text-lg font-montserrat font-semibold"
-              onClick={() => window.open("https://instagram.com/carefitrunbase", "_blank")}
+              variant="outline"
+              className="bg-white/10 border-2 border-white text-white hover:bg-white hover:text-primary px-8 py-4 text-lg font-montserrat font-semibold"
+              onClick={handleInstagram}
             >
               <Instagram className="mr-2 h-5 w-5" />
               Seguir no Instagram
             </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Final */}
-      <section className="py-20 bg-gradient-to-r from-primary via-secondary to-primary text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-montserrat font-bold mb-6">
-            Pronto para fazer parte da família?
-          </h2>
-          <p className="text-xl mb-8 max-w-3xl mx-auto font-poppins opacity-90">
-            Você não precisa correr sozinho. Nossa comunidade te acolhe,<br />
-            te motiva e celebra cada conquista junto com você.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
+            <Button
               size="lg"
               variant="outline"
-              className="border-2 border-white text-white hover:bg-white hover:text-primary px-8 py-4 text-lg font-montserrat font-semibold"
+              className="bg-white/10 border-2 border-white text-white hover:bg-white hover:text-primary px-8 py-4 text-lg font-montserrat font-semibold"
               onClick={handleWhatsApp}
             >
               <MessageSquare className="mr-2 h-5 w-5" />
               Conversar no WhatsApp
             </Button>
-            <Button 
-              size="lg"
-              variant="outline"
-              className="border-2 border-white text-white hover:bg-white hover:text-primary px-8 py-4 text-lg font-montserrat font-semibold"
-              onClick={() => window.open("https://instagram.com/carefitrunbase", "_blank")}
-            >
-              <Instagram className="mr-2 h-5 w-5" />
-              Seguir no Instagram
-            </Button>
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };

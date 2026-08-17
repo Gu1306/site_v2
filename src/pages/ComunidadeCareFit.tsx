@@ -401,7 +401,7 @@ const ComunidadeCareFit = () => {
             <Button
               size="lg"
               variant="outline"
-              className="border-2 border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-4 font-montserrat font-semibold"
+              className="bg-white/10 border-2 border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-4 font-montserrat font-semibold"
               onClick={handleAgendar}
             >
               Agendar Avaliação na CareFit Run Base

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Zap, Target, Users, Play, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Footer from "@/components/Footer";
 const Servicos = () => {
   const navigate = useNavigate();
   return <div className="min-h-screen pt-16">
@@ -319,6 +320,7 @@ const Servicos = () => {
           </div>
         </div>
       </section>
+      <Footer />
     </div>;
 };
 export default Servicos;

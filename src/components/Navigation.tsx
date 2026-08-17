@@ -35,7 +35,6 @@ const Navigation = () => {
         { name: "Avaliação do Corredor", href: "/avaliacao-do-corredor-ribeirao-preto" },
         { name: "Fortalecimento para Corredores", href: "/fortalecimento-para-corredores-ribeirao-preto" },
         { name: "Recovery para Corredores", href: "/recovery-corredores-ribeirao-preto" },
-        { name: "Nutrição para Corredores", href: "/nutricao-para-corredores-ribeirao-preto" },
         { name: "Biomecânica da Corrida", href: "/biomecanica-da-corrida-ribeirao-preto" },
         { name: "Treinamento para Maratona", href: "/treinamento-para-maratona-ribeirao-preto" },
       ],

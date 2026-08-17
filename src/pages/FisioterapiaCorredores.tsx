@@ -5,6 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { ArrowRight, Shield, Activity, Heart, CheckCircle, AlertTriangle, MessageCircle } from "lucide-react";
 
 import equipamentosFisio from "@/assets/equipamentos_fisio.jpg";
+import Footer from "@/components/Footer";
 
 const lesoes = [
   {
@@ -353,6 +354,7 @@ const FisioterapiaCorredores = () => {
           </p>
         </div>
       </section>
+      <Footer />
     </div>
   );
 };

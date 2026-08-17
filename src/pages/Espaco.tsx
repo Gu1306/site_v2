@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Footer from "@/components/Footer";
 import espaco1 from "@/assets/espaco-1.jpg";
 import espaco2 from "@/assets/espaco-2.jpg";
 import espaco3 from "@/assets/espaco-3.jpg";
@@ -154,6 +155,7 @@ const Espaco = () => {
           </Button>
         </div>
       </section>
+      <Footer />
     </div>
   );
 };
