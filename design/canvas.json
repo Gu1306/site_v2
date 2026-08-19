@@ -1,0 +1,17 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "title": "A · Jornal do 016", "x": 0, "y": 0, "w": 1280, "h": 1500 },
+    { "file": "PainelDoCorredor.dc.html", "title": "B · Painel do corredor", "x": 1400, "y": 0, "w": 1280, "h": 1180 },
+    { "file": "RevistaPetrol.dc.html", "title": "C · Revista petrol", "x": 2800, "y": 0, "w": 1280, "h": 1420 }
+  ],
+  "annotations": [
+    {
+      "id": "brief",
+      "x": 0,
+      "y": -230,
+      "w": 640,
+      "text": "Três direções para o blog virar o portal da corrida de Ribeirão.\n\nA · JORNAL DO 016 — densidade de veículo de imprensa: manchete grande, régua de última hora, agenda fixa na lateral, grade de três colunas. Aguenta volume diário sem parecer vazio.\nTradeoff: exige alimentação constante — três notícias por semana deixam a home com cara de jornal parado.\n\nB · PAINEL DO CORREDOR — feed cronológico com data à esquerda e painel fixo à direita (agenda + CTA da clínica + guias). O mais escaneável dos três e o único que já converte na própria home.\nTradeoff: menos impacto visual; parece ferramenta, não veículo.\n\nC · REVISTA PETROL — fundo escuro da marca, uma manchete dominante, poucas peças. O mais bonito e o mais 'CareFit' dos três.\nTradeoff: é o que menos aguenta volume — com dez notícias por semana vira rolagem infinita."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

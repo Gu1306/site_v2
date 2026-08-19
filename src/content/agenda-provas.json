@@ -1,0 +1,129 @@
+{
+  "_leia": "Agenda de provas do 016 e região. Fonte única: alimenta a barra lateral do blog, a home e os posts de calendário. O motor de conteúdo mantém este arquivo — ver carefit-motor-conteudo. Campo 'confirmado' só vira true quando a data foi conferida na página do organizador; false significa que veio do calendário regional e pode mudar.",
+  "atualizado": "2026-08-19",
+  "provas": [
+    {
+      "data": "2026-08-23",
+      "nome": "2ª Migalhas Run",
+      "cidade": "Ribeirão Preto",
+      "distancias": "5 km · 10 km · caminhada 4 km",
+      "detalhe": "aquecimento 6h45, largada 7h",
+      "confirmado": true,
+      "fonte": "https://www.migalhas.com.br/quentes/461310/2-edicao-da-migalhas-run-reforca-compromisso-com-a-saude"
+    },
+    {
+      "data": "2026-08-29",
+      "nome": "Santander Night Run Fever",
+      "cidade": "Ribeirão Preto",
+      "distancias": "noturna",
+      "confirmado": false
+    },
+    {
+      "data": "2026-08-30",
+      "nome": "Live! Run XP",
+      "cidade": "Ribeirão Preto",
+      "distancias": "rua",
+      "confirmado": false
+    },
+    {
+      "data": "2026-09-06",
+      "nome": "Meia Maratona Oficial de Franca",
+      "cidade": "Franca",
+      "distancias": "21 km",
+      "confirmado": false
+    },
+    {
+      "data": "2026-09-13",
+      "nome": "3ª Brunch Run",
+      "cidade": "Ribeirão Preto",
+      "distancias": "rua",
+      "confirmado": false
+    },
+    {
+      "data": "2026-09-13",
+      "nome": "Corrida Unimed Alta Mogiana",
+      "cidade": "Orlândia",
+      "distancias": "rua",
+      "confirmado": false
+    },
+    {
+      "data": "2026-09-20",
+      "nome": "Circuito das Estações — Primavera",
+      "cidade": "Ribeirão Preto",
+      "distancias": "rua",
+      "confirmado": false
+    },
+    {
+      "data": "2026-09-20",
+      "nome": "Travessia Bonfim–Ribeirão",
+      "cidade": "Ribeirão Preto",
+      "distancias": "5,7 km",
+      "confirmado": false
+    },
+    {
+      "data": "2026-09-27",
+      "nome": "Santander Track&Field Run Series — RibeirãoShopping",
+      "cidade": "Ribeirão Preto",
+      "distancias": "5 km · 10 km · 21 km",
+      "detalhe": "largada na Av. Cel. Fernando Ferreira Leite, 1540",
+      "confirmado": true,
+      "fonte": "https://www.tfsports.com.br/run-series/ribeirao-shopping-ii-2026/"
+    },
+    {
+      "data": "2026-10-03",
+      "nome": "7ª Outubro Rosa Sunset Run",
+      "cidade": "Franca",
+      "distancias": "rua",
+      "confirmado": false
+    },
+    {
+      "data": "2026-10-10",
+      "nome": "1ª Bafo Night Run",
+      "cidade": "Ribeirão Preto",
+      "distancias": "noturna",
+      "confirmado": false
+    },
+    {
+      "data": "2026-10-18",
+      "nome": "Trail Run Artesano",
+      "cidade": "Ribeirão Preto",
+      "distancias": "trail · Mata Santa Tereza",
+      "confirmado": false
+    },
+    {
+      "data": "2026-10-18",
+      "nome": "2ª Pink Running",
+      "cidade": "Ribeirão Preto",
+      "distancias": "rua",
+      "confirmado": false
+    },
+    {
+      "data": "2026-10-25",
+      "nome": "5ª Corrida Amigos Contra o Câncer",
+      "cidade": "Ribeirão Preto",
+      "distancias": "rua",
+      "confirmado": false
+    },
+    {
+      "data": "2026-11-15",
+      "nome": "Viva a Vida Savegnago",
+      "cidade": "Ribeirão Preto",
+      "distancias": "rua",
+      "confirmado": false
+    },
+    {
+      "data": "2026-11-29",
+      "nome": "Reveza Run",
+      "cidade": "Ribeirão Preto",
+      "distancias": "revezamento",
+      "confirmado": false
+    },
+    {
+      "data": "2026-11-29",
+      "nome": "5ª Botafogo Run",
+      "cidade": "Ribeirão Preto",
+      "distancias": "3 · 5 · 10 · 21 km · kids",
+      "confirmado": false
+    }
+  ]
+}

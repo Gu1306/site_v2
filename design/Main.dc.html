@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Poppins:wght@300;400;500;600&display=swap">
+  <style>
+    body { margin: 0; font-family: "Poppins", "Segoe UI", system-ui, sans-serif; }
+    a { color: #C8643D; text-decoration: none; }
+    a:hover { color: #0E3C41; }
+  </style>
+</helmet>
+
+<div style="width: 1280px; background: #F4EDE4; color: #0E3C41; padding: 0 0 64px;">
+
+  <!-- Cabeçalho do veículo -->
+  <div style="display: flex; justify-content: space-between; align-items: center; padding: 28px 64px; border-bottom: 3px solid #0E3C41;">
+    <div style="display: flex; align-items: baseline; gap: 14px;">
+      <div style="font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 30px; letter-spacing: -0.02em;">CAREFIT</div>
+      <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.22em; color: #C8643D;">O 016 QUE CORRE</div>
+    </div>
+    <div style="display: flex; gap: 30px; font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;">
+      <span>Provas</span><span>Resultados</span><span>A cidade</span><span>Treino</span><span>Cast</span>
+    </div>
+  </div>
+
+  <!-- Régua de última hora -->
+  <div style="display: flex; align-items: center; gap: 20px; padding: 12px 64px; background: #0E3C41; color: #F4EDE4;">
+    <span style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 0.18em; color: #D4A656;">AGORA</span>
+    <span style="font-size: 14px; font-weight: 300;">Migalhas Run é domingo, 7h · Track&amp;Field no RibeirãoShopping confirma 27/09 · Inscrições abertas para a Trail Run Artesano</span>
+  </div>
+
+  <!-- Manchete + coluna lateral -->
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; padding: 48px 64px 0;">
+
+    <div style="grid-column: span 2;">
+      <div style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 0.2em; color: #C8643D; margin-bottom: 16px;">CALENDÁRIO · RIBEIRÃO PRETO</div>
+      <div style="font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 62px; line-height: 1.02; letter-spacing: -0.03em; text-wrap: balance; margin-bottom: 20px;">
+        Onze provas em Ribeirão até o fim de outubro
+      </div>
+      <div style="font-size: 19px; line-height: 1.6; font-weight: 300; max-width: 62ch; margin-bottom: 24px;">
+        A cidade tem corrida quase todo fim de semana daqui até novembro — e dá para montar um trimestre inteiro sem pegar estrada. Conferimos data por data na fonte de cada organizador.
+      </div>
+      <div style="display: flex; gap: 20px; align-items: center; font-size: 13px; font-weight: 500; color: rgba(14,60,65,0.6);">
+        <span>19 de agosto</span><span>·</span><span>Equipe CareFit</span><span>·</span><span>6 min</span>
+      </div>
+      <div style="height: 320px; margin-top: 28px; background: linear-gradient(135deg, #0E3C41 0%, #14565c 100%); display: flex; align-items: flex-end; padding: 28px;">
+        <span style="color: rgba(244,237,228,0.5); font-size: 13px; font-family: 'Montserrat', sans-serif; letter-spacing: 0.14em;">[FOTO DA PROVA]</span>
+      </div>
+    </div>
+
+    <!-- Agenda fixa -->
+    <div style="border-left: 2px solid rgba(14,60,65,0.15); padding-left: 32px;">
+      <div style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 0.2em; margin-bottom: 22px;">PRÓXIMAS PROVAS</div>
+
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div style="display: flex; gap: 16px; align-items: flex-start;">
+          <div style="min-width: 54px; background: #C8643D; color: #F4EDE4; text-align: center; padding: 8px 0;">
+            <div style="font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 22px; line-height: 1;">23</div>
+            <div style="font-size: 10px; letter-spacing: 0.14em; font-weight: 600;">AGO</div>
+          </div>
+          <div>
+            <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 16px;">2ª Migalhas Run</div>
+            <div style="font-size: 13px; font-weight: 300; color: rgba(14,60,65,0.7);">5 km · 10 km · caminhada 4 km</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 16px; align-items: flex-start;">
+          <div style="min-width: 54px; border: 2px solid #0E3C41; text-align: center; padding: 8px 0;">
+            <div style="font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 22px; line-height: 1;">29</div>
+            <div style="font-size: 10px; letter-spacing: 0.14em; font-weight: 600;">AGO</div>
+          </div>
+          <div>
+            <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 16px;">Santander Night Run Fever</div>
+            <div style="font-size: 13px; font-weight: 300; color: rgba(14,60,65,0.7);">noturna</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 16px; align-items: flex-start;">
+          <div style="min-width: 54px; border: 2px solid #0E3C41; text-align: center; padding: 8px 0;">
+            <div style="font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 22px; line-height: 1;">27</div>
+            <div style="font-size: 10px; letter-spacing: 0.14em; font-weight: 600;">SET</div>
+          </div>
+          <div>
+            <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 16px;">Track&amp;Field RibeirãoShopping</div>
+            <div style="font-size: 13px; font-weight: 300; color: rgba(14,60,65,0.7);">5 · 10 · 21 km</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 16px; align-items: flex-start;">
+          <div style="min-width: 54px; border: 2px solid #0E3C41; text-align: center; padding: 8px 0;">
+            <div style="font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 22px; line-height: 1;">18</div>
+            <div style="font-size: 10px; letter-spacing: 0.14em; font-weight: 600;">OUT</div>
+          </div>
+          <div>
+            <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 16px;">Trail Run Artesano</div>
+            <div style="font-size: 13px; font-weight: 300; color: rgba(14,60,65,0.7);">Mata Santa Tereza · trilha</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 26px; padding-top: 18px; border-top: 1px solid rgba(14,60,65,0.15); font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 13px; color: #C8643D; letter-spacing: 0.06em;">
+        VER O CALENDÁRIO COMPLETO →
+      </div>
+    </div>
+  </div>
+
+  <!-- Grade editorial -->
+  <div style="padding: 56px 64px 0;">
+    <div style="border-top: 3px solid #0E3C41; padding-top: 14px; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 13px; letter-spacing: 0.2em; margin-bottom: 30px;">ÚLTIMAS DA CIDADE</div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px;">
+      <div>
+        <div style="height: 160px; background: #0E3C41; margin-bottom: 16px;"></div>
+        <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.16em; color: #C8643D; margin-bottom: 8px;">PROVAS</div>
+        <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 21px; line-height: 1.2; margin-bottom: 10px;">2ª Migalhas Run: o que saber antes de largar</div>
+        <div style="font-size: 14px; font-weight: 300; line-height: 1.55; color: rgba(14,60,65,0.75);">Kit, checklist da semana e o que não esquecer antes das 7h de domingo.</div>
+      </div>
+
+      <div>
+        <div style="height: 160px; background: #C8643D; margin-bottom: 16px;"></div>
+        <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.16em; color: #C8643D; margin-bottom: 8px;">A CIDADE</div>
+        <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 21px; line-height: 1.2; margin-bottom: 10px;">Track&amp;Field volta ao RibeirãoShopping com meia maratona</div>
+        <div style="font-size: 14px; font-weight: 300; line-height: 1.55; color: rgba(14,60,65,0.75);">A única prova de 21 km dentro da cidade no trimestre larga na Cel. Fernando Ferreira Leite.</div>
+      </div>
+
+      <div>
+        <div style="height: 160px; background: #D4A656; margin-bottom: 16px;"></div>
+        <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.16em; color: #C8643D; margin-bottom: 8px;">TRAIL</div>
+        <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 21px; line-height: 1.2; margin-bottom: 10px;">Mata Santa Tereza recebe a Trail Run Artesano em outubro</div>
+        <div style="font-size: 14px; font-weight: 300; line-height: 1.55; color: rgba(14,60,65,0.75);">A única trilha do trimestre dentro do município, com inscrições já abertas.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

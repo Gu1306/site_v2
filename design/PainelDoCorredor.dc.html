@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Poppins:wght@300;400;500;600&display=swap">
+  <style>
+    body { margin: 0; font-family: "Poppins", "Segoe UI", system-ui, sans-serif; }
+    a { color: #C8643D; text-decoration: none; }
+    a:hover { color: #0E3C41; }
+  </style>
+</helmet>
+
+<div style="width: 1280px; background: #FFFFFF; color: #0E3C41; padding: 0 0 64px;">
+
+  <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px 56px; border-bottom: 1px solid rgba(14,60,65,0.12);">
+    <div style="display: flex; align-items: baseline; gap: 12px;">
+      <div style="font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 24px;">CareFit</div>
+      <div style="font-size: 13px; font-weight: 400; color: rgba(14,60,65,0.6);">a corrida de Ribeirão, todo dia</div>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <span style="font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 12px; padding: 7px 15px; background: #0E3C41; color: #fff; border-radius: 999px;">Tudo</span>
+      <span style="font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 12px; padding: 7px 15px; border: 1px solid rgba(14,60,65,0.2); border-radius: 999px;">Provas</span>
+      <span style="font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 12px; padding: 7px 15px; border: 1px solid rgba(14,60,65,0.2); border-radius: 999px;">Resultados</span>
+      <span style="font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 12px; padding: 7px 15px; border: 1px solid rgba(14,60,65,0.2); border-radius: 999px;">Treino</span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; padding: 40px 56px 0;">
+
+    <!-- Feed cronológico -->
+    <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 30px;">
+
+      <div style="display: flex; gap: 22px; padding-bottom: 30px; border-bottom: 1px solid rgba(14,60,65,0.1);">
+        <div style="min-width: 92px; padding-top: 4px;">
+          <div style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 12px; color: #C8643D; letter-spacing: 0.1em;">HOJE</div>
+          <div style="font-size: 12px; color: rgba(14,60,65,0.5); margin-top: 2px;">19 ago</div>
+        </div>
+        <div>
+          <div style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 27px; line-height: 1.22; margin-bottom: 10px;">Onze provas em Ribeirão até o fim de outubro</div>
+          <div style="font-size: 15px; font-weight: 300; line-height: 1.6; color: rgba(14,60,65,0.75); max-width: 60ch;">Corrida quase todo fim de semana sem sair da cidade. Conferimos data por data na fonte de cada organizador — e marcamos quais mudaram.</div>
+          <div style="display: flex; gap: 10px; margin-top: 14px;">
+            <span style="font-size: 11px; font-family: 'Montserrat', sans-serif; font-weight: 600; letter-spacing: 0.08em; padding: 4px 10px; background: #F4EDE4; border-radius: 4px;">CALENDÁRIO</span>
+            <span style="font-size: 11px; font-family: 'Montserrat', sans-serif; font-weight: 600; letter-spacing: 0.08em; padding: 4px 10px; background: #F4EDE4; border-radius: 4px;">6 MIN</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 22px; padding-bottom: 30px; border-bottom: 1px solid rgba(14,60,65,0.1);">
+        <div style="min-width: 92px; padding-top: 4px;">
+          <div style="font-size: 12px; color: rgba(14,60,65,0.5);">19 ago</div>
+        </div>
+        <div>
+          <div style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 27px; line-height: 1.22; margin-bottom: 10px;">2ª Migalhas Run: o que saber antes de largar</div>
+          <div style="font-size: 15px; font-weight: 300; line-height: 1.6; color: rgba(14,60,65,0.75); max-width: 60ch;">5 km, 10 km e caminhada de 4 km, com aquecimento às 6h45. O checklist da semana e o que não esquecer antes de sair de casa.</div>
+          <div style="display: flex; gap: 10px; margin-top: 14px;">
+            <span style="font-size: 11px; font-family: 'Montserrat', sans-serif; font-weight: 600; letter-spacing: 0.08em; padding: 4px 10px; background: #F4EDE4; border-radius: 4px;">PROVAS</span>
+            <span style="font-size: 11px; font-family: 'Montserrat', sans-serif; font-weight: 600; letter-spacing: 0.08em; padding: 4px 10px; background: #F4EDE4; border-radius: 4px;">4 MIN</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 22px; padding-bottom: 30px; border-bottom: 1px solid rgba(14,60,65,0.1);">
+        <div style="min-width: 92px; padding-top: 4px;">
+          <div style="font-size: 12px; color: rgba(14,60,65,0.5);">18 ago</div>
+        </div>
+        <div>
+          <div style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 27px; line-height: 1.22; margin-bottom: 10px;">Doze atletas da base na Serra Fina</div>
+          <div style="font-size: 15px; font-weight: 300; line-height: 1.6; color: rgba(14,60,65,0.75); max-width: 60ch;">25K, 35K, 55K e 110K numa das provas mais duras do país — com dois quartos lugares gerais.</div>
+          <div style="display: flex; gap: 10px; margin-top: 14px;">
+            <span style="font-size: 11px; font-family: 'Montserrat', sans-serif; font-weight: 600; letter-spacing: 0.08em; padding: 4px 10px; background: #F4EDE4; border-radius: 4px;">RESULTADOS</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Painel lateral -->
+    <div style="display: flex; flex-direction: column; gap: 32px;">
+
+      <div style="background: #0E3C41; color: #F4EDE4; padding: 26px;">
+        <div style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 0.18em; color: #D4A656; margin-bottom: 20px;">AGENDA DO 016</div>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 14px; border-bottom: 1px solid rgba(244,237,228,0.15);">
+            <div>
+              <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 15px;">Migalhas Run</div>
+              <div style="font-size: 12px; font-weight: 300; color: rgba(244,237,228,0.65);">5 · 10 km · 7h</div>
+            </div>
+            <div style="font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 16px; color: #D4A656;">23/08</div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 14px; border-bottom: 1px solid rgba(244,237,228,0.15);">
+            <div>
+              <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 15px;">Night Run Fever</div>
+              <div style="font-size: 12px; font-weight: 300; color: rgba(244,237,228,0.65);">noturna</div>
+            </div>
+            <div style="font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 16px;">29/08</div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 14px; border-bottom: 1px solid rgba(244,237,228,0.15);">
+            <div>
+              <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 15px;">Live! Run XP</div>
+              <div style="font-size: 12px; font-weight: 300; color: rgba(244,237,228,0.65);">rua</div>
+            </div>
+            <div style="font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 16px;">30/08</div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <div>
+              <div style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 15px;">Track&amp;Field</div>
+              <div style="font-size: 12px; font-weight: 300; color: rgba(244,237,228,0.65);">5 · 10 · 21 km</div>
+            </div>
+            <div style="font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 16px;">27/09</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="border: 2px solid #C8643D; padding: 24px;">
+        <div style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 19px; line-height: 1.25; margin-bottom: 10px;">Correu e ficou algo doendo?</div>
+        <div style="font-size: 14px; font-weight: 300; line-height: 1.55; color: rgba(14,60,65,0.75); margin-bottom: 16px;">A base do corredor de Ribeirão avalia, trata e devolve você ao treino.</div>
+        <div style="display: inline-block; background: #C8643D; color: #fff; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 14px; padding: 11px 20px;">Agendar avaliação</div>
+      </div>
+
+      <div>
+        <div style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 0.16em; margin-bottom: 14px;">GUIAS MAIS LIDOS</div>
+        <div style="display: flex; flex-direction: column; gap: 11px; font-size: 14px; font-weight: 400;">
+          <div style="display: flex; gap: 12px;"><span style="color: #D4A656; font-family: 'Montserrat', sans-serif; font-weight: 800;">01</span><span>Dor no joelho na corrida</span></div>
+          <div style="display: flex; gap: 12px;"><span style="color: #D4A656; font-family: 'Montserrat', sans-serif; font-weight: 800;">02</span><span>Canelite</span></div>
+          <div style="display: flex; gap: 12px;"><span style="color: #D4A656; font-family: 'Montserrat', sans-serif; font-weight: 800;">03</span><span>Fascite plantar</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
