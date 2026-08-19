@@ -53,7 +53,8 @@ const Navigation = () => {
       ],
     },
     { name: "CareFit Cast", href: "/carefit-cast" },
-    { name: "Blog", href: "/comunidade" },
+    { name: "Blog", href: "/blog" },
+    { name: "Guias", href: "/comunidade" },
     {
       name: "A CareFit",
       dropdown: [

@@ -42,6 +42,8 @@ const FraturaEstresse = lazy(() => import("./pages/FraturaEstresse"));
 const LandingPerformance = lazy(() => import("./pages/LandingPerformance"));
 const ConhecaCareFit = lazy(() => import("./pages/ConhecaCareFit"));
 const Feedback = lazy(() => import("./pages/Feedback"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto"];
@@ -116,6 +118,8 @@ const App = () => (
             <Route path="/performance-ribeirao-preto" element={<LandingPerformance />} />
             <Route path="/conheca-a-carefit" element={<ConhecaCareFit />} />
             <Route path="/feedback" element={<Feedback />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
