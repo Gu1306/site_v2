@@ -1,24 +1,24 @@
 ---
 titulo: 2ª Migalhas Run: o que saber antes de largar em Ribeirão Preto
-descricao: A 2ª Migalhas Run acontece em 23/08 em Ribeirão Preto. Kit, checklist de semana de prova e o que não esquecer antes da largada.
+descricao: A 2ª Migalhas Run acontece em 23/08 em Ribeirão Preto, com 5 km, 10 km e caminhada de 4 km. O checklist da semana de prova e o que não esquecer antes da largada.
 data: 2026-08-19
 autor: Equipe CareFit
 categoria: Provas
-tags: [provas, ribeirao-preto, migalhas-run, jbx-sports]
+tags: [provas, ribeirao-preto, migalhas-run, corrida-de-rua]
 local: true
 status: publicado
 fontes:
-  - Instagram @jbx.sports — kit da 2ª Migalhas Run | https://www.instagram.com/p/Db53EEOFoN3/
-  - Instagram @jbx.sports — reconhecimento de percurso | https://www.instagram.com/reel/DcB78LZqp6y/
+  - 2ª edição da Migalhas Run reforça compromisso com a saúde — Migalhas | https://www.migalhas.com.br/quentes/461310/2-edicao-da-migalhas-run-reforca-compromisso-com-a-saude
+  - Divulgação da prova no perfil @jbx.sports | https://www.instagram.com/p/Db53EEOFoN3/
 ---
 
 ## A largada é neste domingo
 
-A 2ª Migalhas Run acontece em 23 de agosto, em Ribeirão Preto, organizada pela JBX Sports. O organizador já detalhou o kit: **camiseta oficial, numeral e medalha finisher** para todos que cruzarem a linha. Se você está inscrito, esta é a semana de polimento — e tem alguns detalhes práticos para resolver antes do domingo.
+A 2ª Migalhas Run acontece em **23 de agosto, um domingo**, em Ribeirão Preto. São **5 km e 10 km de corrida, mais uma caminhada de 4 km**, com aquecimento às 6h45 e largada às 7h. Se você está inscrito, esta é a semana de polimento — e tem alguns detalhes práticos para resolver antes do domingo.
 
 ## Kit em mãos e alfinetes no bolso
 
-Confira se o kit já está com você. Separe o numeral hoje e coloque quatro alfinetes junto com ele — eles somem quando você mais precisa. Se a retirada for no dia, verifique o horário e o local exato nas redes da JBX Sports antes de sair de casa.
+Confira se o kit já está com você. Separe o numeral hoje e coloque quatro alfinetes junto com ele — eles somem quando você mais precisa. Se a retirada ainda não aconteceu, verifique o horário e o local exato no canal oficial da prova antes de sair de casa.
 
 ## O que não fazer nesta semana
 
@@ -44,7 +44,7 @@ A tendência de quem está bem treinado é largar rápido demais. O entusiasmo d
 
 A 2ª Migalhas Run abre a reta final do calendário de Ribeirão Preto. Em 29 de agosto tem a Santander Night Run Fever, em 30 de agosto a Live! Run XP, e a agenda segue firme até outubro. Se você está pensando na próxima inscrição, vale cruzar com o calendário completo que publicamos aqui no blog.
 
-Para quem tem olho no trail, a **Trail Run Artesano**, organizada pela JBX Sports na Mata Santa Tereza, está marcada para 18 de outubro — percurso técnico e terreno bem diferente do asfalto da cidade. Inscrições abertas.
+Para quem tem olho no trail, a **Trail Run Artesano**, na Mata Santa Tereza, está marcada para 18 de outubro — percurso técnico e terreno bem diferente do asfalto da cidade. As inscrições foram divulgadas como abertas pelo perfil @jbx.sports.
 
 ## Na CareFit antes ou depois
 
