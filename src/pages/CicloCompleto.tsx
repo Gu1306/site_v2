@@ -7,7 +7,6 @@ import { ChevronDown, MessageCircle, Link2, Compass, BarChart3, Check, Pyramid, 
 import gustavoFoto from "@/assets/gustavo_foto.jpg";
 import liviaFoto from "@/assets/livia_foto.jpg";
 import guilhermeFoto from "@/assets/guilherme_foto.jpg";
-import arthurFoto from "@/assets/arthur_foto.jpg";
 import Footer from "@/components/Footer";
 import {
   Breadcrumb,
@@ -57,7 +56,7 @@ const Section2Diferenciais = () => {
     {
       icon: Heart,
       title: "Equipe Interdisciplinar",
-      description: "Você não estará sozinho. Você estará com fisioterapeuta, educador físico, nutricionista e especialista em mentalidade. Todos conversando, alinhados, trabalhando para você.",
+      description: "Você não estará sozinho. Você estará com fisioterapeuta, educador físico e especialista em mentalidade — todos conversando, alinhados, trabalhando para você. E quando você já tem nutricionista, a gente conversa com ela também.",
       color: "#1a7a7a",
     },
     {
@@ -1367,13 +1366,6 @@ const Section11EquipeDepoimentos = () => {
       citacao: "Fortalecimento não é sobre ficar grande. É sobre construir a base que sustenta cada quilômetro. Vejo isso acontecer toda semana.",
       cor: "#1a7a7a",
     },
-    {
-      foto: arthurFoto,
-      nome: "Arthur Angelotti",
-      titulo: "Nutricionista",
-      citacao: "Nutrição é o combustível. Quando o corredor entende isso, tudo muda. Performance, recuperação, disposição — tudo melhora.",
-      cor: "#e67e22",
-    },
   ];
 
   return (
@@ -1737,7 +1729,6 @@ const Section12Ciencia = () => {
                 <ul className="text-sm space-y-1.5" style={{ color: "#333333" }}>
                   <li><strong>Fisioterapeuta:</strong> Detecta e trata compensações e desequilíbrios</li>
                   <li><strong>Educador Físico:</strong> Garante progressão segura e periodização adequada</li>
-                  <li><strong>Nutricionista:</strong> Otimiza recuperação e resiliência do corpo</li>
                   <li><strong>Especialista em Mentalidade:</strong> Gerencia fadiga psicológica e stress</li>
                 </ul>
               </div>

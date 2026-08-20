@@ -130,7 +130,7 @@ const Jornada = () => {
           
           <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-8 border border-border/50">
             <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-              A Jornada Propósito é um programa completo e personalizado de 12 semanas, acompanhado de perto por fisioterapeutas, educadores físicos e nutricionistas especializados no universo da corrida. Nosso foco é preparar corpo e mente antes da dor, com prevenção, fortalecimento e recuperação integrados.
+              A Jornada Propósito é um programa completo e personalizado de 12 semanas, acompanhado de perto por fisioterapeutas e educadores físicos especializados no universo da corrida. Nosso foco é preparar corpo e mente antes da dor, com prevenção, fortalecimento e recuperação integrados.
             </p>
             
             <p className="text-lg text-muted-foreground mb-6">

@@ -309,7 +309,7 @@ const Servicos = () => {
           <h2 className="text-4xl font-bold text-white mb-6">
             Pronto para elevar sua performance?
           </h2>
-          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">Nosso time de fisioterapeutas, educadores físicos e nutricionistas estão prontos para guiar sua jornada de evolução como corredor.</p>
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">Nosso time de fisioterapeutas e educadores físicos está pronto para guiar sua jornada de evolução como corredor.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="hero" size="lg" onClick={() => window.open('https://api.whatsapp.com/send?phone=5516996008849', '_blank')}>
               Agende sua avaliação

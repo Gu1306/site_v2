@@ -107,9 +107,13 @@ const NutricaoCorredores = () => {
     );
   };
 
-  const handleAgendar = () => {
+  // A CareFit nao tem nutricionista desde julho/2026. Esta pagina continua no ar
+  // como conteudo educativo (a URL e indexada e recebe link de 6 paginas), mas
+  // nao oferece mais consulta: o CTA leva para a avaliacao do corredor, que a
+  // casa faz de verdade.
+  const handleAvaliacao = () => {
     window.open(
-      "https://api.whatsapp.com/send?phone=5516996008849&text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20uma%20avalia%C3%A7%C3%A3o%20nutricional%20para%20corrida.",
+      "https://api.whatsapp.com/send?phone=5516996008849&text=Ol%C3%A1%2C%20gostaria%20de%20saber%20sobre%20a%20avalia%C3%A7%C3%A3o%20do%20corredor.",
       "_blank"
     );
   };
@@ -130,9 +134,9 @@ const NutricaoCorredores = () => {
               variant="hero"
               size="lg"
               className="text-lg px-8 py-4"
-              onClick={handleAgendar}
+              onClick={handleAvaliacao}
             >
-              Agendar avaliação
+              Conhecer a avaliação do corredor
             </Button>
             <Button
               variant="whatsapp"
@@ -379,16 +383,7 @@ const NutricaoCorredores = () => {
               </CardContent>
             </Card>
           </div>
-          <div className="text-center">
-            <Button
-              variant="hero"
-              size="lg"
-              className="text-lg px-8 py-4"
-              onClick={handleAgendar}
-            >
-              Agendar avaliação nutricional
-            </Button>
-          </div>
+
         </div>
       </section>
 
@@ -417,19 +412,22 @@ const NutricaoCorredores = () => {
       <section className="py-20 bg-gradient-to-r from-primary to-secondary">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-6">
-            Quer correr melhor com uma estratégia nutricional para você?
+            A CareFit não faz atendimento nutricional
           </h2>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            Agende sua avaliação na CareFit Run Base e tenha um plano nutricional integrado ao seu treino de corrida.
+            Este conteúdo é educativo. Para um plano alimentar individual, procure um
+            nutricionista esportivo. O que a gente faz é a outra metade do trabalho:
+            avaliação, fisioterapia, fortalecimento e recovery para você treinar sem se
+            machucar — e podemos conversar com o profissional que te acompanha.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               variant="hero"
               size="lg"
               className="text-lg px-8 py-4"
-              onClick={handleAgendar}
+              onClick={handleAvaliacao}
             >
-              Agendar avaliação
+              Ver o que a CareFit faz
             </Button>
             <Button
               variant="whatsapp"
