@@ -122,5 +122,9 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	// @tailwindcss/typography estava no package.json mas nunca foi registrado aqui:
+	// todas as classes `prose-*` do BlogPost eram letra morta, e o preflight do
+	// Tailwind achatava h2/h3 para o tamanho do corpo, sem margem. O post do blog
+	// saía como uma parede de texto.
+	plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 } satisfies Config;

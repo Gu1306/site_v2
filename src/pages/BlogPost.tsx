@@ -89,27 +89,39 @@ const BlogPost = () => {
             <div
               className="prose prose-lg max-w-none font-poppins
                 prose-headings:font-montserrat prose-headings:text-primary prose-headings:font-bold
-                prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:mt-12
-                prose-h3:text-xl prose-h3:mt-8
-                prose-p:text-primary/80 prose-p:leading-relaxed
-                prose-li:text-primary/80 prose-strong:text-primary
-                prose-a:text-accent prose-a:no-underline hover:prose-a:underline
-                prose-blockquote:border-secondary prose-blockquote:text-primary/70
+                prose-headings:tracking-tight prose-headings:scroll-mt-24
+                prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:mt-14 prose-h2:mb-4
+                prose-h2:pt-8 prose-h2:border-t prose-h2:border-primary/10
+                prose-h3:text-xl prose-h3:mt-10 prose-h3:mb-3
+                prose-p:text-primary/80 prose-p:leading-[1.75]
+                [&>h2:first-child]:mt-0 [&>h2:first-child]:pt-0 [&>h2:first-child]:border-t-0
+                [&>p:first-of-type]:text-xl [&>p:first-of-type]:leading-[1.65]
+                [&>p:first-of-type]:text-primary
+                prose-li:text-primary/80 prose-li:marker:text-accent prose-strong:text-primary
+                prose-a:text-accent prose-a:font-medium prose-a:underline
+                prose-a:decoration-accent/30 prose-a:underline-offset-4
+                hover:prose-a:decoration-accent
+                prose-blockquote:border-l-4 prose-blockquote:border-accent
+                prose-blockquote:bg-warm/60 prose-blockquote:py-1 prose-blockquote:not-italic
+                prose-blockquote:text-primary/80 prose-blockquote:font-medium
                 prose-table:text-sm prose-th:text-primary prose-td:text-primary/80"
               dangerouslySetInnerHTML={{ __html: post.html }}
             />
 
             {post.fontes.length > 0 && (
-              <div className="mt-14 pt-8 border-t border-primary/10">
-                <h2 className="text-lg font-montserrat font-bold text-primary mb-4">Fontes</h2>
-                <ul className="space-y-2">
+              <div className="mt-16 rounded-lg bg-warm/70 border border-primary/10 p-6 md:p-8">
+                <h2 className="text-xs font-montserrat font-bold uppercase tracking-[0.18em] text-primary/60 mb-4">
+                  Fontes
+                </h2>
+                <ul className="space-y-3">
                   {post.fontes.map((fonte) => (
-                    <li key={fonte.url} className="text-sm font-poppins">
+                    <li key={fonte.url} className="text-sm font-poppins leading-snug">
                       <a
                         href={fonte.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-accent hover:underline break-words"
+                        className="text-primary/80 underline decoration-accent/40 underline-offset-4
+                          hover:text-primary hover:decoration-accent break-words"
                       >
                         {fonte.titulo}
                       </a>
