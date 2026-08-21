@@ -2,6 +2,7 @@
 titulo: Provas de 2026 em Ribeirão Preto: páginas para acompanhar no calendário
 descricao: Páginas locais no VaiCorrendo ajudam o corredor de Ribeirão Preto a monitorar possíveis provas de 2026 sem assumir dados ainda não confirmados.
 data: 2026-08-21
+publicadoEm: 2026-08-21T19:04:42-03:00
 autor: Equipe CareFit
 categoria: Provas
 tags: [provas, ribeirao-preto, calendario]

@@ -14,6 +14,7 @@ export interface PostMeta {
   titulo: string;
   descricao: string;
   data: string; // AAAA-MM-DD
+  publicadoEm?: string; // ISO 8601; desempata posts do mesmo dia
   autor: string;
   categoria: string;
   tags: string[];
@@ -128,6 +129,7 @@ const todos: Post[] = Object.entries(arquivos)
       titulo: (dados.titulo as string) || "Sem título",
       descricao: (dados.descricao as string) || "",
       data: (dados.data as string) || "1970-01-01",
+      publicadoEm: dados.publicadoEm as string | undefined,
       autor: (dados.autor as string) || "Equipe CareFit",
       categoria: (dados.categoria as string) || "Geral",
       tags: (dados.tags as string[]) || [],
@@ -141,7 +143,11 @@ const todos: Post[] = Object.entries(arquivos)
       minutosDeLeitura: Math.max(1, Math.round(palavras / 200)),
     };
   })
-  .sort((a, b) => b.data.localeCompare(a.data));
+  .sort((a, b) => {
+    const ordemB = b.publicadoEm || `${b.data}T00:00:00`;
+    const ordemA = a.publicadoEm || `${a.data}T00:00:00`;
+    return ordemB.localeCompare(ordemA);
+  });
 
 /** Só o que está publicado. Rascunho fica fora da listagem e do sitemap. */
 export const posts: Post[] = todos.filter((post) => post.status === "publicado");
@@ -161,7 +167,11 @@ export function postsRelacionados(post: Post, quantidade = 3): Post[] {
         outro.tags.filter((tag) => post.tags.includes(tag)).length +
         (outro.local && post.local ? 1 : 0),
     }))
-    .sort((a, b) => b.peso - a.peso || b.outro.data.localeCompare(a.outro.data))
+    .sort((a, b) => {
+      const ordemB = b.outro.publicadoEm || `${b.outro.data}T00:00:00`;
+      const ordemA = a.outro.publicadoEm || `${a.outro.data}T00:00:00`;
+      return b.peso - a.peso || ordemB.localeCompare(ordemA);
+    })
     .slice(0, quantidade)
     .map(({ outro }) => outro);
 }

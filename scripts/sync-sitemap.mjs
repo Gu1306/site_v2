@@ -30,11 +30,16 @@ const posts = readdirSync(pastaPosts)
     return {
       slug: campo(frontmatter, "slug") || arquivo.replace(/\.md$/, ""),
       data: campo(frontmatter, "data"),
+      publicadoEm: campo(frontmatter, "publicadoEm"),
       status: campo(frontmatter, "status"),
     };
   })
   .filter((post) => post.status === "publicado")
-  .sort((a, b) => b.data.localeCompare(a.data));
+  .sort((a, b) => {
+    const ordemB = b.publicadoEm || `${b.data}T00:00:00`;
+    const ordemA = a.publicadoEm || `${a.data}T00:00:00`;
+    return ordemB.localeCompare(ordemA);
+  });
 
 const linhas = [
   `  <url><loc>${SITE}/blog</loc><lastmod>${posts[0]?.data ?? new Date().toISOString().slice(0, 10)}</lastmod><priority>0.9</priority></url>`,

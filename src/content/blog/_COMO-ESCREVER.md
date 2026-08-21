@@ -44,7 +44,8 @@ fontes:
 |---|---|
 | `titulo` | Vira o `<h1>` e o title da aba. **Não repita no corpo.** |
 | `descricao` | Meta description e subtítulo do card. Uma frase, até 155 caracteres. |
-| `data` | `AAAA-MM-DD`. Ordena a listagem — a mais recente vira destaque. |
+| `data` | `AAAA-MM-DD`. Data editorial exibida no post. |
+| `publicadoEm` | Opcional, ISO 8601 com fuso. Desempata posts do mesmo dia — o mais recente vira destaque. |
 | `autor` | "Equipe CareFit" no padrão; nome próprio quando for texto assinado. |
 | `categoria` | Uma só, e tem que ser exatamente uma destas — são as seções do jornal: `Provas`, `Resultados`, `A cidade`, `Treino`, `Serviços`. |
 | `tags` | 2 a 5, minúsculas com hífen. |
