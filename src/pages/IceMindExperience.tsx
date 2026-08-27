@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Brain, Snowflake, Users, CheckCircle, AlertTriangle, Target, Heart, Zap, ArrowRight, Instagram, MessageCircle, HelpCircle, Calendar, Clock } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import nataliaFoto from "@/assets/natalia_foto.jpg";
 import gustavoFoto from "@/assets/gustavo_foto.jpg";
 import { CountdownTimer } from "@/components/CountdownTimer";
 
@@ -71,8 +70,8 @@ const IceMindExperience = () => {
             </h1>
             
             <p className="text-xl md:text-2xl text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Uma jornada de 2 horas que une a ciência da psicologia e a resiliência do ultramaratonista 
-              para destravar seu verdadeiro potencial mental. Porque a evolução nunca para.
+              Uma jornada de 2 horas que une preparação mental, respiração guiada e a resiliência do
+              ultramaratonista para destravar seu verdadeiro potencial. Porque a evolução nunca para.
             </p>
             
             <p className="text-lg text-white/60 mb-8 max-w-2xl mx-auto">Você já sentiu que sua mente é o seu maior limitador? Que o estresse te controla? Que você tem potencial mas não consegue acessá-lo? Você não está sozinho - e existe um caminho. Um caminho de volta para o controle, para a presença e para a sua melhor versão.
@@ -215,32 +214,14 @@ const IceMindExperience = () => {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-              Você Não Está Sozinho. <span className="text-[#E8933D]">Você Tem Guias.</span>
+              Você Não Está Sozinho. <span className="text-[#E8933D]">Você Tem um Guia.</span>
             </h2>
             <p className="text-xl text-white/70">
-              A Ciência Encontra a Experiência. Natalia e Gustavo trazem o conhecimento completo.
+              Quem já atravessou o próprio limite conduz você pelo seu.
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {/* Natalia Card */}
-            <div className="bg-white rounded-2xl p-8 shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
-              <div className="w-24 h-24 rounded-full overflow-hidden mb-6 mx-auto ring-4 ring-[#E8933D]/20">
-                <img src={nataliaFoto} alt="Natalia Garcia" className="w-full h-full object-cover" />
-              </div>
-              <h3 className="text-2xl font-bold text-[#3D3D3D] mb-2 text-center">Natalia Garcia</h3>
-              <p className="text-[#E8933D] font-semibold text-center mb-2">PSICÓLOGA | A CIÊNCIA DA MENTE</p>
-              <p className="text-sm text-gray-500 text-center mb-4">CRP 06/155025 | Especialista em TCC</p>
-              <p className="text-[#3D3D3D]/80 text-center leading-relaxed mb-4">
-                Natalia traz o "porquê". Ela vai te dar o mapa da sua mente, mostrando como seus pensamentos 
-                e crenças moldam sua realidade, especialmente sob pressão. A ciência por trás da transformação.
-              </p>
-              <a href="https://www.instagram.com/psico.nataliagarcia/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-[#E8933D] hover:text-[#d4832f] transition-colors font-semibold">
-                <Instagram className="w-5 h-5" />
-                @psico.nataliagarcia
-              </a>
-            </div>
-            
+          <div className="max-w-xl mx-auto">
             {/* Gustavo Card */}
             <div className="bg-white rounded-2xl p-8 shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
               <div className="w-24 h-24 rounded-full overflow-hidden mb-6 mx-auto ring-4 ring-[#2C5F6F]/20">
@@ -250,8 +231,8 @@ const IceMindExperience = () => {
               <p className="text-[#E8933D] font-semibold text-center mb-2">ULTRAMARATONISTA | A PRÁTICA DA RESILIÊNCIA</p>
               <p className="text-sm text-gray-500 text-center mb-4">130km | 20+ Ultramaratonas | Fundador CareFit</p>
               <p className="text-[#3D3D3D]/80 text-center leading-relaxed mb-4">
-                Gustavo traz o "como". Ele viveu na pele o poder do gelo e da respiração para superar limites 
-                que pareciam impossíveis. A experiência que valida a ciência.
+                Gustavo viveu na pele o poder do gelo e da respiração para superar limites que
+                pareciam impossíveis. É essa experiência que ele coloca à sua disposição.
               </p>
               <a href="https://www.instagram.com/gustavorosa/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-[#2C5F6F] hover:text-[#1e4a58] transition-colors font-semibold">
                 <Instagram className="w-5 h-5" />
@@ -314,14 +295,14 @@ const IceMindExperience = () => {
                     A MENTE SOBRE<br className="hidden md:block" /> A MATÉRIA
                   </h3>
                   <p className="text-white/70 text-sm md:text-base leading-relaxed">
-                    Natalia e Gustavo integram ciência e experiência para te ensinar sobre o modelo mental da TCC, 
-                    crenças limitantes e como a respiração é sua ferramenta de controle.
+                    Gustavo mostra como a mente responde sob pressão, o que trava a maioria das pessoas
+                    diante do desconforto e como a respiração vira sua ferramenta de controle.
                   </p>
                   
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">TCC</span>
                     <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Respiração</span>
-                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Crenças</span>
+                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Preparação Mental</span>
+                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Foco</span>
                   </div>
                 </div>
               </div>
@@ -357,7 +338,7 @@ const IceMindExperience = () => {
                     A PRÁTICA DA<br className="hidden md:block" /> RESILIÊNCIA
                   </h3>
                   <p className="text-white/80 text-sm md:text-base leading-relaxed">
-                    Guiado por Gustavo e ancorado por Natalia, você aplicará as técnicas de respiração e mentalidade 
+                    Guiado por Gustavo, você aplicará as técnicas de respiração e mentalidade
                     para navegar a experiência da imersão em gelo.
                   </p>
                   
