@@ -8,28 +8,41 @@ import { CountdownTimer } from "@/components/CountdownTimer";
 // ─────────────────────────────────────────────────────────────
 // PRÓXIMA TURMA DO ICE MIND
 // Para anunciar uma nova edição, altere SÓ este bloco.
-// Enquanto `data` estiver no passado, a página entra em modo
+// Enquanto `dataUltima` estiver no passado, a página entra em modo
 // "lista de espera": some o contador, as datas e o preço fixo,
 // e o CTA passa a ser o WhatsApp. Assim ela nunca anuncia
 // um evento que já aconteceu.
 // ─────────────────────────────────────────────────────────────
 const EVENTO = {
-  data: new Date("2026-09-20T08:15:00"),
-  dataLabel: "20 de Setembro de 2026",
-  chamadaDia: "Domingo! Venha começar um domingo diferente",
-  horario: "08:15 às 10:30 (2h15 de Imersão)",
-  vagas: "Máximo 10 Participantes",
-  preco: "R$349",
+  // Contador regressivo aponta para a PRIMEIRA turma
+  data: new Date("2026-09-12T15:00:00"),
+  // A página só vira lista de espera depois da ÚLTIMA turma
+  dataUltima: new Date("2026-09-13T11:00:00"),
+  dataLabel: "12 e 13 de Setembro de 2026",
+  chamadaDia: "Duas turmas: escolha sábado ou domingo",
+  horario: "Sábado 15h–17h · Domingo 9h–11h",
+  vagas: "Máximo 10 Participantes por turma",
+  preco: "R$230",
+  descontoAtleta: "Atleta CareFit tem 20% de desconto",
+  turmas: [
+    { dia: "Sábado, 12 de setembro", diaCurto: "sábado", horario: "15h às 17h" },
+    { dia: "Domingo, 13 de setembro", diaCurto: "domingo", horario: "9h às 11h" },
+  ],
 };
+
+// A vaga é garantida pela conversa no WhatsApp, não por calendário.
+const whatsappVaga = (dia: string, horario: string) =>
+  "https://api.whatsapp.com/send?phone=5516996008849&text=" +
+  encodeURIComponent(
+    `Olá! Quero garantir minha vaga no Ice Mind Experience — turma de ${dia}, ${horario}.`
+  );
 
 const WHATSAPP_LISTA_ESPERA =
   "https://api.whatsapp.com/send?phone=5516996008849&text=Ol%C3%A1!%20Quero%20entrar%20na%20lista%20de%20espera%20da%20pr%C3%B3xima%20turma%20do%20Ice%20Mind%20Experience";
 
 const IceMindExperience = () => {
-  const agendamentoLink = "https://calendar.google.com/calendar/appointments/schedules/AcZssZ2npLe6qCUpbwJTGStwst0pzCITxu_FuSzFO5QwrZ7_iP4JlY5pVfxbZ-prFUTT_moZve7sqC00?gv=true";
-
   const eventDate = EVENTO.data;
-  const turmaAberta = eventDate.getTime() > Date.now();
+  const turmaAberta = EVENTO.dataUltima.getTime() > Date.now();
 
   // Carrega o script do Instagram para embeds
   useEffect(() => {
@@ -70,8 +83,8 @@ const IceMindExperience = () => {
             </h1>
             
             <p className="text-xl md:text-2xl text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Uma jornada de 2 horas que une preparação mental, respiração guiada e a resiliência do
-              ultramaratonista para destravar seu verdadeiro potencial. Porque a evolução nunca para.
+              Dois minutos a dois graus. O corpo grita, a respiração responde — e você decide quem manda.
+              Uma aula prática de 2 horas sobre regulação emocional, guiada por um ultramaratonista.
             </p>
             
             <p className="text-lg text-white/60 mb-8 max-w-2xl mx-auto">Você já sentiu que sua mente é o seu maior limitador? Que o estresse te controla? Que você tem potencial mas não consegue acessá-lo? Você não está sozinho - e existe um caminho. Um caminho de volta para o controle, para a presença e para a sua melhor versão.
@@ -107,6 +120,7 @@ const IceMindExperience = () => {
             </div>
 
             {turmaAberta ? (
+              <>
               <Button size="lg" className="bg-[#E8933D] hover:bg-[#d4832f] text-white text-sm md:text-lg px-6 md:px-10 py-5 md:py-6 rounded-full font-bold shadow-lg shadow-[#E8933D]/30 transition-all hover:scale-105" asChild>
                 <a href="#agendamento" onClick={e => {
                 e.preventDefault();
@@ -117,6 +131,8 @@ const IceMindExperience = () => {
               }}>GARANTIR MINHA VAGA POR {EVENTO.preco}<ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
                 </a>
               </Button>
+              <p className="mt-4 text-[#E8933D] text-sm md:text-base font-semibold">{EVENTO.descontoAtleta}</p>
+              </>
             ) : (
               <Button size="lg" className="bg-[#E8933D] hover:bg-[#d4832f] text-white text-sm md:text-lg px-6 md:px-10 py-5 md:py-6 rounded-full font-bold shadow-lg shadow-[#E8933D]/30 transition-all hover:scale-105" asChild>
                 <a href={WHATSAPP_LISTA_ESPERA} target="_blank" rel="noopener noreferrer">
@@ -251,7 +267,7 @@ const IceMindExperience = () => {
               Seu Plano de <span className="text-[#E8933D]">Transformação Mental.</span>
             </h2>
             <p className="text-xl text-[#3D3D3D]/70">
-              120 minutos que vão reconfigurar sua resposta ao estresse e ao desafio.
+              120 minutos para transformar dois minutos de gelo numa habilidade que você usa na segunda-feira.
             </p>
           </div>
           
@@ -279,7 +295,7 @@ const IceMindExperience = () => {
                 {/* Desktop Time Badge */}
                 <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 -top-20">
                   <span className="bg-[#E8933D] text-white text-xs font-bold px-3 py-1 rounded-full">
-                    45 MIN
+                    60 MIN
                   </span>
                 </div>
                 
@@ -288,21 +304,22 @@ const IceMindExperience = () => {
                     <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
                       <Brain className="w-5 h-5 text-white" />
                     </div>
-                    <span className="bg-[#E8933D] text-white text-xs font-bold px-3 py-1 rounded-full">45 MIN</span>
+                    <span className="bg-[#E8933D] text-white text-xs font-bold px-3 py-1 rounded-full">60 MIN</span>
                   </div>
                   
                   <h3 className="text-xl md:text-2xl font-bold text-white mb-3">
-                    A MENTE SOBRE<br className="hidden md:block" /> A MATÉRIA
+                    A CIÊNCIA<br className="hidden md:block" /> DO FRIO
                   </h3>
                   <p className="text-white/70 text-sm md:text-base leading-relaxed">
-                    Gustavo mostra como a mente responde sob pressão, o que trava a maioria das pessoas
-                    diante do desconforto e como a respiração vira sua ferramenta de controle.
+                    O porquê, a ciência e a técnica. O que o frio faz no seu cérebro, por que existem
+                    dois tipos de estresse — um que desgasta e outro que constrói — e por que a curva da
+                    maratona e a do gelo têm exatamente o mesmo pico. Pergunta a qualquer momento.
                   </p>
                   
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Respiração</span>
-                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Preparação Mental</span>
-                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Foco</span>
+                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Ciência</span>
+                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Regulação emocional</span>
+                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">O km 32</span>
                   </div>
                 </div>
               </div>
@@ -322,7 +339,7 @@ const IceMindExperience = () => {
                 {/* Desktop Time Badge */}
                 <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 -top-20">
                   <span className="bg-[#2C5F6F] text-white text-xs font-bold px-3 py-1 rounded-full">
-                    45 MIN
+                    30 MIN
                   </span>
                 </div>
                 
@@ -331,21 +348,22 @@ const IceMindExperience = () => {
                     <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
                       <Snowflake className="w-5 h-5 text-white" />
                     </div>
-                    <span className="bg-[#2C5F6F] text-white text-xs font-bold px-3 py-1 rounded-full">45 MIN</span>
+                    <span className="bg-[#2C5F6F] text-white text-xs font-bold px-3 py-1 rounded-full">30 MIN</span>
                   </div>
                   
                   <h3 className="text-xl md:text-2xl font-bold text-white mb-3">
-                    A PRÁTICA DA<br className="hidden md:block" /> RESILIÊNCIA
+                    O PREPARO E<br className="hidden md:block" /> A IMERSÃO
                   </h3>
                   <p className="text-white/80 text-sm md:text-base leading-relaxed">
-                    Guiado por Gustavo, você aplicará as técnicas de respiração e mentalidade
-                    para navegar a experiência da imersão em gelo.
+                    Respiração e apneia no piso de borracha, longe da banheira — as duas coisas nunca
+                    se misturam, e no dia eu explico por quê. Depois, 2 minutos a 2°C: eu guio e conto
+                    o tempo em voz alta. Você não precisa olhar relógio nenhum.
                   </p>
                   
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="bg-white/20 text-white/90 text-xs px-3 py-1 rounded-full">Imersão</span>
-                    <span className="bg-white/20 text-white/90 text-xs px-3 py-1 rounded-full">Gelo</span>
-                    <span className="bg-white/20 text-white/90 text-xs px-3 py-1 rounded-full">Superação</span>
+                    <span className="bg-white/20 text-white/90 text-xs px-3 py-1 rounded-full">2°C</span>
+                    <span className="bg-white/20 text-white/90 text-xs px-3 py-1 rounded-full">2 minutos</span>
+                    <span className="bg-white/20 text-white/90 text-xs px-3 py-1 rounded-full">Guiado</span>
                   </div>
                 </div>
               </div>
@@ -378,17 +396,18 @@ const IceMindExperience = () => {
                   </div>
                   
                   <h3 className="text-xl md:text-2xl font-bold text-white mb-3">
-                    DA SUPERAÇÃO<br className="hidden md:block" /> À VIDA REAL
+                    REAQUECER<br className="hidden md:block" /> E INTEGRAR
                   </h3>
                   <p className="text-white/70 text-sm md:text-base leading-relaxed">
-                    Em uma discussão em grupo, você vai conectar os pontos entre a experiência no gelo e os desafios 
-                    da sua vida. A superação se torna uma ferramenta prática.
+                    Reaquecimento ativo, do jeito certo — o tremor faz parte do trabalho, não é falha.
+                    E a roda de conversa, onde a experiência vira ferramenta: para o quilômetro 32, para
+                    a reunião em que o peito fecha, para a madrugada sem plano B.
                   </p>
                   
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Grupo</span>
-                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Integração</span>
-                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Prática</span>
+                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Reaquecimento</span>
+                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Roda de conversa</span>
+                    <span className="bg-white/10 text-white/80 text-xs px-3 py-1 rounded-full">Vida real</span>
                   </div>
                 </div>
               </div>
@@ -562,12 +581,21 @@ const IceMindExperience = () => {
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="item-5" className="border-white/20 border-b-0">
+                <AccordionItem value="item-5" className="border-white/20 border-b">
                   <AccordionTrigger className="text-white text-left hover:no-underline hover:text-[#E8933D] transition-colors py-5">
                     <span className="text-lg font-semibold">Existem contraindicações médicas?</span>
                   </AccordionTrigger>
                   <AccordionContent className="text-white/80 text-base pb-5">
-                    A imersão é segura para a grande maioria das pessoas quando feita com orientação, mas existem, sim, situações em que é preciso avaliação prévia. Se você tem hipertensão não controlada, histórico de arritmia, doença cardíaca, desmaios, epilepsia, gestação ou qualquer condição relevante, fale com a gente antes para alinharmos a melhor forma de participar com segurança.
+                    Existem, sim, e a lista é objetiva. Não entra na água quem tem hipertensão não controlada, cardiopatia ou arritmia, doença de Raynaud, urticária ao frio, crioglobulinemia, neuropatia periférica, gestação sem liberação médica ou histórico de desmaio em apneia. Se for o seu caso, fale com a gente antes — você faz a aula inteira, sem a água. A triagem também acontece no dia, antes de qualquer pessoa entrar.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-6" className="border-white/20 border-b-0">
+                  <AccordionTrigger className="text-white text-left hover:no-underline hover:text-[#E8933D] transition-colors py-5">
+                    <span className="text-lg font-semibold">Por que 2 minutos a 2°C, e não 10 minutos numa água mais amena?</span>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-white/80 text-base pb-5">
+                    Porque o objetivo aqui não é recuperação muscular. Se fosse, o protocolo seria outro: água entre 9°C e 12°C por 10 a 15 minutos. A gente quer o pico do estímulo, não o volume — e no gelo esse pico chega já no primeiro segundo. São protocolos diferentes porque são objetivos diferentes. E justamente por 2°C ser mais frio que a maioria dos protocolos estudados, triagem e supervisão aqui não são formalidade: ninguém entra sozinho, nunca.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
@@ -593,14 +621,14 @@ const IceMindExperience = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-bold text-[#3D3D3D] mb-4">
                 {turmaAberta ? (
-                  <>Agende Sua <span className="text-[#E8933D]">Imersão</span></>
+                  <>Garanta Sua <span className="text-[#E8933D]">Vaga</span></>
                 ) : (
                   <>Entre na Lista de <span className="text-[#E8933D]">Espera</span></>
                 )}
               </h2>
               <p className="text-xl text-[#3D3D3D]/70">
                 {turmaAberta
-                  ? "Escolha a data e horário que melhor se encaixa na sua agenda."
+                  ? "Escolha a sua turma e chame no WhatsApp. A confirmação é na hora."
                   : "A data da próxima turma ainda está sendo definida. Deixe seu nome com a gente e você é avisado antes de abrirmos as vagas."}
               </p>
             </div>
@@ -617,6 +645,11 @@ const IceMindExperience = () => {
                     <>
                       <p className="text-lg font-bold text-[#3D3D3D]">{EVENTO.dataLabel}</p>
                       <p className="text-sm text-[#E8933D] font-medium">{EVENTO.chamadaDia}</p>
+                      {EVENTO.turmas.map(t => (
+                        <p key={t.dia} className="text-xs text-[#3D3D3D]/60 mt-1">
+                          {t.dia} — {t.horario}
+                        </p>
+                      ))}
                     </>
                   ) : (
                     <p className="text-lg font-bold text-[#3D3D3D]">Próxima turma em definição</p>
@@ -630,7 +663,8 @@ const IceMindExperience = () => {
                 </div>
                 <div>
                   <p className="text-sm text-[#3D3D3D]/60 font-medium">Duração</p>
-                  <p className="text-lg font-bold text-[#3D3D3D]">2 Horas de Imersão</p>
+                  <p className="text-lg font-bold text-[#3D3D3D]">2 Horas de Experiência</p>
+                  <p className="text-sm text-[#2C5F6F] font-medium">Imersão de 2 minutos a 2°C</p>
                 </div>
               </div>
               
@@ -640,17 +674,51 @@ const IceMindExperience = () => {
                 </div>
                 <div>
                   <p className="text-sm text-[#3D3D3D]/60 font-medium">Vagas Limitadas</p>
-                  <p className="text-lg font-bold text-[#3D3D3D]">Máximo 10 Pessoas</p>
+                  <p className="text-lg font-bold text-[#3D3D3D]">10 pessoas por turma</p>
                 </div>
               </div>
             </div>
             
+            {turmaAberta && (
+              <div className="bg-[#2C5F6F] rounded-2xl p-6 md:p-8 mb-8 text-center shadow-lg">
+                <p className="text-white/60 text-sm font-medium uppercase tracking-wider">Investimento</p>
+                <p className="text-4xl font-bold text-white mt-2">
+                  {EVENTO.preco} <span className="text-lg font-medium text-white/60">por pessoa</span>
+                </p>
+                <p className="text-[#E8933D] font-semibold mt-3">{EVENTO.descontoAtleta}</p>
+              </div>
+            )}
+
             {turmaAberta ? (
-              /* Google Calendar Iframe */
-              <div className="bg-white rounded-2xl shadow-xl p-4 md:p-8">
-                <iframe src={agendamentoLink} style={{
-                border: 0
-              }} width="100%" height="600" frameBorder="0" title="Agendamento Ice Mind Experience" loading="lazy" />
+              /* A vaga é garantida pelo WhatsApp */
+              <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 text-center">
+                <p className="text-lg text-[#3D3D3D]/80 mb-3 max-w-xl mx-auto">
+                  A vaga é garantida pelo WhatsApp. Você escolhe a turma, a gente confirma na hora
+                  e te passa tudo que precisa saber sobre o dia.
+                </p>
+                <p className="text-sm text-[#3D3D3D]/60 mb-8">
+                  São 10 vagas por turma, confirmadas por ordem de chegada.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  {EVENTO.turmas.map(t => (
+                    <Button
+                      key={t.dia}
+                      size="lg"
+                      className="bg-green-500 hover:bg-green-600 text-white px-8 py-6 rounded-full font-semibold shadow-lg transition-all hover:scale-105"
+                      asChild
+                    >
+                      <a href={whatsappVaga(t.dia, t.horario)} target="_blank" rel="noopener noreferrer">
+                        <MessageCircle className="mr-2 h-5 w-5" />
+                        Quero a turma de {t.diaCurto}
+                      </a>
+                    </Button>
+                  ))}
+                </div>
+
+                <p className="text-xs text-[#3D3D3D]/50 mt-6">
+                  {EVENTO.turmas.map(t => `${t.dia} — ${t.horario}`).join("  ·  ")}
+                </p>
               </div>
             ) : (
               <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 text-center">
