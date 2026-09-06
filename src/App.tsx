@@ -43,11 +43,14 @@ const LandingPerformance = lazy(() => import("./pages/LandingPerformance"));
 const ConhecaCareFit = lazy(() => import("./pages/ConhecaCareFit"));
 const Feedback = lazy(() => import("./pages/Feedback"));
 const FichaPreAula = lazy(() => import("./pages/FichaPreAula"));
+const AgendamentoFortalecimento = lazy(() => import("./pages/AgendamentoFortalecimento"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto"];
+// A página de agendamento traz a própria barra de marca (o logo volta para a home);
+// somar a navegação global daria dois cabeçalhos e mais um caminho para desistir.
+const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto", "/agendamento-fortalecimento"];
 
 const ConditionalNavigation = () => {
   const { pathname } = useLocation();
@@ -120,6 +123,7 @@ const App = () => (
             <Route path="/conheca-a-carefit" element={<ConhecaCareFit />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/ficha" element={<FichaPreAula />} />
+            <Route path="/agendamento-fortalecimento" element={<AgendamentoFortalecimento />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="*" element={<NotFound />} />
