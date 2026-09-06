@@ -3,7 +3,7 @@ slug: carefit-site
 status: ativo
 objetivo: Manter e evoluir o site institucional e os fluxos digitais de conversão e agendamento da CareFit Run Base
 nota-mae: "20_CareFit/02_Negocio/marketing/site-seo/carefit-site-seo-e-conversao.md"
-proxima-acao: Conferir no ClickUp se as 3 reservas de teste de 05/09 consumiram credito de algum atleta e estornar se preciso; depois decidir como divulgar a pagina de agendamento (hoje noindex e sem link no site)
+proxima-acao: Cancelar as 4 linhas de teste na planilha do fortalecimento (14, 15, 16 e 18 - a 17 e reserva real) e conferir no ClickUp se elas consumiram credito de algum atleta; depois decidir como divulgar a pagina de agendamento (hoje noindex e sem link no site)
 ---
 
 # CareFit Site

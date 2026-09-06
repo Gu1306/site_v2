@@ -165,23 +165,27 @@ Tudo abaixo rodou contra a agenda e a planilha de verdade em 05/09/2026:
 | Clique duplo não duplica | idempotência devolveu a reserva original, sem linha nova |
 | Turma lotada não aceita reserva | fecha em 0 e passa a recusar |
 | **Duas reservas simultâneas na última vaga** | **uma entrou, a outra recebeu `LOTADA`** |
-| Telefone normalizado em E.164 | a página envia `+5516996008849` — mas ver a ressalva abaixo |
+| Telefone normalizado em E.164 | `"+5516996008849"` gravado como texto (ver a ressalva abaixo) |
 | Nenhum segredo no bundle | sem ID de planilha ou de agenda no build |
 
-As três reservas de teste (`Sex 25/09 08h00`, nome começando com `TESTE`) foram canceladas
-pela coluna à direita da aula, o mesmo mecanismo da operação.
+As reservas de teste (nome começando com `TESTE`) saem pela coluna à direita da aula, o
+mesmo mecanismo de cancelamento da operação.
 
-### Ressalva do telefone (corrigida no código em 05/09, aguardando nova versão do Web App)
+### Ressalva do telefone — encontrada e corrigida em 05/09
 
-Lendo as células gravadas com `valueRenderOption=FORMULA` apareceu o seguinte: o Sheets lê
-`+5516996008849` como **fórmula aritmética** e guarda o **número** `5516996008849`. O `+`
-do E.164 some. Os dígitos sobrevivem — o n8n casa pelos últimos 8 e continua funcionando —
-mas o que a planilha guarda deixa de ser o que a API mandou.
+Lendo as células gravadas com `valueRenderOption=FORMULA` apareceu o seguinte: o Sheets lia
+`+5516996008849` como **fórmula aritmética** e guardava o **número** `5516996008849`. O `+`
+do E.164 sumia. Os dígitos sobreviviam — o n8n casa pelos últimos 8 — mas o que a planilha
+guardava deixava de ser o que a API mandou.
 
-A correção (um apóstrofo na frente, que força texto) já está no `.gs` local e nos testes.
-**Ela só passa a valer quando o Web App receber uma versão nova.** As reservas gravadas
-antes disso ficam com o telefone como número; não precisa consertar retroativamente,
-porque nada quebra com elas.
+Corrigido com um apóstrofo na frente do valor, que força texto. **Confirmado na versão 2 do
+Web App:** os três `valueRenderOption` passaram a devolver a string `"+5516996008849"`.
+
+As reservas gravadas antes disso ficam com o telefone como número. Não precisa consertar
+retroativamente: os dígitos estão íntegros e nada quebra com elas.
+
+**A lição é maior que o telefone:** qualquer valor que comece com `+`, `=`, `-` ou `@` vira
+fórmula ao entrar no Sheets por `appendRow`. Se o valor é dado e não conta, force texto.
 
 ### Armadilha que custou caro, para não repetir
 
