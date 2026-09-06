@@ -59,9 +59,10 @@ O handoff pedia no mínimo 21 dias para a API. A API tem o seu próprio horizont
 `DIAS_A_FRENTE`, que rege o formulário em produção: aumentar ali mudaria a lista de opções
 que os atletas veem hoje, sem ninguém ter pedido.
 
-**6. A página está `noindex`.**
-É uma página de reserva divulgada por link direto, e ainda não anunciada. Para deixá-la
-aparecer na busca, troque `noindex: true` por `false` no `useSeo` da página.
+**6. A página nasceu `noindex` e saiu disso no mesmo dia.**
+Enquanto era só link direto, ficar fora da busca fazia sentido. Ao entrar no menu, virou
+contradição — uma página linkada de todas as outras e escondida do Google ao mesmo tempo.
+Saiu o `noindex`, entrou no sitemap.
 
 **7. Sem endpoint, a página não quebra.**
 Se nem a constante nem a env var tiverem valor, a página mostra "agendamento online em
@@ -197,8 +198,10 @@ Use `fetch` (Node ou navegador), que segue o redirect do jeito certo.
 
 ## O que continua pendente
 
-- **Divulgar a página.** Ela está `noindex` e não é linkada de lugar nenhum ainda. Para
-  aparecer na busca, trocar `noindex: true` por `false` no `useSeo` da página.
+- ~~Divulgar a página.~~ **Feito em 05/09:** entrou no menu, em *Para Corredores >
+  Agendar Aula de Fortalecimento*, saiu do `noindex` e entrou no sitemap. Com a navegação
+  global de volta na página, a barra de marca do protótipo foi removida (virava o segundo
+  logo) e o sinal de vagas ao vivo desceu para o hero.
 - **Decidir quando o Google Forms deixa de ser a porta pública.** Os dois convivem hoje:
   a reserva pelo site ressincroniza as opções do formulário a cada gravação.
 - **Não há limite de tentativas no endpoint.** Qualquer um que ache a URL pode disparar

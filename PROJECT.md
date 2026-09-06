@@ -3,7 +3,7 @@ slug: carefit-site
 status: ativo
 objetivo: Manter e evoluir o site institucional e os fluxos digitais de conversão e agendamento da CareFit Run Base
 nota-mae: "20_CareFit/02_Negocio/marketing/site-seo/carefit-site-seo-e-conversao.md"
-proxima-acao: Decidir como divulgar a pagina de agendamento, que esta no ar mas noindex e sem link nenhum no site (as linhas de teste ja foram canceladas; o que falta no ClickUp esta no backlog do Diretor de Tech)
+proxima-acao: Decidir quando o Google Forms deixa de ser a porta publica da reserva de fortalecimento, agora que a pagina do site esta no ar e no menu (o que falta conferir no ClickUp esta no backlog do Diretor de Tech)
 ---
 
 # CareFit Site
