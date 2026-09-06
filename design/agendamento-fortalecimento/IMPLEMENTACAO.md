@@ -1,6 +1,6 @@
 ---
 data: 2026-09-05
-status: implementado-local-aguardando-endpoint-e-autorizacao
+status: no-ar
 projeto: carefit-site
 relacionado: carefit-clickup-automacoes
 ---
@@ -8,10 +8,11 @@ relacionado: carefit-clickup-automacoes
 # Implementação — agendamento do fortalecimento
 
 Continuação de [HANDOFF-CLAUDE.md](HANDOFF-CLAUDE.md). O que este documento cobre: o que
-foi construído, as decisões que fechei no caminho, e os passos que só o Gustavo pode dar.
+foi construído, as decisões que fechei no caminho, como está ligado e o que foi verificado
+em produção.
 
-**Nada foi publicado.** O site segue como estava em produção e a reserva continua
-acontecendo pelo Google Forms.
+**No ar desde 05/09/2026.** O Google Forms continua funcionando em paralelo — os dois
+escrevem na mesma planilha e o site ressincroniza as opções do formulário a cada reserva.
 
 ## O que existe agora
 
@@ -62,9 +63,10 @@ que os atletas veem hoje, sem ninguém ter pedido.
 É uma página de reserva divulgada por link direto, e ainda não anunciada. Para deixá-la
 aparecer na busca, troque `noindex: true` por `false` no `useSeo` da página.
 
-**7. Sem endpoint configurado, a página não quebra.**
-Se `VITE_AGENDAMENTO_FORTALECIMENTO_API` não existir no build, a página mostra
-"agendamento online em configuração" e manda para o WhatsApp, em vez de aparecer quebrada.
+**7. Sem endpoint, a página não quebra.**
+Se nem a constante nem a env var tiverem valor, a página mostra "agendamento online em
+configuração" e manda para o WhatsApp, em vez de aparecer quebrada. Vale como rede de
+segurança caso a URL seja esvaziada por engano.
 
 ## Contrato implementado
 
@@ -118,47 +120,75 @@ Falha: `{ ok: false, codigo, mensagem }` com `codigo` em `LOTADA`, `NAO_ENCONTRA
 e Web App do Apps Script não responde `OPTIONS` — a reserva morreria em CORS. O corpo
 continua sendo JSON; o `doPost` lê `e.postData.contents`.
 
-## O que o Gustavo precisa fazer
+## Como está ligado (05/09/2026)
 
-### 1. Publicar o Web App (5 minutos)
+### Web App
 
-1. Abra o editor: <https://script.google.com/home/projects/1LJZaY5Izgnm4wU0fIczy9dh0-9DagJUWBRZaqG1VKtUM-4jdIRMy8F1a/edit>
-2. Cole o conteúdo de `C:\Projetos\carefit-clickup-automacoes\apps-script\agenda-fortalecimento.gs`
-   sobre o arquivo do projeto (é o mesmo arquivo, com a API no fim).
-3. Rode `conferirMapeamento` e leia o log. Confirme que aula, nome e e-mail apontam para as
-   colunas certas. **Se alguma estiver errada, pare aqui e me chame.**
-4. Rode `sincronizarVagas` uma vez para garantir que nada quebrou no fluxo atual.
-5. Implantar > Nova implantação > tipo **Aplicativo da Web**:
-   - Executar como: **eu**
-   - Quem pode acessar: **qualquer pessoa**
-6. Copie a URL que termina em `/exec`.
-7. Teste no navegador: `<URL>?saude=1` deve devolver `{"ok":true,...}`.
-
-### 2. Ligar no site
-
-No Railway, variável de ambiente do serviço do site:
+Implantação publicada em 05/09/2026 às 21h52, versão 1:
 
 ```
-VITE_AGENDAMENTO_FORTALECIMENTO_API=<a URL /exec>
+https://script.google.com/macros/s/AKfycbxcap4um1pU8wOOE3MdmlUL4LKi083kmxS6f8zdjBW0YrgmTvhZ8B9L-B8C-u6H3-Q1/exec
 ```
 
-Vite injeta variáveis no momento do build, então **é preciso um novo deploy** para a
-variável valer. Para testar local: crie um `.env` com a mesma linha e rode `npm run dev`.
+Executando como o dono da agenda, acessível por qualquer pessoa. `?saude=1` responde
+`{"ok":true,"servico":"agenda-fortalecimento","versao":2}` — é o jeito mais rápido de saber
+se o Web App está de pé sem depender da agenda.
 
-### 3. Testes antes de anunciar a página
+**Atualizar o código depois:** editar o `.gs` aqui, colar no editor e fazer
+*Implantar > Gerenciar implantações > editar (lápis) > Versão: Nova versão*. Isso
+**mantém a mesma URL**. Criar uma implantação *nova* gera uma URL diferente e exigiria
+mexer no site — não é o caminho.
 
-- [ ] Desktop: calendário abre no mês corrente, só dias com aula clicam, horários mostram início, término e vagas reais.
-- [ ] Celular (até 320 px): ao tocar na data, a tela desce sozinha para os horários.
-- [ ] Reserva de ponta a ponta com um e-mail seu: linha aparece na planilha, e-mail de confirmação chega, formulário do Google atualiza as vagas.
-- [ ] ClickUp: o workflow `NMeynniWMn8Eu3te` casou a reserva e consumiu o crédito igual a uma reserva pelo Forms.
-- [ ] Turma lotada aparece como "Lotada" e não deixa reservar.
-- [ ] **Teste de concorrência:** deixe uma aula com 1 vaga e confirme em dois navegadores ao mesmo tempo. Um deve receber "a última vaga acabou de ser preenchida"; a planilha deve ter uma linha só.
-- [ ] Clique duplo no "Confirmar" não gera duas linhas.
+### Site
 
-### 4. Só depois
+A URL `/exec` vive em `src/services/agendamentoFortalecimento.ts`, na constante
+`ENDPOINT_FIXO`. **Não existe variável a configurar no Railway.** A URL não é segredo:
+a página a chama do navegador, então ela aparece no bundle de qualquer visitante. O que
+protege o endpoint é a validação do lado do Apps Script, não a obscuridade.
 
-- Decidir quando o Google Forms deixa de ser a porta pública.
-- Registrar o deploy no diário do Diretor de Tecnologia (`wiki/diretor-tech/registro-de-sistemas.md`).
+`VITE_AGENDAMENTO_FORTALECIMENTO_API` continua funcionando como override, para apontar a
+página a outra implantação sem commit. Para isso o `Dockerfile` ganhou o `ARG`/`ENV`
+correspondente — sem ele, o Railway entrega a variável ao build e o Vite não a enxerga,
+e a página nasce em modo "em configuração" sem erro nenhum no log.
+
+## O que foi verificado em produção
+
+Tudo abaixo rodou contra a agenda e a planilha de verdade em 05/09/2026:
+
+| Critério de aceite | Resultado |
+|---|---|
+| Horários com início, término e vagas reais | 27 aulas em 21 dias; contagem batendo com a planilha |
+| CORS a partir do navegador | `Access-Control-Allow-Origin: *` no 302 e no 200 |
+| POST atravessa o redirect do Apps Script | confirmado com `fetch` seguindo a mesma especificação do navegador |
+| Grava no formato que o n8n lê | `Sex 25/09 — 08h00 às 09h00 (3 vagas)` |
+| Confirmação por e-mail | chegou |
+| Clique duplo não duplica | idempotência devolveu a reserva original, sem linha nova |
+| Turma lotada não aceita reserva | fecha em 0 e passa a recusar |
+| **Duas reservas simultâneas na última vaga** | **uma entrou, a outra recebeu `LOTADA`** |
+| Telefone normalizado em E.164 | `+5516996008849` |
+| Nenhum segredo no bundle | sem ID de planilha ou de agenda no build |
+
+As três reservas de teste (`Sex 25/09 08h00`, nome começando com `TESTE`) foram canceladas
+pela coluna à direita da aula, o mesmo mecanismo da operação.
+
+### Armadilha que custou caro, para não repetir
+
+Testar o `POST` com `curl -L` **grava a reserva e mente que falhou**. O Apps Script executa
+o `doPost` em `/exec` e só então redireciona para servir o resultado; o curl reenvia o POST
+sem `Content-Length` e leva um `411`. Quem lê o 411 conclui que nada aconteceu — e já
+aconteceu. Foi assim que nasceram reservas fantasma na primeira rodada de teste.
+Use `fetch` (Node ou navegador), que segue o redirect do jeito certo.
+
+## O que continua pendente
+
+- **Divulgar a página.** Ela está `noindex` e não é linkada de lugar nenhum ainda. Para
+  aparecer na busca, trocar `noindex: true` por `false` no `useSeo` da página.
+- **Decidir quando o Google Forms deixa de ser a porta pública.** Os dois convivem hoje:
+  a reserva pelo site ressincroniza as opções do formulário a cada gravação.
+- **Não há limite de tentativas no endpoint.** Qualquer um que ache a URL pode disparar
+  reservas. O Google Forms tinha exatamente a mesma exposição, então isso não é uma
+  regressão — mas é um risco que passa a valer para um endpoint que grava sozinho.
+
 
 ## Riscos conhecidos
 

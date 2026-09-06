@@ -3,7 +3,7 @@ slug: carefit-site
 status: ativo
 objetivo: Manter e evoluir o site institucional e os fluxos digitais de conversão e agendamento da CareFit Run Base
 nota-mae: "20_CareFit/02_Negocio/marketing/site-seo/carefit-site-seo-e-conversao.md"
-proxima-acao: Publicar o Web App do Apps Script, apontar VITE_AGENDAMENTO_FORTALECIMENTO_API para a URL /exec e rodar os testes de ponta a ponta e de concorrência do agendamento (roteiro em design/agendamento-fortalecimento/IMPLEMENTACAO.md)
+proxima-acao: Conferir no ClickUp se as 3 reservas de teste de 05/09 consumiram credito de algum atleta e estornar se preciso; depois decidir como divulgar a pagina de agendamento (hoje noindex e sem link no site)
 ---
 
 # CareFit Site
@@ -39,3 +39,5 @@ proxima-acao: Publicar o Web App do Apps Script, apontar VITE_AGENDAMENTO_FORTAL
 - 2026-09-05: a página de agendamento foi implementada em `/agendamento-fortalecimento`, com a API no Web App do próprio Apps Script (e não no n8n) — é lá que estão a agenda, a planilha, o e-mail e o `LockService`, a única trava real contra overbooking.
 - 2026-09-05: a reserva feita pelo site grava na mesma planilha e no mesmo formato do Google Forms, de propósito: é o que mantém o workflow n8n `NMeynniWMn8Eu3te` e o consumo de crédito no ClickUp funcionando sem alteração.
 - 2026-09-05: o horizonte do formulário continua em 15 dias; a API do site tem o seu próprio (21 dias por padrão, teto de 180). Mexer no formulário mudaria o que os atletas veem hoje.
+- 2026-09-05: agendamento NO AR. Web App publicado, deploy do site feito, e o teste de concorrência na última vaga passou em produção — duas reservas simultâneas, uma entrou e a outra recebeu `LOTADA`. O Google Forms segue em paralelo: os dois escrevem na mesma planilha.
+- 2026-09-05: a URL /exec vive no código, não em variável do Railway. Ela aparece no bundle de qualquer jeito (o navegador a chama), então a env var só adicionava uma forma silenciosa de falhar. O `Dockerfile` ganhou o ARG/ENV para o override continuar possível.
