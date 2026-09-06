@@ -34,6 +34,7 @@ const Navigation = () => {
         { name: "Fisioterapia para Corredores", href: "/fisioterapia-para-corredores-ribeirao-preto" },
         { name: "Avaliação do Corredor", href: "/avaliacao-do-corredor-ribeirao-preto" },
         { name: "Fortalecimento para Corredores", href: "/fortalecimento-para-corredores-ribeirao-preto" },
+        { name: "Agendar Aula de Fortalecimento", href: "/agendamento-fortalecimento" },
         { name: "Recovery para Corredores", href: "/recovery-corredores-ribeirao-preto" },
         { name: "Biomecânica da Corrida", href: "/biomecanica-da-corrida-ribeirao-preto" },
         { name: "Treinamento para Maratona", href: "/treinamento-para-maratona-ribeirao-preto" },

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
 import { AlertCircle, Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useSeo } from "@/hooks/useSeo";
 import {
@@ -87,9 +86,8 @@ const AgendamentoFortalecimento = () => {
     descricao:
       "Escolha o dia e o horário da sua aula de fortalecimento para corredores na CareFit Run Base, em Ribeirão Preto.",
     caminho: "/agendamento-fortalecimento",
-    // Página de reserva, divulgada por link direto. Trocar para false quando
-    // o Gustavo quiser que ela apareça na busca.
-    noindex: true,
+    // Indexável desde que entrou no menu: uma página linkada de todas as outras
+    // e escondida da busca ao mesmo tempo é contradição, e o Google trata assim.
   });
 
   const mesAtual = useMemo<Mes>(() => {
@@ -312,32 +310,30 @@ const AgendamentoFortalecimento = () => {
 
   const passoAtual: 1 | 2 | 3 = etapa === "agenda" ? (dataSelecionada ? 2 : 1) : 3;
 
+  // O pt- generoso compensa a navegação global, que é fixa no topo da janela.
   return (
-    <div className="min-h-screen bg-background px-4 py-6 sm:px-6 sm:py-10">
+    <div className="min-h-screen bg-background px-4 pb-8 pt-24 sm:px-6 sm:pb-12 sm:pt-28">
       <div className="mx-auto w-full max-w-5xl overflow-hidden rounded-2xl bg-warm sm:rounded-3xl"
         style={{ boxShadow: "0 20px 60px -20px hsl(var(--primary) / 0.35)" }}>
-        {/* ------------------------------------------------------------ Topo */}
-        <header className="flex items-center justify-between gap-4 bg-primary px-4 py-3 text-primary-foreground sm:px-8">
-          <Link to="/" className="flex items-center gap-2.5 text-[11px] font-medium tracking-[0.09em]">
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-earth font-semibold text-primary">
-              C
-            </span>
-            CAREFIT RUN BASE
-          </Link>
-          <span className="hidden items-center gap-2 text-[11px] text-primary-foreground/70 sm:flex">
-            <span className="h-[7px] w-[7px] rounded-full bg-emerald-300 shadow-[0_0_0_4px_rgba(146,223,184,0.13)]" />
-            Vagas atualizadas em tempo real
-          </span>
-        </header>
+        {/* A barra de marca do protótipo saiu quando a página entrou no menu:
+            com a navegação global no topo, ela virava o segundo logo da tela.
+            O sinal de vagas ao vivo, que era o outro conteúdo dela, desceu
+            para o hero. */}
 
         {/* ------------------------------------------------------------ Hero */}
         <div
           className="px-4 pb-6 pt-7 text-primary-foreground sm:px-8"
           style={{ backgroundImage: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))" }}
         >
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.13em] text-earth">
-            Fortalecimento para corredores
-          </p>
+          <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+            <p className="text-[11px] font-medium uppercase tracking-[0.13em] text-earth">
+              Fortalecimento para corredores
+            </p>
+            <span className="flex items-center gap-2 text-[11px] text-primary-foreground/70">
+              <span className="h-[7px] w-[7px] rounded-full bg-emerald-300 shadow-[0_0_0_4px_rgba(146,223,184,0.13)]" />
+              Vagas atualizadas em tempo real
+            </span>
+          </div>
           <h1 className="text-[26px] font-semibold leading-tight tracking-tight sm:text-4xl">
             Quando você quer treinar?
           </h1>

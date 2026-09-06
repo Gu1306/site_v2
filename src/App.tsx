@@ -48,9 +48,7 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// A página de agendamento traz a própria barra de marca (o logo volta para a home);
-// somar a navegação global daria dois cabeçalhos e mais um caminho para desistir.
-const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto", "/agendamento-fortalecimento"];
+const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto"];
 
 const ConditionalNavigation = () => {
   const { pathname } = useLocation();
