@@ -165,11 +165,23 @@ Tudo abaixo rodou contra a agenda e a planilha de verdade em 05/09/2026:
 | Clique duplo não duplica | idempotência devolveu a reserva original, sem linha nova |
 | Turma lotada não aceita reserva | fecha em 0 e passa a recusar |
 | **Duas reservas simultâneas na última vaga** | **uma entrou, a outra recebeu `LOTADA`** |
-| Telefone normalizado em E.164 | `+5516996008849` |
+| Telefone normalizado em E.164 | a página envia `+5516996008849` — mas ver a ressalva abaixo |
 | Nenhum segredo no bundle | sem ID de planilha ou de agenda no build |
 
 As três reservas de teste (`Sex 25/09 08h00`, nome começando com `TESTE`) foram canceladas
 pela coluna à direita da aula, o mesmo mecanismo da operação.
+
+### Ressalva do telefone (corrigida no código em 05/09, aguardando nova versão do Web App)
+
+Lendo as células gravadas com `valueRenderOption=FORMULA` apareceu o seguinte: o Sheets lê
+`+5516996008849` como **fórmula aritmética** e guarda o **número** `5516996008849`. O `+`
+do E.164 some. Os dígitos sobrevivem — o n8n casa pelos últimos 8 e continua funcionando —
+mas o que a planilha guarda deixa de ser o que a API mandou.
+
+A correção (um apóstrofo na frente, que força texto) já está no `.gs` local e nos testes.
+**Ela só passa a valer quando o Web App receber uma versão nova.** As reservas gravadas
+antes disso ficam com o telefone como número; não precisa consertar retroativamente,
+porque nada quebra com elas.
 
 ### Armadilha que custou caro, para não repetir
 
