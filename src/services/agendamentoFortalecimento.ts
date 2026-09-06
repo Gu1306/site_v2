@@ -18,11 +18,20 @@
  * ========================================================================= */
 
 /**
- * URL /exec da implantação do Web App.
- * Preferência para a env var (VITE_… entra no build do Vite); o valor fixo
- * existe para o caso de o Gustavo querer só colar a URL e subir.
+ * URL /exec da implantação do Web App (publicada em 05/09/2026).
+ *
+ * Fica no código de propósito. Não é segredo e não teria como ser: a página
+ * chama esta URL do navegador, então ela aparece no bundle e no devtools de
+ * qualquer visitante de qualquer jeito. O que protege o endpoint é a validação
+ * do lado de lá, não a obscuridade. Em troca, some uma classe inteira de falha
+ * silenciosa — variável que não chega ao build e deixa a página muda.
+ *
+ * A env var continua valendo e tem prioridade: para apontar para outra
+ * implantação (teste, rollback) basta definir VITE_AGENDAMENTO_FORTALECIMENTO_API,
+ * sem commit. O Dockerfile já declara o ARG correspondente.
  */
-const ENDPOINT_FIXO = "";
+const ENDPOINT_FIXO =
+  "https://script.google.com/macros/s/AKfycbxcap4um1pU8wOOE3MdmlUL4LKi083kmxS6f8zdjBW0YrgmTvhZ8B9L-B8C-u6H3-Q1/exec";
 
 const ENDPOINT =
   (import.meta.env.VITE_AGENDAMENTO_FORTALECIMENTO_API as string | undefined)?.trim() ||
