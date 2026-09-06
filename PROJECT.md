@@ -3,7 +3,7 @@ slug: carefit-site
 status: ativo
 objetivo: Manter e evoluir o site institucional e os fluxos digitais de conversão e agendamento da CareFit Run Base
 nota-mae: "20_CareFit/02_Negocio/marketing/site-seo/carefit-site-seo-e-conversao.md"
-proxima-acao: Decidir quando o Google Forms deixa de ser a porta publica da reserva de fortalecimento, agora que a pagina do site esta no ar e no menu (o que falta conferir no ClickUp esta no backlog do Diretor de Tech)
+proxima-acao: Trocar o link do formulario pelo link do site (carefitrunbase.com.br/agendamento-fortalecimento) na bio do WhatsApp, na bio do Instagram e nos fluxos do ManyChat - os unicos lugares que sobraram apontando para a porta antiga
 ---
 
 # CareFit Site
