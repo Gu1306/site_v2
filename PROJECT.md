@@ -3,7 +3,7 @@ slug: carefit-site
 status: ativo
 objetivo: Manter e evoluir o site institucional e os fluxos digitais de conversão e agendamento da CareFit Run Base
 nota-mae: "20_CareFit/02_Negocio/marketing/site-seo/carefit-site-seo-e-conversao.md"
-proxima-acao: Renovar login Railway e publicar painel de fortalecimento com variaveis privadas de runtime; depois testar com Lucas no PC espelhado na TV
+proxima-acao: Cadastrar os treinos com Lucas no painel publicado e validar a leitura no PC espelhado na TV
 ---
 
 # CareFit Site
@@ -25,6 +25,9 @@ proxima-acao: Renovar login Railway e publicar painel de fortalecimento com vari
 - Página de agendamento: `src/pages/AgendamentoFortalecimento.tsx` (rota `/agendamento-fortalecimento`)
 - Cliente da API de agendamento: `src/services/agendamentoFortalecimento.ts`
 - Automação atual da reserva e API do agendamento: `C:\Projetos\carefit-clickup-automacoes\apps-script\agenda-fortalecimento.gs`
+- Painel interno de fortalecimento: `src/pages/PainelFortalecimento.tsx` (rota privada `/painel-fortalecimento`)
+- Backend privado do painel: `server/index.mjs` e `server/fortalecimento.mjs`
+- Operação, arquitetura e publicação: `design/fortalecimento-tv/OPERACAO.md`
 
 ## Dados sensíveis
 
@@ -32,7 +35,8 @@ proxima-acao: Renovar login Railway e publicar painel de fortalecimento com vari
 
 ## Decisões importantes
 
-- 2026-09-09: painel privado de fortalecimento implementado em `/painel-fortalecimento`, com servidor Node, autenticação de equipe, prescrição em subtarefas CRM e snapshot/evolução por aula. Build e testes locais passaram; consulta real validada sem gravar treino fictício. Publicação pendente da renovação do login Railway. Operação e variáveis documentadas em `design/fortalecimento-tv/OPERACAO.md`. Acesso do painel é separado do login ClickUp. Manter uma réplica do serviço.
+- 2026-09-10: painel privado de fortalecimento publicado em `https://www.carefitrunbase.com.br/painel-fortalecimento`, com servidor Node, autenticação própria da equipe, prescrição em subtarefas do CRM, cópia imutável do treino por aula, modo TV com até três atletas e evolução confirmada antes do status `realizada`. Acesso separado do login ClickUp. Manter uma réplica do serviço.
+- 2026-09-10: corrigida a leitura do retorno Markdown do ClickUp. O painel prioriza `description`, aceita o formato escapado de `markdown_description`, envolve novos registros em bloco de código e consolida tentativas repetidas pelo `requestId` sem apagar subtarefas já criadas. Treinos que falharam apenas na confirmação são recuperados automaticamente.
 
 - 2026-07-22: o site atual é o repositório `site_v2`; o backend antigo do zip inicial foi removido porque nunca esteve conectado à produção.
 - 2026-09-05: a ficha pré-aula do fortalecimento passou a existir em `/ficha` e se comunica com o n8n.

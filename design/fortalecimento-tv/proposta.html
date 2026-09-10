@@ -1,0 +1,79 @@
+<div id="carefit-studio" aria-label="Painel de fortalecimento CareFit" data-mode="tv">
+  <style>
+    #carefit-studio{--cf-bg:#092d31;--cf-panel:#123e42;--cf-text:#fffaf3;--cf-muted:#b7cfcd;--cf-line:#31565a;--cf-accent:#e69a71;--cf-size:1;font-family:Arial,Helvetica,sans-serif;background:var(--cf-bg);color:var(--cf-text);border-radius:18px;overflow:hidden;text-align:left;color-scheme:dark}
+    #carefit-studio *{box-sizing:border-box}#carefit-studio button,#carefit-studio input,#carefit-studio select{font:inherit}#carefit-studio button{cursor:pointer;border:1px solid var(--cf-line);background:var(--cf-panel);color:var(--cf-text);padding:10px 14px;border-radius:8px;min-height:42px}#carefit-studio button[aria-pressed=true],#carefit-studio .cf-primary{background:var(--cf-accent);color:#132e31;border-color:var(--cf-accent)}#carefit-studio button:hover{filter:brightness(1.12)}#carefit-studio input,#carefit-studio select{color:var(--cf-text);background:var(--cf-bg);border:1px solid var(--cf-line);border-radius:6px;padding:10px;min-width:0;font-size:16px;width:100%}
+    #carefit-studio .cf-top{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 26px;border-bottom:1px solid var(--cf-line);flex-wrap:wrap}#carefit-studio .cf-brand{font-size:28px;font-weight:700;letter-spacing:-1.6px;line-height:1}#carefit-studio .cf-brand em{font-style:normal;color:var(--cf-accent)}#carefit-studio .cf-brand small{font-size:10px;letter-spacing:3.5px;display:block;margin-top:8px;font-weight:400}#carefit-studio .cf-demo{font-size:12px;color:var(--cf-muted)}#carefit-studio .cf-nav{display:flex;gap:6px;flex-wrap:wrap}#carefit-studio .cf-nav button{font-size:14px}
+    #carefit-studio .cf-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;padding:24px 26px 20px}#carefit-studio .cf-kicker{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cf-muted);margin:0 0 7px}#carefit-studio h2{font-size:25px;margin:0;line-height:1.15;font-weight:500;letter-spacing:-.8px}#carefit-studio .cf-slots{display:flex;gap:6px;flex-wrap:wrap}#carefit-studio .cf-slots button{font-size:14px;font-variant-numeric:tabular-nums}#carefit-studio .cf-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:0 26px 26px}#carefit-studio .cf-athlete{background:var(--cf-panel);border:1px solid var(--cf-line);border-radius:12px;overflow:hidden;min-width:0}#carefit-studio .cf-athlete-head{padding:20px 20px 16px;border-bottom:1px solid var(--cf-line);position:relative}#carefit-studio .cf-index{font-size:12px;letter-spacing:2px;color:var(--cf-accent);display:block;margin-bottom:14px}#carefit-studio h3{font-size:calc(25px * var(--cf-size));font-weight:500;letter-spacing:-.6px;margin:0 0 8px;line-height:1.15;overflow-wrap:anywhere}#carefit-studio .cf-sub{font-size:13px;color:var(--cf-muted);margin:0;line-height:1.5}#carefit-studio .cf-exercise{padding:18px 20px;border-bottom:1px solid var(--cf-line)}#carefit-studio .cf-exercise:last-child{border-bottom:0}#carefit-studio .cf-exname{font-size:calc(17px * var(--cf-size));line-height:1.3;margin:0 0 13px;font-weight:500}#carefit-studio .cf-exname span{font-size:12px;color:var(--cf-accent);margin-right:7px}#carefit-studio .cf-numbers{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}#carefit-studio .cf-numbers b{font-size:calc(21px * var(--cf-size));font-weight:500;display:block;color:var(--cf-text);font-variant-numeric:tabular-nums}#carefit-studio .cf-numbers small{font-size:10px;letter-spacing:1px;color:var(--cf-muted);text-transform:uppercase;display:block;margin-top:6px}#carefit-studio .cf-note{padding:12px 20px;background:var(--cf-bg);font-size:13px;color:var(--cf-muted)}#carefit-studio .cf-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 26px;border-top:1px solid var(--cf-line);font-size:12px;color:var(--cf-muted)}#carefit-studio .cf-vacancy{border:1px dashed var(--cf-line);border-radius:12px;min-height:220px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--cf-muted)}#carefit-studio .cf-vacancy strong{font-size:34px;font-weight:400}
+    #carefit-studio .cf-lane{background:var(--cf-panel);border-radius:12px;border:1px solid var(--cf-line);padding:18px}#carefit-studio .cf-lane-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--cf-line);padding-bottom:16px;margin-bottom:16px;gap:8px}#carefit-studio .cf-lane-head strong{font-size:22px;font-weight:500}#carefit-studio .cf-lane-head small{color:var(--cf-muted)}#carefit-studio .cf-person{border:1px solid var(--cf-line);border-radius:8px;background:var(--cf-bg);margin-bottom:12px;padding:16px}#carefit-studio .cf-person h3{font-size:20px}#carefit-studio .cf-person button{margin-top:14px;width:100%;font-size:13px}#carefit-studio .cf-presence{display:flex;align-items:center;gap:8px;font-size:12px;margin:10px 0 0;color:var(--cf-muted)}#carefit-studio .cf-presence::before{content:'';height:6px;width:6px;border-radius:50%;background:var(--cf-accent)}#carefit-studio .cf-lane>button{width:100%}
+    #carefit-studio .cf-editor{padding:0 26px 26px}#carefit-studio .cf-editor-top{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:20px}#carefit-studio label{font-size:13px;color:var(--cf-muted);display:block}#carefit-studio label input,#carefit-studio label select{margin-top:8px}#carefit-studio .cf-edit-row{display:grid;grid-template-columns:2.6fr .75fr 1fr 1fr .8fr;gap:10px;padding:14px 0;border-top:1px solid var(--cf-line)}#carefit-studio .cf-edit-actions{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-top:20px}#carefit-studio .cf-feedback{font-size:13px;color:var(--cf-muted)}#carefit-studio .cf-chip{font-size:11px;letter-spacing:1px;color:var(--cf-accent)}
+    @media(max-width:720px){#carefit-studio .cf-grid{grid-template-columns:1fr;padding:0 16px 16px}#carefit-studio .cf-top,#carefit-studio .cf-toolbar{padding:18px 16px}#carefit-studio .cf-edit-row{grid-template-columns:repeat(2,minmax(0,1fr))}#carefit-studio .cf-edit-row label:first-child{grid-column:1/-1}#carefit-studio .cf-editor-top{grid-template-columns:1fr}#carefit-studio .cf-editor{padding:0 16px 20px}#carefit-studio h2{font-size:22px}#carefit-studio .cf-nav{width:100%}}
+  </style>
+  <style>#carefit-studio .cf-slots[hidden]{display:none}</style>
+  <header class="cf-top">
+    <div class="cf-brand">care<em>fit</em><small>RUN BASE</small></div>
+    <nav class="cf-nav" aria-label="Modos do painel">
+      <button type="button" data-mode="agenda" aria-pressed="false">Agenda do dia</button>
+      <button type="button" data-mode="editor" aria-pressed="false">Programar treino</button>
+      <button type="button" data-mode="tv" aria-pressed="true">Tela da TV</button>
+    </nav>
+    <span class="cf-demo">Demonstração · dados fictícios</span>
+  </header>
+  <div class="cf-toolbar">
+    <div><p class="cf-kicker">Fortalecimento · sexta, 11 de setembro</p><h2 id="cf-title">Seu treino. Seu ritmo.</h2></div>
+    <div class="cf-slots" aria-label="Horário da turma">
+      <button type="button" data-slot="0" aria-pressed="true">06h–07h</button>
+      <button type="button" data-slot="1" aria-pressed="false">07h–08h</button>
+      <button type="button" data-slot="2" aria-pressed="false">08h–09h</button>
+    </div>
+  </div>
+  <main id="cf-content"></main>
+  <footer class="cf-foot"><span>Lucas · treinador de fortalecimento</span><span id="cf-caption">Turma 06h–07h · 3 atletas</span><span>Treinos ilustrativos, sem prescrição real</span></footer>
+  <script>
+  (()=>{
+    const root=document.getElementById('carefit-studio');
+    const content=root.querySelector('#cf-content');
+    const slots=['06h–07h','07h–08h','08h–09h'];
+    const exercise=(name,series,reps,weight,rest)=>({name,series,reps,weight,rest});
+    const people=[
+      {name:'Ana Martins',slot:0,title:'Treino A · força e controle',ex:[exercise('Agachamento goblet','3','10','12 kg','60 s'),exercise('Remada unilateral','3','12','8 kg','45 s'),exercise('Elevação de panturrilha','3','15','10 kg','45 s'),exercise('Prancha frontal','3','30 s','Corpo','30 s')]},
+      {name:'Bruno Costa',slot:0,title:'Treino B · estabilidade',ex:[exercise('Step-up no banco','3','8/lado','6 kg','60 s'),exercise('Levantamento romeno','3','10','16 kg','60 s'),exercise('Puxada com elástico','3','12','Leve','45 s'),exercise('Prancha lateral','3','25 s','Corpo','30 s')]},
+      {name:'Carla Souza',slot:0,title:'Treino A · força global',ex:[exercise('Agachamento no banco','3','12','8 kg','60 s'),exercise('Remada baixa','3','12','12 kg','45 s'),exercise('Ponte de quadril','3','12','10 kg','45 s'),exercise('Dead bug','3','8/lado','Corpo','30 s')]},
+      {name:'Daniel Lima',slot:1,title:'Treino A · força global',ex:[exercise('Agachamento goblet','3','10','10 kg','60 s'),exercise('Remada unilateral','3','12','6 kg','45 s')]},
+      {name:'Elisa Rocha',slot:1,title:'Treino B · estabilidade',ex:[exercise('Step-up no banco','3','10','Corpo','60 s'),exercise('Ponte de quadril','3','12','8 kg','45 s')]},
+      {name:'Felipe Alves',slot:2,title:'Treino A · força global',ex:[exercise('Agachamento no banco','3','10','6 kg','60 s'),exercise('Remada baixa','3','12','10 kg','45 s')]}
+    ];
+    let mode='tv',slot=0,selected=0;
+    const theme={light:false,textScale:1};
+    const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const rowHTML=(e,i)=>`<div class="cf-exercise"><p class="cf-exname"><span>${String(i+1).padStart(2,'0')}</span>${esc(e.name)}</p><div class="cf-numbers"><div><b>${esc(e.series)} × ${esc(e.reps)}</b><small>Séries × repetições</small></div><div><b>${esc(e.weight)}</b><small>Carga</small></div><div><b>${esc(e.rest)}</b><small>Pausa</small></div></div></div>`;
+    function render(){
+      root.dataset.mode=mode;
+      root.style.setProperty('--cf-size',theme.textScale);
+      const colors=theme.light?['#f4ede4','#fffaf4','#0e3c41','#476568','#d8ded8','#d9855c']:['#092d31','#123e42','#fffaf3','#b7cfcd','#31565a','#e69a71'];
+      ['--cf-bg','--cf-panel','--cf-text','--cf-muted','--cf-line','--cf-accent'].forEach((k,i)=>root.style.setProperty(k,colors[i]));
+      root.style.colorScheme=theme.light?'light':'dark';
+      root.querySelectorAll('[data-mode]').forEach(b=>{if(b.tagName==='BUTTON')b.setAttribute('aria-pressed',String(b.dataset.mode===mode))});
+      root.querySelectorAll('[data-slot]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.slot)===slot)));
+      root.querySelector('.cf-slots').hidden=mode!=='tv';
+      root.querySelector('#cf-title').textContent=mode==='tv'?'Seu treino. Seu ritmo.':mode==='agenda'?'Aulas do dia':'Programação individual';
+      const group=people.filter(p=>p.slot===slot);
+      root.querySelector('#cf-caption').textContent=mode==='tv'?`Turma ${slots[slot]} · ${group.length} atleta${group.length===1?'':'s'}`:mode==='agenda'?'3 turmas · até 3 atletas por horário':'Edições ficam apenas nesta demonstração';
+      if(mode==='tv'){
+        content.innerHTML='<div class="cf-grid">'+group.map((p,i)=>`<article class="cf-athlete"><div class="cf-athlete-head"><span class="cf-index">ATLETA ${String(i+1).padStart(2,'0')}</span><h3>${esc(p.name)}</h3><p class="cf-sub">${esc(p.title)}</p></div>${p.ex.map(rowHTML).join('')}<div class="cf-note">${p.ex.length} exercícios · siga a orientação do Lucas</div></article>`).join('')+Array.from({length:3-group.length},()=>'<div class="cf-vacancy"><strong>—</strong><span>Vaga livre nesta turma</span></div>').join('')+'</div>';
+      } else if(mode==='agenda'){
+        content.innerHTML='<div class="cf-grid">'+slots.map((s,i)=>{const members=people.filter(p=>p.slot===i);return `<section class="cf-lane"><div class="cf-lane-head"><strong>${s}</strong><small>${members.length}/3 atletas</small></div>${members.map(p=>`<article class="cf-person"><h3>${esc(p.name)}</h3><p class="cf-sub">${esc(p.title)}</p><p class="cf-presence">Agendada · treino preparado</p><button type="button" data-edit="${people.indexOf(p)}">Ver e editar treino</button></article>`).join('')}<button type="button" class="cf-primary" data-tv="${i}">Exibir turma na TV</button></section>`}).join('')+'</div>';
+      } else {
+        const p=people[selected];
+        content.innerHTML=`<form class="cf-editor"><div class="cf-editor-top"><label>Atleta<select id="cf-person-select">${people.map((p,i)=>`<option value="${i}" ${i===selected?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label><label>Nome do treino<input id="cf-workout-name" value="${esc(p.title)}" maxlength="90" required></label></div><span class="cf-chip">FICHA DO TREINO</span><div id="cf-edit-rows">${p.ex.map((e,i)=>`<div class="cf-edit-row">${[['name','Exercício'],['series','Séries'],['reps','Repetições'],['weight','Carga'],['rest','Pausa']].map(([key,label])=>`<label>${label}<input data-row="${i}" data-key="${key}" value="${esc(e[key])}" maxlength="70" required></label>`).join('')}</div>`).join('')}</div><div class="cf-edit-actions"><button type="button" id="cf-add">+ Exercício</button><span id="cf-feedback" class="cf-feedback" role="status">Sem alterações no ClickUp.</span><button class="cf-primary" type="submit">Aplicar à demonstração</button></div></form>`;
+        content.querySelector('#cf-person-select').onchange=e=>{selected=Number(e.target.value);render()};
+        function capture(){p.title=content.querySelector('#cf-workout-name').value;content.querySelectorAll('[data-row]').forEach(el=>p.ex[Number(el.dataset.row)][el.dataset.key]=el.value);}
+        content.querySelector('#cf-add').onclick=()=>{capture();if(p.ex.length<8)p.ex.push(exercise('Novo exercício','3','10','A definir','60 s'));render()};
+        content.querySelector('form').onsubmit=e=>{e.preventDefault();capture();slot=p.slot;mode='tv';render()};
+      }
+    }
+    root.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.mode){mode=b.dataset.mode;render()}else if(b.dataset.slot!==undefined){slot=Number(b.dataset.slot);render()}else if(b.dataset.tv!==undefined){slot=Number(b.dataset.tv);mode='tv';render()}else if(b.dataset.edit!==undefined){selected=Number(b.dataset.edit);mode='editor';render()}});
+    render();
+    if(globalThis.Tweak){const tweak=new Tweak({container:root,onChange:render});tweak.addToggle(theme,'light',{label:'Fundo claro'});tweak.addSlider(theme,'textScale',{label:'Tamanho do treino',min:0.9,max:1.2,step:0.05});}
+  })();
+  </script>
+</div>

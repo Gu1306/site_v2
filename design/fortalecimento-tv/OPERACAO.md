@@ -40,4 +40,6 @@ Não colocar as variáveis em argumentos de build nem prefixá-las com `VITE_`. 
 
 ## Situação da publicação
 
-Implementação local pronta. Publicação depende de renovar a autenticação da Railway (CLI retornou `invalid_grant`). Não há confirmação de implantação no domínio até esta autenticação e a configuração das variáveis terminarem.
+Publicado em 09/09/2026 (Brasília) em https://www.carefitrunbase.com.br/painel-fortalecimento. Railway confirmou SUCCESS para e50516cc-ac6b-4221-bbd6-fd0e51215b53, commit 53ed86d. Logins de Lucas e Gustavo, consulta real de agenda, bloqueio sem sessão e páginas públicas validados por HTTP. PORT=8080 preserva o destino dos domínios; uma réplica ativa. Nenhuma aula real concluída durante a verificação.
+
+Em 10/09/2026, o primeiro uso real revelou que o ClickUp escapava `_`, `[` e `]` em `markdown_description`: a subtarefa era criada, mas a confirmação do painel falhava e novas tentativas repetiam o registro. A correção do commit `5995c1c` passou a priorizar `description`, manter fallback para Markdown, proteger novos JSONs em bloco de código e consolidar registros com o mesmo `requestId`. Deploy `44e6f322-29bb-4cb8-9a01-c952d084923e` concluído. O treino da Aline foi recuperado e a repetição idempotente em produção não criou nova subtarefa. Os registros anteriores foram preservados; não apagar sem decisão explícita.
