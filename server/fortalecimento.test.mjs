@@ -3,6 +3,14 @@ import assert from 'node:assert/strict';
 import { createService, IDS, slotOf, dayOf, validateWorkout, unpack } from './fortalecimento.mjs';
 import { createServer, passwordHash } from './index.mjs';
 const workout = { title: 'Treino teste', displayName: 'Pessoa Teste', exercises: [{ name: 'Exercício de teste', sets: 3, reps: '10', load: 'corpo', rest: 60 }] };
+test('ClickUp escaped Markdown does not hide a saved plain-text record', () => {
+  const record = { kind: 'workout', workout, requestId: 'retry1' };
+  const description = 'CAREFIT_PORTAL_V1\n' + JSON.stringify(record);
+  const markdown_description = description.replace(/[_\[\]]/g, char => '\\' + char);
+  assert.deepEqual(unpack({ description, markdown_description }), record);
+  assert.deepEqual(unpack({ markdown_description: '```json\n' + description + '\n```' }), record);
+  assert.equal(unpack({ description: 'CAREFIT_PORTAL_V1\ninvalid' }), null);
+});
 function fixture() {
   const db = new Map(); const calls = []; let count = 0; let failField = false;
   db.set('athlete1', { id: 'athlete1', name: 'Pessoa Teste', list: { id: IDS.athletes }, subtasks: [] });
@@ -46,6 +54,18 @@ test('immutable revisions, idempotent save and concurrent editor conflict', asyn
   await service.saveWorkout('athlete1', { workout: { ...workout, title: 'Nova versão' }, requestId: 'save3', baseRevision: first.id }, 'lucas');
   assert.equal(unpack(db.get(sessionId)).workout.title, 'Treino teste');
   assert.equal(db.get('athlete1').description, undefined);
+});
+test('repeated failed confirmations are recovered once without deleting ClickUp records', async () => {
+  const { service, db, calls } = fixture();
+  const saved = await service.saveWorkout('athlete1', { workout, requestId: 'retry1' }, 'lucas');
+  const original = db.get(saved.id);
+  const duplicate = { ...original, id: 'subduplicate' };
+  db.set(duplicate.id, duplicate); db.get('athlete1').subtasks.push({ id: duplicate.id, name: duplicate.name });
+  const a = await service.athlete('athlete1'); assert.equal(a.revisions.length, 1);
+  const before = calls.filter(c => c.method === 'POST').length;
+  await service.saveWorkout('athlete1', { workout, requestId: 'retry1' }, 'lucas');
+  assert.equal(calls.filter(c => c.method === 'POST').length, before);
+  assert.ok(db.has('subduplicate'));
 });
 test('evolution confirmed before completion, outage retry, no athlete status mutation', async () => {
   const f = fixture(); const { service, db, calls } = f;

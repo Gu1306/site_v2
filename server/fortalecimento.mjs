@@ -23,8 +23,18 @@ export function validateWorkout(w) {
 }
 const MARKER = 'CAREFIT_PORTAL_V1';
 export function unpack(task) {
-  const text = task.markdown_description || task.description || '';
-  try { return JSON.parse(text.split(`${MARKER}\n`)[1]?.split('\n')[0]); } catch { return null; }
+  // ClickUp escapes underscores/brackets when exporting ordinary text as Markdown.
+  // Prefer its plain-text representation; new records also protect JSON in a fence.
+  for (const source of [task.description, task.markdown_description]) {
+    if (typeof source !== 'string') continue;
+    const text = source.replace(/\r\n/g, '\n');
+    const index = text.indexOf(MARKER + '\n');
+    if (index < 0) continue;
+    const lines = text.slice(index + MARKER.length + 1).trimStart().split('\n');
+    if (lines[0].startsWith('```')) lines.shift();
+    try { return JSON.parse(lines[0]); } catch { /* Try the other representation. */ }
+  }
+  return null;
 }
 function pack(record, heading) {
   let text = heading + '\n\n';
@@ -33,7 +43,7 @@ function pack(record, heading) {
     text += record.workout.exercises.map(e => [e.name, e.sets, e.reps, e.load, `${e.rest} s`].map(v => String(v).replace(/[|\r\n]/g, ' ')).join(' | ')).join('\n');
   }
   if (record.evolution) text += '\n\nEvolução: ' + record.evolution;
-  return text + `\n\nRegistro do painel CareFit — editar pelo painel para preservar o histórico.\n\n${MARKER}\n${JSON.stringify(record)}\n`;
+  return text + `\n\nRegistro do painel CareFit — editar pelo painel para preservar o histórico.\n\n\`\`\`json\n${MARKER}\n${JSON.stringify(record)}\n\`\`\`\n`;
 }
 export function clickupClient(token, fetcher = fetch) {
   return async (path, method = 'GET', body) => {
@@ -76,7 +86,12 @@ export function createService(api) {
       const data = unpack(t);
       if (data?.kind === kind && String(t.parent) === String(parent.id)) result.push({ ...data, id: t.id });
     }
-    return result.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    const seen = new Set();
+    return result.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).filter(record => {
+      const key = record.requestId || record.id;
+      if (seen.has(key)) return false;
+      seen.add(key); return true;
+    });
   }
   const athleteIds = t => (t.custom_fields?.find(f => f.id === IDS.relation)?.value || []).map(a => String(a.id));
   async function athlete(id) { const t = await task(id, IDS.athletes); return { id: t.id, name: t.name, revisions: await records(t, 'workout') }; }
