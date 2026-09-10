@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Monitor, ArrowLeft, Plus, Trash2, RefreshCw, Check, LogOut, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { Monitor, ArrowLeft, Plus, Trash2, RefreshCw, Check, LogOut, ChevronLeft, ChevronRight, ExternalLink, Upload, Download, FileSpreadsheet, CircleAlert } from 'lucide-react';
+import { buildWorkoutImport, type ImportWorkout } from '@/lib/fortalecimentoImport';
 import './painel-fortalecimento.css';
 
 type Exercise = { name: string; sets: number; reps: string; load: string; rest: number };
@@ -13,6 +14,7 @@ type Session = Revision & { evolution?: string; completionRequestId?: string };
 type ClassItem = { id: string; name: string; slot: string | null; athleteId: string | null; session: Session | null };
 type Agenda = { day: string; classes: ClassItem[]; syncedAt: string };
 type Athlete = { id: string; name: string; revisions: Revision[] };
+type ImportItem = ImportWorkout & { requestId: string; state: 'ready' | 'saving' | 'saved' | 'failed'; message?: string };
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const slots = ['06', '07', '08'];
 const slotLabel = (s: string) => `${s}h–${String(Number(s) + 1).padStart(2, '0')}h`;
@@ -42,6 +44,10 @@ export default function PainelFortalecimento() {
   const [athletes, setAthletes] = useState<{ id: string; name: string }[]>([]);
   const [query, setQuery] = useState('');
   const [completion, setCompletion] = useState<ClassItem | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importFile, setImportFile] = useState('');
+  const [importItems, setImportItems] = useState<ImportItem[]>([]);
+  const [importIssues, setImportIssues] = useState<string[]>([]);
   const [evolution, setEvolution] = useState('');
   const [page, setPage] = useState(0);
   const [rows, setRows] = useState(3);
@@ -100,6 +106,48 @@ export default function PainelFortalecimento() {
       requestId.current = crypto.randomUUID(); setNotice('Treino salvo no card do atleta.');
     });
   }
+  async function readWorkbook(file: File) {
+    if (file.size > 1_000_000) { setError('O arquivo deve ter no máximo 1 MB. Use somente o modelo CareFit.'); return; }
+    setImportFile(file.name); setImportItems([]); setImportIssues([]);
+    await run(async () => {
+      const [{ readSheet }, list] = await Promise.all([
+        import('read-excel-file/browser'),
+        athletes.length ? Promise.resolve(athletes) : api<{ id: string; name: string }[]>('athletes')
+      ]);
+      if (!athletes.length) setAthletes(list);
+      let workbookRows;
+      try { workbookRows = await readSheet(file, 'Treinos'); }
+      catch { throw new ApiError('Use o modelo CareFit e mantenha a aba chamada “Treinos”.', 400); }
+      const parsed = buildWorkoutImport(workbookRows as unknown[][], list);
+      setImportIssues(parsed.issues);
+      setImportItems(parsed.workouts.map(item => ({ ...item, requestId: crypto.randomUUID(), state: 'ready' })));
+    });
+  }
+  async function importWorkouts() {
+    if (!importItems.length || importIssues.length) return;
+    setBusy(true); setError(''); setNotice('');
+    let saved = 0; let failed = 0;
+    const next = [...importItems];
+    for (let index = 0; index < next.length; index++) {
+      if (next[index].state === 'saved') { saved++; continue; }
+      next[index] = { ...next[index], state: 'saving', message: '' }; setImportItems([...next]);
+      try {
+        const current = await api<Athlete>('athletes/' + next[index].athleteId);
+        await api<Revision>(`athletes/${next[index].athleteId}/workout`, {
+          workout: { title: next[index].title, displayName: next[index].displayName, exercises: next[index].exercises },
+          baseRevision: current.revisions[0]?.id || null,
+          requestId: next[index].requestId
+        });
+        next[index] = { ...next[index], state: 'saved', message: 'Salvo no ClickUp' }; saved++;
+      } catch (e) {
+        next[index] = { ...next[index], state: 'failed', message: e instanceof Error ? e.message : 'Falha ao salvar' }; failed++;
+      }
+      setImportItems([...next]);
+    }
+    setBusy(false);
+    if (failed) setError(`${saved} treino(s) salvo(s) e ${failed} com falha. Corrija e tente novamente; os já salvos não serão duplicados.`);
+    else { setImportOpen(false); setImportItems([]); setImportIssues([]); setImportFile(''); setNotice(`${saved} treino(s) importado(s) para os cards dos atletas.`); }
+  }
   async function selectWorkout(revision: Revision) {
     if (!targetClass) return;
     await run(async () => {
@@ -128,7 +176,7 @@ export default function PainelFortalecimento() {
       <div className="cf-controls">{mode === 'agenda' ? <><label className="cf-date">Dia das aulas<Input type="date" value={day} onChange={e => e.target.value && setDay(e.target.value)} /></label><Button variant="outline" onClick={() => { setDay(today()); }}>Hoje</Button><Button variant="outline" onClick={() => void run(async () => { await api('logout', {}); setUser(null); setAgenda(null); })} disabled={busy} aria-label="Sair"><LogOut size={18} /></Button></> : <Button variant="outline" onClick={() => void exitTv()}><ArrowLeft size={16} /> Voltar</Button>}</div>
     </header>
     <div className="cf-toolbar"><nav aria-label="Horários das aulas">{slots.map(s => <Button key={s} aria-pressed={slot === s} className={slot === s ? 'cf-primary' : ''} variant="outline" onClick={() => setSlot(s)}>{slotLabel(s)} <span className="cf-count">{classes?.filter(c => c.slot === s).length || 0}</span></Button>)}</nav>
-      {mode === 'agenda' && <div className="cf-actions"><Button variant="outline" disabled={busy} onClick={() => void run(async () => { setAthletes(await api('athletes')); setQuery(''); setPicker(true); })}><Plus size={16} /> Programar treino</Button><Button className="cf-primary" onClick={() => void enterTv()} disabled={group.length === 0 || group.length > 3 || !group.some(c => c.session)}><Monitor size={17} /> Abrir na TV</Button></div>}
+      {mode === 'agenda' && <div className="cf-actions"><Button variant="outline" disabled={busy} onClick={() => { setImportOpen(true); setImportFile(''); setImportItems([]); setImportIssues([]); setError(''); }}><Upload size={16} /> Importar Excel</Button><Button variant="outline" disabled={busy} onClick={() => void run(async () => { setAthletes(await api('athletes')); setQuery(''); setPicker(true); })}><Plus size={16} /> Programar treino</Button><Button className="cf-primary" onClick={() => void enterTv()} disabled={group.length === 0 || group.length > 3 || !group.some(c => c.session)}><Monitor size={17} /> Abrir na TV</Button></div>}
     </div>
     {alert}
     <div className="cf-sync"><span>{syncing ? 'Atualizando aulas…' : agenda ? `Sincronizado às ${new Date(agenda.syncedAt).toLocaleTimeString('pt-BR')}` : 'Carregando aulas…'} · horário de Brasília</span><Button variant="ghost" size="sm" disabled={syncing} onClick={() => void refresh()}><RefreshCw size={14} /> Atualizar</Button></div>
@@ -149,6 +197,15 @@ export default function PainelFortalecimento() {
     </div>}
     {mode === 'tv' ? <div className="cf-tv-footer"><span>Turma {slotLabel(slot)} · {group.length}/3 atletas</span><div><Button variant="outline" aria-label="Bloco anterior" disabled={safePage === 0} onClick={() => setPage(safePage - 1)}><ChevronLeft /></Button><span>Bloco {safePage + 1} de {maxPages}</span><Button variant="outline" aria-label="Próximo bloco" disabled={safePage + 1 >= maxPages} onClick={() => setPage(safePage + 1)}><ChevronRight /></Button></div></div> : <><p className="cf-help">Na TV: espelhe o PC, escolha o horário e clique em “Abrir na TV”. Use F11 se o navegador não entrar em tela cheia.</p>{classes?.some(c => !c.slot) && <div className="cf-alert">{classes.filter(c => !c.slot).length} aula(s) com horário ou etiqueta inconsistente. {classes.filter(c => !c.slot).map(c => <a key={c.id} href={`https://app.clickup.com/t/${c.id}`} target="_blank" rel="noreferrer">Conferir {c.name} </a>)}</div>}</>}
     <Dialog open={picker} onOpenChange={setPicker}><DialogContent className="cf-dialog"><DialogHeader><DialogTitle>Programar treino</DialogTitle><DialogDescription>Escolha o atleta. O treino será salvo no card dele no ClickUp.</DialogDescription></DialogHeader><Input placeholder="Buscar atleta pelo nome" aria-label="Buscar atleta" value={query} onChange={e => setQuery(e.target.value)} /><div className="cf-athlete-list">{athletes.filter(a => a.name.toLocaleLowerCase().includes(query.toLocaleLowerCase())).map(a => <Button variant="outline" key={a.id} disabled={busy} onClick={() => void openEditor(a.id)}>{a.name}</Button>)}</div></DialogContent></Dialog>
+    <Dialog open={importOpen} onOpenChange={open => { if (!busy) setImportOpen(open); }}><DialogContent className="cf-dialog cf-import"><DialogHeader><DialogTitle>Importar treinos do Excel</DialogTitle><DialogDescription>Baixe o modelo, preencha uma linha por exercício e revise os atletas antes de gravar no ClickUp.</DialogDescription></DialogHeader>
+      <div className="cf-import-start"><a className="cf-template-link" href="/modelo-treinos-carefit.xlsx" download><Download size={17} /> Baixar modelo Excel</a><label>Arquivo preenchido<Input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" disabled={busy} onChange={event => { const file = event.target.files?.[0]; event.currentTarget.value = ''; if (file) void readWorkbook(file); }} /></label></div>
+      <p className="cf-import-privacy">O arquivo é conferido neste computador. Somente os treinos confirmados são enviados ao ClickUp.</p>
+      {importFile && <div className="cf-import-file"><FileSpreadsheet size={18} /><span>{importFile}</span><strong>{importItems.length} treino(s)</strong></div>}
+      {importIssues.length > 0 && <div className="cf-import-issues" role="alert"><div><CircleAlert size={18} /><strong>Corrija o arquivo antes de importar</strong></div>{importIssues.slice(0, 12).map((issue, index) => <p key={index}>{issue}</p>)}{importIssues.length > 12 && <p>Mais {importIssues.length - 12} problema(s).</p>}</div>}
+      {importItems.length > 0 && <div className="cf-import-list">{importItems.map(item => <div className="cf-import-item" key={item.key}><div><strong>{item.athleteName}</strong><span>{item.title} · {item.exercises.length} exercício(s)</span></div><span className={`cf-import-status cf-${item.state}`}>{item.state === 'ready' ? 'Pronto' : item.state === 'saving' ? 'Salvando…' : item.state === 'saved' ? 'Salvo' : item.message || 'Falhou'}</span></div>)}</div>}
+      {alert}<div className="cf-import-actions"><Button variant="outline" disabled={busy} onClick={() => setImportOpen(false)}>Fechar</Button><Button className="cf-primary" disabled={busy || !importItems.length || importIssues.length > 0 || importItems.every(item => item.state === 'saved')} onClick={() => void importWorkouts()}><Upload size={16} /> {busy ? 'Importando…' : 'Importar para o ClickUp'}</Button></div>
+      <p className="cf-import-footnote">A importação salva uma versão no card do atleta. Na aula desejada, ainda é preciso clicar em “Usar nesta aula”.</p>
+    </DialogContent></Dialog>
     <Dialog open={!!editor} onOpenChange={open => { if (!open && !busy) { setEditor(null); setWorkout(null); } }}><DialogContent className="cf-dialog cf-editor"><DialogHeader><DialogTitle>{editor?.name}</DialogTitle><DialogDescription>{targetClass ? 'Prepare o treino e separe a versão que será usada nesta aula.' : 'Preencha os exercícios e salve. Cada alteração cria uma nova versão no ClickUp.'}</DialogDescription></DialogHeader>
       {workout && <form onSubmit={e => { e.preventDefault(); void saveWorkout(); }}><div className="cf-editor-meta"><label>Nome do treino<Input required maxLength={80} value={workout.title} onChange={e => { setWorkout({ ...workout, title: e.target.value }); requestId.current = crypto.randomUUID(); }} /></label><label>Nome curto na TV<Input required maxLength={32} value={workout.displayName} onChange={e => { setWorkout({ ...workout, displayName: e.target.value }); requestId.current = crypto.randomUUID(); }} /></label></div>
       <div className="cf-editor-rows">{workout.exercises.map((e, i) => <div className="cf-editor-row" key={i}><label>Exercício {i + 1}<Input required maxLength={80} value={e.name} onChange={v => updateExercise(i, 'name', v.target.value)} /></label><label>Séries<Input type="number" min={1} max={20} required value={e.sets} onChange={v => updateExercise(i, 'sets', v.target.value)} /></label><label>Repetições/tempo<Input required placeholder="10 ou 30 s" maxLength={25} value={e.reps} onChange={v => updateExercise(i, 'reps', v.target.value)} /></label><label>Carga + unidade<Input required placeholder="12 kg / corpo" maxLength={25} value={e.load} onChange={v => updateExercise(i, 'load', v.target.value)} /></label><label>Pausa (s)<Input type="number" required min={0} max={900} value={e.rest} onChange={v => updateExercise(i, 'rest', v.target.value)} /></label><Button type="button" variant="ghost" aria-label={`Remover exercício ${i + 1}`} disabled={workout.exercises.length === 1 || busy} onClick={() => { setWorkout({ ...workout, exercises: workout.exercises.filter((_, n) => n !== i) }); requestId.current = crypto.randomUUID(); }}><Trash2 size={17} /></Button></div>)}</div>

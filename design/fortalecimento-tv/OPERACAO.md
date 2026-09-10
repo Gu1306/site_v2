@@ -5,12 +5,32 @@ Implementação: 09/09/2026. Rota: `/painel-fortalecimento` no site atual da Car
 ## Para Lucas
 
 1. Entrar com usuário e senha da equipe. O acesso ao painel é separado da senha do ClickUp.
-2. Em **Programar treino**, buscar o atleta, preencher nome curto, exercícios, séries, repetições/tempo, carga com unidade e pausa. Clicar em **Salvar treino**. Não é necessário subir arquivo.
+2. Há duas formas de cadastrar:
+   - **Programar treino:** buscar um atleta e preencher o formulário na tela.
+   - **Importar Excel:** baixar o modelo CareFit, preencher uma linha por exercício, enviar o arquivo, revisar os atletas encontrados e confirmar. A importação aceita vários atletas no mesmo arquivo.
 3. Na aula agendada, clicar em **Abrir treinos** e **Usar nesta aula** na versão desejada. É possível trocar a versão antes de começar a salvar a evolução.
 4. Espelhar o PC na TV, escolher o horário e clicar em **Abrir na TV**. Se necessário, usar F11. As setas avançam os blocos de exercícios dos mesmos atletas.
 5. Voltar à agenda, clicar em **Registrar evolução** e **Salvar evolução e concluir aula**. A aula passa a `realizada` no ClickUp, saindo das pendentes.
 
 O treino fica em subtarefas `Treino CareFit — …` no card permanente do atleta. A cópia aplicada fica em `Sessão CareFit — …` dentro da aula. A evolução também fica no campo existente `Evolução atelta` da aula. Não editar o bloco de registro estruturado diretamente no ClickUp: usar o formulário do painel.
+
+### Modelo Excel
+
+O botão **Importar Excel** oferece o arquivo `modelo-treinos-carefit.xlsx`. A aba `Treinos`
+tem estas colunas, nesta ordem: `Nome do treino`, `Atleta no ClickUp`, `Nome curto na TV`,
+`Exercício`, `Séries`, `Repetições/tempo`, `Carga + unidade` e `Pausa (s)`.
+
+Cada linha representa um exercício. Nome do treino, atleta e nome curto devem ser repetidos
+nas linhas do mesmo treino. O painel ignora maiúsculas e acentos ao localizar o nome, mas só
+aceita uma correspondência exata e única no CRM. Antes da gravação, mostra os treinos prontos
+e bloqueia o lote se houver coluna ausente, atleta desconhecido, valor inválido, divergência
+de nome curto ou mais de 24 exercícios. Arquivos maiores que 1 MB ou 500 linhas são recusados.
+
+O arquivo é processado no navegador autenticado. O backend recebe cada treino validado pelo
+mesmo endpoint do formulário individual, preservando versão, confirmação e idempotência. Uma
+falha parcial mostra o resultado por atleta e a repetição mantém o mesmo `requestId`, sem
+duplicar os que já foram salvos. Importar cria versões nos cards dos atletas; não escolhe
+automaticamente qual versão vale em uma aula. Lucas continua clicando em **Usar nesta aula**.
 
 ## Configuração do serviço existente na Railway
 

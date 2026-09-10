@@ -3,7 +3,7 @@ slug: carefit-site
 status: ativo
 objetivo: Manter e evoluir o site institucional e os fluxos digitais de conversão e agendamento da CareFit Run Base
 nota-mae: "20_CareFit/02_Negocio/marketing/site-seo/carefit-site-seo-e-conversao.md"
-proxima-acao: Cadastrar os treinos com Lucas no painel publicado e validar a leitura no PC espelhado na TV
+proxima-acao: Lucas importar o primeiro Excel no painel e validar o treino aplicado no PC espelhado na TV
 ---
 
 # CareFit Site
@@ -28,6 +28,8 @@ proxima-acao: Cadastrar os treinos com Lucas no painel publicado e validar a lei
 - Painel interno de fortalecimento: `src/pages/PainelFortalecimento.tsx` (rota privada `/painel-fortalecimento`)
 - Backend privado do painel: `server/index.mjs` e `server/fortalecimento.mjs`
 - Operação, arquitetura e publicação: `design/fortalecimento-tv/OPERACAO.md`
+- Modelo Excel de treinos: `public/modelo-treinos-carefit.xlsx`
+- Validação da importação: `src/lib/fortalecimentoImport.ts`
 
 ## Dados sensíveis
 
@@ -37,6 +39,7 @@ proxima-acao: Cadastrar os treinos com Lucas no painel publicado e validar a lei
 
 - 2026-09-10: painel privado de fortalecimento publicado em `https://www.carefitrunbase.com.br/painel-fortalecimento`, com servidor Node, autenticação própria da equipe, prescrição em subtarefas do CRM, cópia imutável do treino por aula, modo TV com até três atletas e evolução confirmada antes do status `realizada`. Acesso separado do login ClickUp. Manter uma réplica do serviço.
 - 2026-09-10: corrigida a leitura do retorno Markdown do ClickUp. O painel prioriza `description`, aceita o formato escapado de `markdown_description`, envolve novos registros em bloco de código e consolida tentativas repetidas pelo `requestId` sem apagar subtarefas já criadas. Treinos que falharam apenas na confirmação são recuperados automaticamente.
+- 2026-09-10: painel ganhou importação de Excel para vários atletas. O arquivo padrão tem uma linha por exercício; o navegador valida e associa o nome ao CRM antes de usar o mesmo fluxo versionado do formulário individual. Importar salva no card do atleta e não substitui a escolha manual **Usar nesta aula**.
 
 - 2026-07-22: o site atual é o repositório `site_v2`; o backend antigo do zip inicial foi removido porque nunca esteve conectado à produção.
 - 2026-09-05: a ficha pré-aula do fortalecimento passou a existir em `/ficha` e se comunica com o n8n.
