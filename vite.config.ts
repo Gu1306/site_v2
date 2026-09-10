@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: { '/api/fortalecimento': 'http://localhost:3000' },
   },
   preview: {
     host: "::",

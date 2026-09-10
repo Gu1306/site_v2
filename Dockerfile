@@ -14,7 +14,9 @@ RUN npm run build
 
 FROM node:20-alpine
 WORKDIR /app
-RUN npm install -g serve
+COPY package*.json ./
+RUN npm ci --omit=dev --ignore-scripts
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/server ./server
 EXPOSE 3000
-CMD ["sh", "-c", "serve -s dist -l tcp://0.0.0.0:${PORT:-3000}"]
+CMD ["node", "server/index.mjs"]

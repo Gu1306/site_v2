@@ -47,8 +47,9 @@ const AgendamentoFortalecimento = lazy(() => import("./pages/AgendamentoFortalec
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const PainelFortalecimento = lazy(() => import("./pages/PainelFortalecimento"));
 
-const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto"];
+const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto", "/painel-fortalecimento"];
 
 const ConditionalNavigation = () => {
   const { pathname } = useLocation();
@@ -122,6 +123,7 @@ const App = () => (
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/ficha" element={<FichaPreAula />} />
             <Route path="/agendamento-fortalecimento" element={<AgendamentoFortalecimento />} />
+            <Route path="/painel-fortalecimento" element={<PainelFortalecimento />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="*" element={<NotFound />} />

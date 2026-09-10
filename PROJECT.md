@@ -3,7 +3,7 @@ slug: carefit-site
 status: ativo
 objetivo: Manter e evoluir o site institucional e os fluxos digitais de conversão e agendamento da CareFit Run Base
 nota-mae: "20_CareFit/02_Negocio/marketing/site-seo/carefit-site-seo-e-conversao.md"
-proxima-acao: Trocar o link do formulario pelo link do site (carefitrunbase.com.br/agendamento-fortalecimento) na bio do WhatsApp, na bio do Instagram e nos fluxos do ManyChat - os unicos lugares que sobraram apontando para a porta antiga
+proxima-acao: Renovar login Railway e publicar painel de fortalecimento com variaveis privadas de runtime; depois testar com Lucas no PC espelhado na TV
 ---
 
 # CareFit Site
@@ -31,6 +31,8 @@ proxima-acao: Trocar o link do formulario pelo link do site (carefitrunbase.com.
 - Credenciais de produção vivem nos serviços correspondentes e em arquivos locais ignorados pelo Git; nunca registrar valores neste arquivo.
 
 ## Decisões importantes
+
+- 2026-09-09: painel privado de fortalecimento implementado em `/painel-fortalecimento`, com servidor Node, autenticação de equipe, prescrição em subtarefas CRM e snapshot/evolução por aula. Build e testes locais passaram; consulta real validada sem gravar treino fictício. Publicação pendente da renovação do login Railway. Operação e variáveis documentadas em `design/fortalecimento-tv/OPERACAO.md`. Acesso do painel é separado do login ClickUp. Manter uma réplica do serviço.
 
 - 2026-07-22: o site atual é o repositório `site_v2`; o backend antigo do zip inicial foi removido porque nunca esteve conectado à produção.
 - 2026-09-05: a ficha pré-aula do fortalecimento passou a existir em `/ficha` e se comunica com o n8n.
