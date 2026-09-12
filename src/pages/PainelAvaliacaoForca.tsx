@@ -139,15 +139,20 @@ export default function PainelAvaliacaoForca() {
         data: avaliacao.data,
         arquivoNome: arquivo,
         arquivoBase64,
+        idade: avaliacao.idade,
+        // A VPS renderiza o PDF a partir daqui; se faltar campo, falta no documento.
         resultados: avaliacao.movimentos.map(m => ({
           chave: m.chave, nome: m.nome,
-          esquerdo: m.esquerdo && { picos: m.esquerdo.picos, media: m.esquerdo.media, maior: m.esquerdo.maior },
-          direito: m.direito && { picos: m.direito.picos, media: m.direito.media, maior: m.direito.maior },
+          esquerdo: m.esquerdo && { picos: m.esquerdo.picos, media: m.esquerdo.media, maior: m.esquerdo.maior, cv: m.esquerdo.cv, crescente: m.esquerdo.crescente },
+          direito: m.direito && { picos: m.direito.picos, media: m.direito.media, maior: m.direito.maior, cv: m.direito.cv, crescente: m.direito.crescente },
           assimetria: m.assimetria, ladoMenor: m.ladoMenor,
+          alertas: m.alertas,
         })),
+        razoes: avaliacao.razoes,
+        problemas: avaliacao.problemas,
       });
       setSalvo(true);
-      setNotice('Avaliação salva no card do atleta no ClickUp, junto com o Excel original.');
+      setNotice('Salva no card do atleta, com o Excel anexado. O PDF com a leitura clínica é gerado na VPS e aparece no mesmo card em alguns minutos.');
     });
   }
 
@@ -271,6 +276,10 @@ export default function PainelAvaliacaoForca() {
               </Button>
               {notice && <span className="af-ok">{notice}</span>}
             </div>
+            <p className="af-nota af-sem-impressao af-conferencia">
+              Abaixo é a <strong>conferência</strong> dos números antes de salvar. O relatório oficial, com a leitura
+              clínica escrita a partir destes dados, é montado na VPS e anexado ao card do atleta no ClickUp.
+            </p>
             <RelatorioForca avaliacao={avaliacao} avaliador={user} alertas={alertas} />
           </>
         )}

@@ -40,6 +40,10 @@ export function empacotar(registro) {
   return texto;
 }
 
+/** Listas de texto livre entram no card; limita quantidade e tamanho. */
+const lista = (valor, maxItens, maxTexto) => (Array.isArray(valor) ? valor : [])
+  .slice(0, maxItens).map(v => String(v ?? '').slice(0, maxTexto)).filter(Boolean);
+
 const texto = (valor, rotulo, max) => {
   if (typeof valor !== 'string' || !valor.trim() || valor.length > max) throw new PublicError(`Confira ${rotulo}.`);
   return valor.trim();
@@ -65,7 +69,10 @@ export function validarEnvio(body) {
     if (!picos.length || picos.length > 6 || picos.some(p => !Number.isFinite(p) || p <= 0 || p > 500)) {
       throw new PublicError('Há picos de força fora da faixa aceitável.');
     }
-    return { picos, media: Number(valor.media), maior: Number(valor.maior) };
+    return {
+      picos, media: Number(valor.media), maior: Number(valor.maior),
+      cv: Number(valor.cv) || 0, crescente: Boolean(valor.crescente),
+    };
   };
   const resultados = body.resultados.map(r => ({
     chave: texto(r.chave, 'o movimento', 40),
@@ -74,14 +81,28 @@ export function validarEnvio(body) {
     direito: lado(r.direito),
     assimetria: r.assimetria === null || r.assimetria === undefined ? null : Number(r.assimetria),
     ladoMenor: r.ladoMenor === 'E' || r.ladoMenor === 'D' ? r.ladoMenor : null,
+    alertas: lista(r.alertas, 12, 300),
   }));
   if (resultados.every(r => !r.esquerdo && !r.direito)) throw new PublicError('Nenhum resultado foi enviado.');
+
+  const idade = Number(body.idade);
+  const razoes = (Array.isArray(body.razoes) ? body.razoes : []).slice(0, 12).map(r => ({
+    titulo: String(r.titulo ?? '').slice(0, 80),
+    lado: r.lado === 'E' || r.lado === 'D' ? r.lado : null,
+    valor: Number(r.valor) || 0,
+    detalhe: String(r.detalhe ?? '').slice(0, 60),
+    comparavel: Boolean(r.comparavel),
+    nota: r.nota ? String(r.nota).slice(0, 400) : undefined,
+  }));
 
   return {
     requestId: body.requestId,
     data: body.data,
     atleta: { nome: texto(atleta.nome, 'o nome do atleta', 80), nascimento: atleta.nascimento, peso, email },
+    idade: Number.isFinite(idade) && idade >= 0 && idade < 120 ? idade : null,
     resultados,
+    razoes,
+    problemas: lista(body.problemas, 12, 300),
   };
 }
 
