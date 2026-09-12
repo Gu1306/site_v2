@@ -16,6 +16,13 @@
 
 export type Lado = 'E' | 'D';
 
+/**
+ * Variação máxima aceita entre as três tentativas de um mesmo lado.
+ * Decisão de 12/09/2026: começa em 15%. Acima disso o relatório sinaliza,
+ * porque costuma ser falha de execução ou de fixação, não diferença de força.
+ */
+export const CV_MAXIMO = 15;
+
 export type MovimentoChave =
   | 'flexao-quadril'
   | 'extensao-quadril'
@@ -27,15 +34,20 @@ export type MovimentoChave =
 
 export type Movimento = { chave: MovimentoChave; nome: string; sinonimos: string[] };
 
-/** Os sete testes do protocolo. `sinonimos` cobre as variações que o app pode devolver. */
+/**
+ * Os sete testes do protocolo. Os nomes confirmados pelo Gustavo em 12/09/2026, lidos
+ * direto do FightTech, vêm primeiro; os demais sinônimos cobrem variações e o inglês.
+ * A normalização remove acentos e troca os travessões do app por espaço, então
+ * "Flexão Plantar Isométrica – Joelho Estendido — Unilateral" chega aqui achatado.
+ */
 export const MOVIMENTOS: Movimento[] = [
-  { chave: 'flexao-quadril', nome: 'Flexão de quadril', sinonimos: ['flexao isometrica do quadril', 'flexao de quadril', 'flexao do quadril', 'hip flexion'] },
-  { chave: 'extensao-quadril', nome: 'Extensão de quadril', sinonimos: ['extensao isometrica do quadril', 'extensao de quadril', 'extensao do quadril', 'hip extension'] },
-  { chave: 'abducao-quadril', nome: 'Abdução de quadril', sinonimos: ['abducao isometrica do quadril', 'abducao de quadril', 'abducao do quadril', 'hip abduction'] },
-  { chave: 'aducao-quadril', nome: 'Adução de quadril', sinonimos: ['aducao isometrica do quadril', 'aducao de quadril', 'aducao do quadril', 'hip adduction'] },
-  { chave: 'extensao-joelho', nome: 'Extensão de joelho', sinonimos: ['extensao isometrica do joelho', 'extensao de joelho', 'extensao do joelho', 'knee extension'] },
-  { chave: 'flexao-joelho', nome: 'Flexão de joelho', sinonimos: ['flexao isometrica do joelho', 'flexao de joelho', 'flexao do joelho', 'knee flexion'] },
-  { chave: 'flexao-plantar', nome: 'Flexão plantar', sinonimos: ['flexao plantar', 'flexao isometrica plantar', 'panturrilha', 'plantar flexion'] },
+  { chave: 'flexao-quadril', nome: 'Flexão de quadril', sinonimos: ['flexao isometrica do quadril unilateral', 'flexao isometrica do quadril', 'flexao de quadril', 'flexao do quadril', 'hip flexion'] },
+  { chave: 'extensao-quadril', nome: 'Extensão de quadril', sinonimos: ['extensao isometrica do quadril unilateral', 'extensao isometrica do quadril', 'extensao de quadril', 'extensao do quadril', 'hip extension'] },
+  { chave: 'abducao-quadril', nome: 'Abdução de quadril', sinonimos: ['abducao isometrica do quadril unilateral', 'abducao isometrica do quadril', 'abducao de quadril', 'abducao do quadril', 'hip abduction'] },
+  { chave: 'aducao-quadril', nome: 'Adução de quadril', sinonimos: ['aducao isometrica do quadril unilateral', 'aducao isometrica do quadril', 'aducao de quadril', 'aducao do quadril', 'hip adduction'] },
+  { chave: 'extensao-joelho', nome: 'Extensão de joelho', sinonimos: ['extensao isometrica do joelho unilateral', 'extensao isometrica do joelho', 'extensao de joelho', 'extensao do joelho', 'knee extension'] },
+  { chave: 'flexao-joelho', nome: 'Flexão de joelho', sinonimos: ['flexao isometrica do joelho unilateral', 'flexao isometrica do joelho', 'flexao de joelho', 'flexao do joelho', 'knee flexion'] },
+  { chave: 'flexao-plantar', nome: 'Flexão plantar', sinonimos: ['flexao plantar isometrica joelho estendido unilateral', 'flexao plantar isometrica joelho estendido', 'flexao plantar isometrica', 'flexao plantar', 'panturrilha', 'plantar flexion'] },
 ];
 
 export type Tentativa = {
@@ -78,6 +90,15 @@ export type MovimentoResultado = {
   alertas: string[];
 };
 
+/**
+ * Faixas de MAGNITUDE da assimetria, usadas só para colorir o relatório.
+ * Descrevem o tamanho do número; não são classificação de risco de lesão —
+ * ver a decisão D23 do projeto e a p. 13 do manual CareFit.
+ */
+export type Faixa = 'baixa' | 'media' | 'alta';
+export const faixaAssimetria = (valor: number | null): Faixa | null =>
+  valor === null ? null : valor <= 10 ? 'baixa' : valor <= 20 ? 'media' : 'alta';
+
 export type Razao = {
   titulo: string;
   lado: Lado;
@@ -87,7 +108,7 @@ export type Razao = {
   nota?: string;
 };
 
-export type Atleta = { nome: string; nascimento: string; peso: number };
+export type Atleta = { nome: string; nascimento: string; peso: number; email: string };
 
 export type Avaliacao = {
   atleta: Atleta;
@@ -102,6 +123,7 @@ const semAcento = (valor: unknown) => String(valor ?? '')
   .normalize('NFD')
   .replace(/[̀-ͯ]/g, '')
   .toLowerCase()
+  .replace(/[‐-―-]/g, ' ')
   .replace(/\s+/g, ' ')
   .trim();
 
@@ -261,7 +283,7 @@ export function calcularAvaliacao(leitura: LeituraExcel, atleta: Atleta, hoje = 
     if (!esquerdo || !direito) alertas.push('Só um dos lados foi medido; não é possível calcular assimetria.');
     for (const [resultado, nome] of [[esquerdo, 'esquerdo'], [direito, 'direito']] as const) {
       if (!resultado) continue;
-      if (resultado.cv > 10) alertas.push(`Lado ${nome}: variação de ${resultado.cv.toFixed(1)}% entre as tentativas. Acima de 10% costuma indicar problema de execução ou de fixação.`);
+      if (resultado.cv > CV_MAXIMO) alertas.push(`Lado ${nome}: variação de ${resultado.cv.toFixed(1)}% entre as tentativas. Acima de ${CV_MAXIMO}% costuma indicar problema de execução ou de fixação.`);
       if (resultado.crescente) alertas.push(`Lado ${nome}: os três picos subiram do primeiro ao último. Parte do resultado pode ser familiarização com o teste, e a média subestima a força real.`);
     }
 
@@ -298,7 +320,7 @@ export function calcularAvaliacao(leitura: LeituraExcel, atleta: Atleta, hoje = 
       if (!forcaA || !forcaB) continue;
       razoes.push({
         titulo: par.titulo, lado, valor: (forcaA / forcaB) * 100,
-        detalhe: `${forcaA.toFixed(1)} kg / ${forcaB.toFixed(1)} kg`,
+        detalhe: `${forcaA.toFixed(1).replace('.', ',')} kg / ${forcaB.toFixed(1).replace('.', ',')} kg`,
         comparavel: par.comparavel, nota: par.nota,
       });
     }

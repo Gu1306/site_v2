@@ -1,10 +1,67 @@
 import http from 'node:http';
 import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import serveHandler from 'serve-handler';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { clickupClient, createService, PublicError } from './fortalecimento.mjs';
 import { criarServicoAvaliacao, criarUploader } from './avaliacao-forca.mjs';
+
+/*
+ * Preview de link por rota.
+ *
+ * O robô do WhatsApp (e o do Facebook, e o do LinkedIn) NÃO roda JavaScript:
+ * ele lê o HTML cru que o servidor devolve. Como o site é uma SPA, toda rota
+ * recebe o mesmo `index.html` — então o preview de qualquer link caía na imagem
+ * e no título genéricos do site. O `useSeo` conserta a aba do navegador, mas
+ * chega tarde demais para o robô, que já foi embora com o HTML original.
+ *
+ * As rotas abaixo circulam em mensagem para atleta, então ganham preview
+ * próprio, reescrito na resposta. Para incluir outra rota, é só acrescentar
+ * aqui — nada mais precisa mudar.
+ */
+const PREVIEWS = {
+  '/ficha': {
+    titulo: 'Ficha pré-aula — Fortalecimento CareFit',
+    descricao: 'Dois minutos para o professor montar a sua ficha e decidir com qual treino você começa.',
+    imagem: '/og-fortalecimento.jpg',
+    alt: 'Área de fortalecimento da CareFit Run Base',
+  },
+  '/agendamento-fortalecimento': {
+    titulo: 'Agendar aula de fortalecimento — CareFit Run Base',
+    descricao: 'Escolha o dia e o horário da sua aula de fortalecimento para corredores, em Ribeirão Preto.',
+    imagem: '/og-fortalecimento.jpg',
+    alt: 'Área de fortalecimento da CareFit Run Base',
+  },
+};
+
+/** `dist/index.html` só muda em deploy, então lê uma vez e guarda. */
+let htmlBase;
+async function paginaBase() {
+  if (htmlBase === undefined) htmlBase = await readFile(path.join('dist', 'index.html'), 'utf8').catch(() => null);
+  return htmlBase;
+}
+
+const escapar = texto => String(texto).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+function comPreview(html, preview, url) {
+  const troca = (padrao, valor) => { html = html.replace(padrao, (_, prefixo) => prefixo + escapar(valor)); };
+  const titulo = escapar(preview.titulo);
+  html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${titulo}</title>`);
+  troca(/(<meta name="description" content=")[^"]*/, preview.descricao);
+  troca(/(<meta property="og:title" content=")[^"]*/, preview.titulo);
+  troca(/(<meta property="og:description" content=")[^"]*/, preview.descricao);
+  troca(/(<meta property="og:url" content=")[^"]*/, url.href);
+  troca(/(<meta property="og:image" content=")[^"]*/, new URL(preview.imagem, url).href);
+  troca(/(<meta property="og:image:alt" content=")[^"]*/, preview.alt);
+  troca(/(<meta name="twitter:title" content=")[^"]*/, preview.titulo);
+  troca(/(<meta name="twitter:description" content=")[^"]*/, preview.descricao);
+  troca(/(<meta name="twitter:image" content=")[^"]*/, new URL(preview.imagem, url).href);
+  // O canonical do index.html aponta para a home; numa rota própria isso diz ao
+  // Google que a página não existe por si.
+  html = html.replace(/(<link rel="canonical" href=")[^"]*/, (_, p) => p + escapar(url.href));
+  return html;
+}
 
 export function passwordHash(password, salt = randomBytes(16).toString('hex')) { return `${salt}:${scryptSync(password, salt, 32).toString('hex')}`; }
 function equal(a, b) { const x = Buffer.from(a); const y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); }
@@ -84,6 +141,19 @@ export function createServer(env = process.env, service = createService(clickupC
       if (!['GET', 'HEAD'].includes(req.method)) return send(405, { error: 'Método não permitido.' });
       res.setHeader('X-Content-Type-Options', 'nosniff');
       if (url.pathname === '/painel-fortalecimento' || url.pathname === '/painel-avaliacao-forca') { res.setHeader('X-Robots-Tag', 'noindex, nofollow'); res.setHeader('X-Frame-Options', 'DENY'); }
+      // Rotas que circulam em mensagem devolvem o index.html com o preview
+      // reescrito (ver PREVIEWS no topo). Se o dist ainda não existe, segue o
+      // fluxo normal em vez de derrubar a página.
+      const preview = PREVIEWS[url.pathname];
+      if (preview) {
+        const base = await paginaBase();
+        if (base) {
+          const publico = new URL(url.pathname, `https://${req.headers.host || 'www.carefitrunbase.com.br'}`);
+          const html = comPreview(base, preview, publico);
+          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff' });
+          return res.end(req.method === 'HEAD' ? undefined : html);
+        }
+      }
       // Same static engine previously used by `serve -s`, including range requests.
       await serveHandler(req, res, { public: 'dist', rewrites: [{ source: '**', destination: '/index.html' }], directoryListing: false, headers: [{ source: '**', headers: [{ key: 'Cache-Control', value: 'no-cache' }] }, { source: 'assets/**', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] }] });
     } catch (e) { if (!res.headersSent) send(e instanceof PublicError ? e.status : 500, { error: e instanceof PublicError ? e.message : 'Não foi possível concluir. Atualize e tente novamente.' }); else res.end(); }

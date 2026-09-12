@@ -4,8 +4,9 @@ import { Input } from '@/components/ui/input';
 import { LogOut, Printer, Upload, FileSpreadsheet, CircleAlert, RotateCcw, Save, Check } from 'lucide-react';
 import {
   lerExportFightTech, calcularAvaliacao, MOVIMENTOS,
-  type Avaliacao, type LeituraExcel, type MovimentoChave, type Lado,
+  type Avaliacao, type LeituraExcel, type MovimentoChave,
 } from '@/lib/avaliacaoForca';
+import RelatorioForca from './RelatorioForca';
 import './painel-avaliacao-forca.css';
 
 class ApiError extends Error { constructor(message: string, public status: number) { super(message); } }
@@ -39,6 +40,7 @@ export default function PainelAvaliacaoForca() {
   const [nome, setNome] = useState('');
   const [nascimento, setNascimento] = useState('');
   const [peso, setPeso] = useState('');
+  const [email, setEmail] = useState('');
   const [dataAvaliacao, setDataAvaliacao] = useState(hoje);
 
   const [arquivo, setArquivo] = useState('');
@@ -111,8 +113,9 @@ export default function PainelAvaliacaoForca() {
 
   const pesoNumero = Number(peso.replace(',', '.'));
   const pesoValido = Number.isFinite(pesoNumero) && pesoNumero >= 25 && pesoNumero <= 250;
+  const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
   const faltamMapear = leitura ? leitura.naoReconhecidos.filter(nome => !mapa[nome]).length : 0;
-  const podeGerar = Boolean(leitura?.tentativas.length) && !leitura?.problemas.length && nome.trim().length > 2 && /^\d{4}-\d{2}-\d{2}$/.test(nascimento) && pesoValido && faltamMapear === 0;
+  const podeGerar = Boolean(leitura?.tentativas.length) && !leitura?.problemas.length && nome.trim().length > 2 && /^\d{4}-\d{2}-\d{2}$/.test(nascimento) && pesoValido && emailValido && faltamMapear === 0;
 
   function gerar() {
     if (!leitura || !podeGerar) return;
@@ -121,7 +124,7 @@ export default function PainelAvaliacaoForca() {
       ...leitura,
       tentativas: leitura.tentativas.map(t => t.chave ? t : { ...t, chave: (mapa[t.exercicioBruto] || null) as MovimentoChave | null }),
     };
-    const resultado = calcularAvaliacao(ajustada, { nome: nome.trim(), nascimento, peso: pesoNumero });
+    const resultado = calcularAvaliacao(ajustada, { nome: nome.trim(), nascimento, peso: pesoNumero, email: email.trim().toLowerCase() });
     setAvaliacao({ ...resultado, data: dataAvaliacao });
     setSalvo(false);
     setNotice('');
@@ -147,6 +150,16 @@ export default function PainelAvaliacaoForca() {
       setNotice('Avaliação salva no card do atleta no ClickUp, junto com o Excel original.');
     });
   }
+
+  // Espelha a checagem do servidor para avisar antes de tentar salvar no card errado.
+  const nomeBateComCard = useMemo(() => {
+    const card = atletas.find(a => a.id === atletaId);
+    if (!card || !nome.trim()) return true;
+    const partes = (t: string) => new Set(t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+      .replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(x => x.length >= 3));
+    const a = partes(nome); const b = partes(card.name);
+    return [...a].some(x => b.has(x));
+  }, [atletas, atletaId, nome]);
 
   const alertas = useMemo(() => avaliacao ? avaliacao.movimentos.flatMap(m => m.alertas.map(texto => ({ movimento: m.nome, texto }))) : [], [avaliacao]);
 
@@ -181,6 +194,9 @@ export default function PainelAvaliacaoForca() {
           <div className="af-campos">
             <label>Nome completo<Input required maxLength={80} value={nome} onChange={e => { setNome(e.target.value); setAvaliacao(null); }} placeholder="Nome do atleta" /></label>
             <label>Data de nascimento<Input type="date" required value={nascimento} onChange={e => { setNascimento(e.target.value); setAvaliacao(null); }} /></label>
+            <label>E-mail<Input required type="email" maxLength={120} value={email} onChange={e => { setEmail(e.target.value); setAvaliacao(null); }} placeholder="atleta@email.com" />
+              {email && !emailValido && <small className="af-erro-campo">E-mail inválido.</small>}
+            </label>
             <label>Peso (kg)<Input required inputMode="decimal" value={peso} onChange={e => { setPeso(e.target.value); setAvaliacao(null); }} placeholder="72,5" />
               {peso && !pesoValido && <small className="af-erro-campo">Peso entre 25 e 250 kg.</small>}
             </label>
@@ -249,156 +265,16 @@ export default function PainelAvaliacaoForca() {
                   {atletas.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                 </select>
               </label>
+              {atletaId && !nomeBateComCard && <span className="af-aviso">O nome digitado não parece o mesmo do card escolhido. Confira antes de salvar.</span>}
               <Button variant="outline" className="af-botao-claro" disabled={busy || salvo || !atletaId} onClick={() => void salvar()}>
                 {salvo ? <><Check size={16} /> Salvo</> : <><Save size={16} /> {busy ? 'Salvando…' : 'Salvar no ClickUp'}</>}
               </Button>
               {notice && <span className="af-ok">{notice}</span>}
             </div>
-            <Relatorio avaliacao={avaliacao} avaliador={user} alertas={alertas} />
+            <RelatorioForca avaliacao={avaliacao} avaliador={user} alertas={alertas} />
           </>
         )}
       </main>
     </div>
-  );
-}
-
-function Relatorio({ avaliacao, avaliador, alertas }: { avaliacao: Avaliacao; avaliador: string; alertas: { movimento: string; texto: string }[] }) {
-  const ladoNome = (lado: Lado | null) => lado === 'E' ? 'esquerdo' : lado === 'D' ? 'direito' : '—';
-  return (
-    <article className="af-relatorio">
-      <header className="af-rel-topo">
-        <div>
-          <p className="af-rel-marca">CareFit Run Base</p>
-          <h2>Relatório de avaliação de força</h2>
-          <p className="af-rel-sub">Dinamometria isométrica de membros inferiores</p>
-        </div>
-        <div className="af-rel-id">
-          <p><strong>{avaliacao.atleta.nome}</strong></p>
-          <p>{avaliacao.idade !== null ? `${avaliacao.idade} anos` : 'Idade não informada'} · {avaliacao.atleta.peso.toFixed(1).replace('.', ',')} kg</p>
-          <p>Avaliação: {dataBR(avaliacao.data)}</p>
-          <p>Avaliador: {avaliador}</p>
-        </div>
-      </header>
-
-      <section>
-        <h3>Força por movimento</h3>
-        <table className="af-tabela">
-          <thead>
-            <tr>
-              <th>Movimento</th>
-              <th>Esquerdo<br /><span>média dos 3 picos</span></th>
-              <th>Direito<br /><span>média dos 3 picos</span></th>
-              <th>Assimetria</th>
-              <th>Lado menor</th>
-            </tr>
-          </thead>
-          <tbody>
-            {avaliacao.movimentos.map(m => (
-              <tr key={m.chave}>
-                <td>{m.nome}</td>
-                <td>{kg(m.esquerdo?.media)}</td>
-                <td>{kg(m.direito?.media)}</td>
-                <td className={m.assimetria !== null && m.assimetria >= 10 ? 'af-destaque' : ''}>{pct(m.assimetria)}</td>
-                <td>{ladoNome(m.ladoMenor)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <p className="af-legenda">
-          Assimetria = 100 − (membro mais fraco ÷ membro mais forte × 100), conforme o protocolo CareFit.
-          O destaque a partir de 10% marca apenas a magnitude do número — não é classificação de risco de lesão.
-        </p>
-      </section>
-
-      <section>
-        <h3>As três tentativas</h3>
-        <table className="af-tabela">
-          <thead>
-            <tr><th>Movimento</th><th>Lado</th><th>1ª</th><th>2ª</th><th>3ª</th><th>Média</th><th>Maior</th><th>Variação</th></tr>
-          </thead>
-          <tbody>
-            {avaliacao.movimentos.flatMap(m => (['E', 'D'] as Lado[]).map(lado => {
-              const r = lado === 'E' ? m.esquerdo : m.direito;
-              if (!r) return null;
-              return (
-                <tr key={`${m.chave}-${lado}`}>
-                  <td>{m.nome}</td>
-                  <td>{ladoNome(lado)}</td>
-                  {[0, 1, 2].map(i => <td key={i}>{r.picos[i] !== undefined ? kg(r.picos[i]) : '—'}</td>)}
-                  <td><strong>{kg(r.media)}</strong></td>
-                  <td>{kg(r.maior)}</td>
-                  <td className={r.cv > 10 ? 'af-destaque' : ''}>{pct(r.cv)}</td>
-                </tr>
-              );
-            }).filter(Boolean))}
-          </tbody>
-        </table>
-        <p className="af-legenda">
-          As três tentativas ficam registradas, inclusive a mais baixa. Variação acima de 10% entre elas costuma indicar
-          problema de execução ou de fixação, e não diferença real de força.
-        </p>
-      </section>
-
-      {avaliacao.razoes.length > 0 && (
-        <section>
-          <h3>Relação entre músculos opostos</h3>
-          <table className="af-tabela">
-            <thead><tr><th>Relação</th><th>Lado</th><th>Valor</th><th>Forças</th></tr></thead>
-            <tbody>
-              {avaliacao.razoes.map((r, i) => (
-                <tr key={i}>
-                  <td>{r.titulo}{!r.comparavel && <sup>*</sup>}</td>
-                  <td>{ladoNome(r.lado)}</td>
-                  <td>{pct(r.valor, 0)}</td>
-                  <td>{r.detalhe}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {avaliacao.razoes.some(r => !r.comparavel) && (
-            <p className="af-legenda">* {avaliacao.razoes.find(r => !r.comparavel)?.nota}</p>
-          )}
-        </section>
-      )}
-
-      {alertas.length > 0 && (
-        <section>
-          <h3>Observações de execução</h3>
-          <ul className="af-lista">
-            {alertas.map((a, i) => <li key={i}><strong>{a.movimento}:</strong> {a.texto}</li>)}
-          </ul>
-        </section>
-      )}
-
-      {avaliacao.problemas.length > 0 && (
-        <section>
-          <h3>Limitações desta avaliação</h3>
-          <ul className="af-lista">{avaliacao.problemas.map((p, i) => <li key={i}>{p}</li>)}</ul>
-        </section>
-      )}
-
-      <footer className="af-rel-rodape">
-        <h3>Como ler este relatório</h3>
-        <p>
-          Os valores vêm de dinamometria isométrica com fixação externa. Cada movimento foi testado três vezes de cada
-          lado, com cinco segundos de contração e um minuto de descanso, e o resultado principal é a média dos três picos.
-        </p>
-        <p>
-          As comparações que valem aqui são <strong>entre os seus dois lados</strong> e <strong>entre as suas próprias
-          avaliações</strong> ao longo do tempo. O valor absoluto em quilos depende do aparelho, da posição e do ponto
-          onde a cinta é presa, e por isso não deve ser comparado com medições feitas em outro serviço ou com outro
-          equipamento.
-        </p>
-        <p>
-          Uma diferença entre os lados é informação, não diagnóstico. Ela precisa ser lida junto com histórico de lesão,
-          sintomas, capacidade funcional e demanda de treino. Este documento não prevê lesão individual e não substitui
-          a avaliação clínica.
-        </p>
-        <p className="af-rel-assinatura">
-          CareFit Run Base · Av. Áurea Aparecida Bragheto Machado, 241 — Ribeirão Preto, SP<br />
-          Emitido em {dataBR(hoje())} por {avaliador}.
-        </p>
-      </footer>
-    </article>
   );
 }

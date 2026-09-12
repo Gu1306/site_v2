@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { lerExportFightTech, calcularAvaliacao, reconhecerMovimento, numero, calcularIdade } from '../src/lib/avaliacaoForca.ts';
+import { lerExportFightTech, calcularAvaliacao, reconhecerMovimento, numero, calcularIdade, faixaAssimetria, CV_MAXIMO } from '../src/lib/avaliacaoForca.ts';
 
 const cabecalho = ['', '', 'Exercise', 'L/R', 'Peak force(KG)', 'Relative peak force', 'Time to peak force(ms)', 'Mean force(KG)'];
 
@@ -16,7 +16,7 @@ const amostra = [
   ['', '', '', '', '28.62', '0.32', 1684, '5.28'],
 ];
 
-const atleta = { nome: 'Atleta de Demonstração', nascimento: '1990-05-10', peso: 88 };
+const atleta = { nome: 'Atleta de Demonstração', nascimento: '1990-05-10', peso: 88, email: 'atleta@exemplo.com' };
 
 test('lê o export real preenchendo para baixo a identificação que só vem na primeira linha', () => {
   const leitura = lerExportFightTech(amostra);
@@ -50,10 +50,54 @@ test('sinaliza o efeito de aprendizagem e a variação alta entre tentativas', (
   const flexao = movimentos[0];
   assert.equal(flexao.direito.crescente, true, 'os três picos do lado direito sobem: 23,24 → 26,31 → 28,62');
   assert.equal(flexao.esquerdo.crescente, false);
-  assert.ok(flexao.direito.cv > 10, `CV do lado direito deveria passar de 10%, veio ${flexao.direito.cv}`);
+  assert.ok(flexao.direito.cv > 10 && flexao.direito.cv < CV_MAXIMO, `CV do direito veio ${flexao.direito.cv}`);
   assert.ok(flexao.esquerdo.cv < 5);
   assert.ok(flexao.alertas.some(a => a.includes('familiarização')));
-  assert.ok(flexao.alertas.some(a => a.includes('variação')));
+  // 10,4% fica abaixo do limite de 15% definido em 12/09/2026, então não alerta variação
+  assert.ok(!flexao.alertas.some(a => a.includes('variação')));
+});
+
+test('alerta variação só acima do limite de 15%', () => {
+  const instavel = [
+    cabecalho,
+    ['2026-09-12 09:14', 'A', 'Flexão Isométrica do Quadril — Unilateral', 'L', '10.0'], ['', '', '', '', '20.0'], ['', '', '', '', '30.0'],
+  ];
+  const { movimentos } = calcularAvaliacao(lerExportFightTech(instavel), atleta);
+  assert.ok(movimentos[0].esquerdo.cv > CV_MAXIMO);
+  assert.ok(movimentos[0].alertas.some(a => a.includes('variação')));
+});
+
+test('reconhece os sete nomes exatos que o FightTech usa', () => {
+  const doApp = [
+    ['Flexão Isométrica do Quadril — Unilateral', 'flexao-quadril'],
+    ['Extensão Isométrica do Joelho — Unilateral', 'extensao-joelho'],
+    ['Flexão Isométrica do Joelho — Unilateral', 'flexao-joelho'],
+    ['Abdução Isométrica do Quadril — Unilateral', 'abducao-quadril'],
+    ['Adução Isométrica do Quadril — Unilateral', 'aducao-quadril'],
+    ['Extensão Isométrica do Quadril — Unilateral', 'extensao-quadril'],
+    ['Flexão Plantar Isométrica – Joelho Estendido — Unilateral', 'flexao-plantar'],
+  ];
+  for (const [nome, esperado] of doApp) assert.equal(reconhecerMovimento(nome), esperado, nome);
+  // um export com os sete não deixa nada por mapear
+  const linhas = [cabecalho];
+  for (const [nome] of doApp) {
+    linhas.push(['2026-09-12 09:14', 'A', nome, 'L', '10.0'], ['', '', '', '', '10.0'], ['', '', '', '', '10.0']);
+    linhas.push(['2026-09-12 09:14', 'A', nome, 'R', '9.0'], ['', '', '', '', '9.0'], ['', '', '', '', '9.0']);
+  }
+  const leitura = lerExportFightTech(linhas);
+  assert.deepEqual(leitura.naoReconhecidos, []);
+  const { movimentos, problemas } = calcularAvaliacao(leitura, atleta);
+  assert.equal(movimentos.length, 7);
+  assert.deepEqual(problemas, []);
+});
+
+test('faixa de assimetria é magnitude, não risco de lesão', () => {
+  assert.equal(faixaAssimetria(0), 'baixa');
+  assert.equal(faixaAssimetria(10), 'baixa');
+  assert.equal(faixaAssimetria(10.1), 'media');
+  assert.equal(faixaAssimetria(20), 'media');
+  assert.equal(faixaAssimetria(20.1), 'alta');
+  assert.equal(faixaAssimetria(null), null);
 });
 
 test('nunca usa a coluna Mean force do app como resultado', () => {
@@ -155,7 +199,7 @@ import { IDS } from './fortalecimento.mjs';
 const envioValido = () => ({
   requestId: '11111111-1111-4111-8111-111111111111',
   data: '2026-09-12',
-  atleta: { nome: 'Pessoa Teste', nascimento: '1990-05-10', peso: 88 },
+  atleta: { nome: 'Pessoa Teste', nascimento: '1990-05-10', peso: 88, email: 'pessoa@exemplo.com' },
   resultados: [{
     chave: 'flexao-quadril', nome: 'Flexão de quadril',
     esquerdo: { picos: [27.65, 27.17, 28.97], media: 27.93, maior: 28.97 },
@@ -227,8 +271,8 @@ test('histórico devolve as avaliações do atleta, da mais recente para a mais 
 test('validação barra peso, datas, picos e volume fora da faixa', () => {
   assert.throws(() => validarEnvio({ ...envioValido(), requestId: 'nao-e-uuid' }), /Identificador/);
   assert.throws(() => validarEnvio({ ...envioValido(), data: '12/09/2026' }), /data da avaliação/);
-  assert.throws(() => validarEnvio({ ...envioValido(), atleta: { nome: 'X', nascimento: '1990-05-10', peso: 5 } }), /25 e 250/);
-  assert.throws(() => validarEnvio({ ...envioValido(), atleta: { nome: 'Pessoa', nascimento: '10/05/1990', peso: 80 } }), /nascimento/);
+  assert.throws(() => validarEnvio({ ...envioValido(), atleta: { nome: 'X', nascimento: '1990-05-10', peso: 5, email: 'x@x.com' } }), /25 e 250/);
+  assert.throws(() => validarEnvio({ ...envioValido(), atleta: { nome: 'Pessoa', nascimento: '10/05/1990', peso: 80, email: 'x@x.com' } }), /nascimento/);
   assert.throws(() => validarEnvio({ ...envioValido(), resultados: [] }), /1 a 7 movimentos/);
   const picoAbsurdo = envioValido();
   picoAbsurdo.resultados[0].esquerdo.picos = [900];

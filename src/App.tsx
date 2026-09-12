@@ -51,7 +51,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const PainelFortalecimento = lazy(() => import("./pages/PainelFortalecimento"));
 const PainelAvaliacaoForca = lazy(() => import("./pages/PainelAvaliacaoForca"));
 
-const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto", "/painel-fortalecimento"];
+const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto", "/painel-fortalecimento", "/painel-avaliacao-forca"];
 
 const ConditionalNavigation = () => {
   const { pathname } = useLocation();

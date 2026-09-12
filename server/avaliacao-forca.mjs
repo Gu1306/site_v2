@@ -50,6 +50,8 @@ export function validarEnvio(body) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(body?.data || '')) throw new PublicError('Confira a data da avaliação.');
 
   const atleta = body.atleta || {};
+  const email = String(atleta.email || '').trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 120) throw new PublicError('Confira o e-mail do atleta.');
   const peso = Number(atleta.peso);
   if (!Number.isFinite(peso) || peso < 25 || peso > 250) throw new PublicError('Peso deve ficar entre 25 e 250 kg.');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(atleta.nascimento || '')) throw new PublicError('Confira a data de nascimento.');
@@ -78,7 +80,7 @@ export function validarEnvio(body) {
   return {
     requestId: body.requestId,
     data: body.data,
-    atleta: { nome: texto(atleta.nome, 'o nome do atleta', 80), nascimento: atleta.nascimento, peso },
+    atleta: { nome: texto(atleta.nome, 'o nome do atleta', 80), nascimento: atleta.nascimento, peso, email },
     resultados,
   };
 }
@@ -97,6 +99,23 @@ export function criarUploader(token, fetcher = fetch) {
     if (!res.ok) throw new PublicError('A avaliação foi salva, mas o Excel não pôde ser anexado. Anexe o arquivo no card manualmente.', 503);
     return res.json();
   };
+}
+
+/** Normaliza para comparar nomes: sem acento, sem pontuação, minúsculo. */
+const chaveNome = valor => String(valor ?? '').normalize('NFD')
+  .replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+
+/**
+ * O card do ClickUp é escolhido numa lista; o nome vem digitado. Se os dois não
+ * compartilharem nenhum nome próprio, é quase certo que o card está errado —
+ * e gravar uma avaliação no atleta errado é o pior erro possível aqui.
+ */
+export function nomesCombinam(digitado, noCard) {
+  const partes = texto => new Set(chaveNome(texto).split(' ').filter(p => p.length >= 3));
+  const a = partes(digitado); const b = partes(noCard);
+  if (!a.size || !b.size) return false;
+  for (const parte of a) if (b.has(parte)) return true;
+  return false;
 }
 
 export function criarServicoAvaliacao(api, upload) {
@@ -135,6 +154,9 @@ export function criarServicoAvaliacao(api, upload) {
     async salvar(atletaId, body, usuario) {
       const envio = validarEnvio(body);
       const card = await cardAtleta(atletaId);
+      if (!nomesCombinam(envio.atleta.nome, card.name)) {
+        throw new PublicError(`O nome digitado ("${envio.atleta.nome}") não bate com o card escolhido ("${card.name}"). Confira o atleta antes de salvar.`, 409);
+      }
 
       const anteriores = await historico(card);
       const repetido = anteriores.find(r => r.requestId === envio.requestId);
@@ -161,7 +183,7 @@ export function criarServicoAvaliacao(api, upload) {
         anexo = await upload(criada.id, nome, bytes);
       }
 
-      return { ...confirmada, id: criada.id, anexo: Boolean(anexo) };
+      return { ...confirmada, id: criada.id, anexo: Boolean(anexo), card: card.name };
     },
   };
 }
