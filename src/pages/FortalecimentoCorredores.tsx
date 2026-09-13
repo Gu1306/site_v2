@@ -68,8 +68,8 @@ const FortalecimentoCorredores = () => {
             Treinamento de força específico para corrida na CareFit Run Base. Melhore performance, reduza lesões e construa uma base sólida para sua corrida.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="hero" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
-              Agendar avaliação
+            <Button asChild variant="hero" size="lg" className="text-lg px-8 py-4">
+              <Link to="/agendamento-fortalecimento">Reservar minha aula</Link>
             </Button>
             <Button variant="whatsapp" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
               <MessageCircle className="w-5 h-5" />
@@ -331,14 +331,14 @@ const FortalecimentoCorredores = () => {
             A CareFit Run Base é um centro especializado em fisioterapia esportiva para corredores em Ribeirão Preto, focado em performance, prevenção de lesões e longevidade no esporte.
           </p>
           <h2 className="text-4xl font-bold text-white mb-6">
-            Agende sua Avaliação na CareFit Run Base
+            Reserve sua aula de fortalecimento
           </h2>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
             Se você é corredor ou triatleta em Ribeirão Preto e quer melhorar sua corrida com fortalecimento específico, nossa equipe pode ajudar.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Button variant="hero" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
-              Agendar avaliação
+            <Button asChild variant="hero" size="lg" className="text-lg px-8 py-4">
+              <Link to="/agendamento-fortalecimento">Reservar minha aula</Link>
             </Button>
             <Button variant="whatsapp" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
               <MessageCircle className="w-5 h-5" />

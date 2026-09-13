@@ -14,6 +14,10 @@ function clean(value, label, max = 100, required = true) {
   if (typeof value !== 'string' || value.length > max || (required && !value.trim())) throw new PublicError(`Confira ${label}.`);
   return value.trim();
 }
+// Quantas versões de treino o painel recebe ao abrir um atleta. O histórico inteiro
+// continua no ClickUp e `Usar nesta aula` aceita qualquer versão por id; o limite existe
+// porque a leitura é uma requisição por versão e um atleta de anos travaria a tela.
+export const PANEL_REVISIONS = 20;
 export const MAX_BLOCK = 4;
 // Bi-set e tri-set: exercícios vizinhos com o mesmo `group` formam um bloco. O campo é
 // opcional — treinos gravados antes desta versão não têm `group` e cada exercício vira
@@ -130,8 +134,19 @@ export function createService(api) {
     }
     throw new PublicError('A lista excedeu o limite de consulta. Contate o suporte.', 503);
   }
-  async function records(parent, kind) {
-    const subs = (parent.subtasks || []).filter(t => t.name?.startsWith(kind === 'workout' ? 'Treino CareFit — ' : 'Sessão CareFit — '));
+  async function records(parent, kind, limit = 0) {
+    let subs = (parent.subtasks || []).filter(t => t.name?.startsWith(kind === 'workout' ? 'Treino CareFit — ' : 'Sessão CareFit — '));
+    // Cada subtarefa custa uma leitura, então cortar depois de ler não economiza nada.
+    // O nome do treino termina no `createdAt` ISO, o que permite ordenar e cortar ANTES.
+    // Só vale para treino: o nome da sessão traz a data sem hora, e duas sessões do mesmo
+    // dia empatariam — aí o corte poderia descartar justamente a mais recente.
+    if (limit && kind === 'workout' && subs.length > limit) {
+      subs = subs
+        .map(t => ({ t, at: (/(\d{4}-\d{2}-\d{2}T[\d:.]+Z)$/.exec(t.name) || ['', ''])[1] }))
+        .sort((a, b) => b.at.localeCompare(a.at))
+        .slice(0, limit)
+        .map(item => item.t);
+    }
     const result = [];
     // Sequential reads respect ClickUp's rate limit. No contact/clinical data leaves the server.
     for (const s of subs) {
@@ -147,7 +162,7 @@ export function createService(api) {
     });
   }
   const athleteIds = t => (t.custom_fields?.find(f => f.id === IDS.relation)?.value || []).map(a => String(a.id));
-  async function athlete(id) { const t = await task(id, IDS.athletes); return { id: t.id, name: t.name, revisions: await records(t, 'workout') }; }
+  async function athlete(id, limit = 0) { const t = await task(id, IDS.athletes); return { id: t.id, name: t.name, revisions: await records(t, 'workout', limit) }; }
   async function snapshot(t) { return (await records(t, 'session'))[0] || null; }
   async function createRecord(parent, list, record, name, heading) {
     const t = await api(`/list/${list}/task`, 'POST', { name, parent, markdown_content: pack(record, heading), notify_all: false });

@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import serveHandler from 'serve-handler';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { clickupClient, createService, PublicError } from './fortalecimento.mjs';
+import { clickupClient, createService, PublicError, PANEL_REVISIONS } from './fortalecimento.mjs';
 
 /*
  * Preview de link por rota.
@@ -115,7 +115,7 @@ export function createServer(env = process.env, service = createService(clickupC
         if (route === 'agenda' && req.method === 'GET') return send(200, await service.agenda(url.searchParams.get('day') || ''));
         if (route === 'athletes' && req.method === 'GET') return send(200, await service.athletes());
         const athlete = /^athletes\/([a-zA-Z0-9_-]+)$/.exec(route);
-        if (athlete && req.method === 'GET') return send(200, await service.athlete(athlete[1]));
+        if (athlete && req.method === 'GET') return send(200, await service.athlete(athlete[1], PANEL_REVISIONS));
         const mutation = /^(athletes|classes)\/([a-zA-Z0-9_-]+)\/(workout|select|complete)$/.exec(route);
         if (mutation && req.method === 'POST') {
           const input = await body(req);

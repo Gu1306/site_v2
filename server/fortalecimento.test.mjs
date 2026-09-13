@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createService, IDS, slotOf, dayOf, validateWorkout, unpack } from './fortalecimento.mjs';
+import { createService, IDS, slotOf, dayOf, validateWorkout, unpack, PANEL_REVISIONS } from './fortalecimento.mjs';
 import { createServer, passwordHash } from './index.mjs';
 const workout = { title: 'Treino teste', displayName: 'Pessoa Teste', exercises: [{ name: 'Exercício de teste', sets: 3, reps: '10', load: 'corpo', rest: 60 }] };
 test('ClickUp escaped Markdown does not hide a saved plain-text record', () => {
@@ -132,4 +132,26 @@ test('a tabela do ClickUp ganha a coluna do bloco só quando o treino tem bi-set
   assert.match(text, /Bi-set 1 \| Agachamento/);
   assert.match(text, /— \| Prancha/);
   assert.deepEqual(unpack(db.get(grouped.id)).workout.exercises.map(e => e.group), [1, 1, undefined]);
+});
+test('o painel recebe só as versões recentes, e uma antiga ainda pode ser usada na aula', async () => {
+  const { service, db } = fixture();
+  for (let i = 0; i < PANEL_REVISIONS + 3; i++) {
+    // 2 ms entre os salvamentos: o `createdAt` tem resolução de milissegundo e em laço
+    // apertado as versões empatariam, o que nenhuma pessoa consegue fazer na tela.
+    await new Promise(resolve => setTimeout(resolve, 2));
+    const atual = await service.athlete('athlete1');
+    await service.saveWorkout('athlete1', { workout: { ...workout, title: `Treino ${i}` }, requestId: 'v' + i, baseRevision: atual.revisions[0]?.id || null }, 'lucas');
+  }
+  const total = PANEL_REVISIONS + 3;
+  assert.equal(db.get('athlete1').subtasks.length, total, 'o ClickUp guarda o histórico inteiro');
+  const painel = await service.athlete('athlete1', PANEL_REVISIONS);
+  assert.equal(painel.revisions.length, PANEL_REVISIONS, 'o painel corta no limite');
+  assert.equal(painel.revisions[0].workout.title, `Treino ${total - 1}`, 'e o corte mantém a mais recente');
+  const completo = await service.athlete('athlete1');
+  assert.equal(completo.revisions.length, total, 'sem limite, nada se perde');
+  // A primeira versão ficou de fora da lista do painel e mesmo assim serve para a aula.
+  const antiga = completo.revisions.at(-1);
+  assert.ok(!painel.revisions.some(r => r.id === antiga.id));
+  const sessao = await service.selectWorkout('class1', { revisionId: antiga.id, requestId: 'usa-antiga' }, 'lucas');
+  assert.equal(sessao.workout.title, 'Treino 0');
 });

@@ -12,10 +12,13 @@ Implementação: 09/09/2026. Rota: `/painel-fortalecimento` no site atual da Car
    As janelas de treino e de evolução **não fecham com clique fora**, e avisam antes de
    descartar o que foi digitado — um clique errado já apagou treino inteiro.
 4. Espelhar o PC na TV, escolher o horário e clicar em **Abrir na TV**. Se necessário, usar F11.
-   Na TV não aparece nada do painel: fica a marca da CareFit no alto e o treino ocupando o
+   Na TV não aparece nada do painel: fica a marca da CareFit no alto e no rodapé, e o treino ocupando o
    resto da tela. O botão **Voltar** está no canto superior esquerdo, apagado — ele acende ao
    passar o mouse — e a tecla **Esc** também sai. As setas do rodapé avançam as páginas de
    exercícios; um bi-set ou tri-set nunca é partido entre duas páginas.
+5. Ao abrir um atleta, o painel lista as **20 versões de treino mais recentes**. O histórico
+   inteiro continua no card dele no ClickUp; o corte existe porque cada versão custa uma
+   leitura e um atleta de anos deixaria a tela lenta bem na hora da aula.
 5. Voltar à agenda, clicar em **Registrar evolução** e **Salvar evolução e concluir aula**. A aula passa a `realizada` no ClickUp, saindo das pendentes.
 
 O treino fica em subtarefas `Treino CareFit — …` no card permanente do atleta. A cópia aplicada fica em `Sessão CareFit — …` dentro da aula. A evolução também fica no campo existente `Evolução atelta` da aula. Não editar o bloco de registro estruturado diretamente no ClickUp: usar o formulário do painel.
