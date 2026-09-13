@@ -76,7 +76,7 @@ export function toggleJoin<T extends BlockExercise & { rest: number }>(exercises
 // inteiro caber onde antes só cabiam dois exercícios.
 export type TvMetrics = { available: number; rowHeight: number; blockHead: number; blockLine: number; blockPad: number };
 
-export const defaultMetrics: TvMetrics = { available: 560, rowHeight: 132, blockHead: 38, blockLine: 58, blockPad: 36 };
+export const defaultMetrics: TvMetrics = { available: 560, rowHeight: 132, blockHead: 30, blockLine: 54, blockPad: 36 };
 
 export const blockHeight = (size: number, m: TvMetrics) => (size === 1 ? m.rowHeight : m.blockPad + m.blockHead + size * m.blockLine);
 

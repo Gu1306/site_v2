@@ -38,6 +38,10 @@ proxima-acao: Lucas importar o primeiro Excel no painel e validar o treino aplic
 
 ## Decisões importantes
 
+- 2026-09-13: o modo TV perdeu o cabeçalho inteiro. Saíram título, data, botões de horário e linha de sincronização; ficou a marca `carefit-logo-circle.png` centrada no alto e o treino ocupando o resto. O espaço liberado foi para o texto dos blocos. Como o botão de voltar morava no cabeçalho, ele virou um botão apagado no canto que acende ao passar o mouse, e `Esc` passou a sair também.
+- 2026-09-13: a medição da TV parou de usar as alturas padrão como piso. Usar `Math.max(padrão, medido)` inflava o bloco sempre que a altura real ficava abaixo do padrão chutado, e o resultado era um tri-set por página mesmo havendo espaço para dois. O padrão agora só entra quando não há elemento daquele tipo na tela para medir.
+- 2026-09-13: as janelas de treino e de evolução não fecham mais com clique fora, e pedem confirmação antes de descartar texto digitado. Um clique fora do diálogo apagava um treino de doze exercícios ou um parágrafo de evolução sem aviso.
+
 - 2026-09-13: o painel passou a montar bi-set e tri-set. Exercícios vizinhos com o mesmo `group` formam um bloco de até quatro; o campo é opcional e treinos gravados antes continuam válidos. Na TV o bloco vira um cartão único e compacto e **nunca é partido entre duas páginas** — foi o problema relatado: um tri-set aparecia dividido porque só cabiam dois exercícios na tela. A paginação deixou de contar exercícios por página e passou a empacotar blocos por altura medida, então o cartão do bloco, mais baixo que a soma dos exercícios soltos, cabe onde antes cabiam dois.
 - 2026-09-13: juntar exercícios zera a pausa dos que deixam de ser o último do bloco. Em bi-set a pausa existe no fim do bloco, não entre os exercícios; o campo continua editável para transições curtas.
 - 2026-09-13: o servidor renumera os blocos do zero e recusa bloco fora de sequência ou com mais de quatro exercícios. A numeração gravada no ClickUp não depende do que o navegador enviou, no mesmo espírito do resto do painel.

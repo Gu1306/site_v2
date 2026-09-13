@@ -18,3 +18,21 @@
 .cf-block-line>strong{font-size:clamp(14px,1.2vw,22px);font-weight:400;line-height:1.15;overflow-wrap:anywhere}
 .cf-block-line>span{font-size:clamp(13px,1.05vw,19px);overflow-wrap:anywhere}
 @media(max-width:900px){.cf-block-line{grid-template-columns:1.4fr .8fr .8fr;gap:6px}}
+
+/* Modo TV sem cabeçalho: a tela é do atleta. Fica a marca no alto, centrada,
+   e o treino ocupa tudo que sobrou. O botão de voltar mora no canto, apagado,
+   e acende ao passar o mouse ou receber foco — Esc também sai. */
+.cf-tv-mark{position:relative;display:flex;align-items:center;justify-content:center;padding:2px 0 14px}
+.cf-tv-mark>img{height:clamp(44px,4.4vw,72px);width:auto;display:block}
+.cf-tv-mark>button{position:absolute;left:0;top:50%;transform:translateY(-50%);opacity:.22;transition:opacity .18s}
+.cf-tv-mark>button:hover,.cf-tv-mark>button:focus-visible{opacity:1}
+@media(prefers-reduced-motion:reduce){.cf-tv-mark>button{transition:none}}
+/* O espaço liberado pelo cabeçalho vai para o texto do bloco. */
+.cf-tv .cf-block-head{min-height:26px;margin-bottom:4px}
+.cf-tv .cf-block-head>span{font-size:clamp(12px,1vw,17px)}
+.cf-tv .cf-block-head>strong{font-size:clamp(12px,1.05vw,18px)}
+.cf-tv .cf-block-head>em{font-size:clamp(10px,.82vw,15px)}
+.cf-tv .cf-block-line{padding:13px 0}
+.cf-tv .cf-block-line>strong{font-size:clamp(16px,1.5vw,29px)}
+.cf-tv .cf-block-line>span{font-size:clamp(15px,1.28vw,25px)}
+@media(max-width:600px){.cf-tv-mark>button{opacity:1}}

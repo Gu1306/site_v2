@@ -9,7 +9,13 @@ Implementação: 09/09/2026. Rota: `/painel-fortalecimento` no site atual da Car
    - **Programar treino:** buscar um atleta e preencher o formulário na tela.
    - **Importar Excel:** baixar o modelo CareFit, preencher uma linha por exercício, enviar o arquivo, revisar os atletas encontrados e confirmar. A importação aceita vários atletas no mesmo arquivo.
 3. Na aula agendada, clicar em **Abrir treinos** e **Usar nesta aula** na versão desejada. É possível trocar a versão antes de começar a salvar a evolução.
-4. Espelhar o PC na TV, escolher o horário e clicar em **Abrir na TV**. Se necessário, usar F11. As setas avançam os blocos de exercícios dos mesmos atletas.
+   As janelas de treino e de evolução **não fecham com clique fora**, e avisam antes de
+   descartar o que foi digitado — um clique errado já apagou treino inteiro.
+4. Espelhar o PC na TV, escolher o horário e clicar em **Abrir na TV**. Se necessário, usar F11.
+   Na TV não aparece nada do painel: fica a marca da CareFit no alto e o treino ocupando o
+   resto da tela. O botão **Voltar** está no canto superior esquerdo, apagado — ele acende ao
+   passar o mouse — e a tecla **Esc** também sai. As setas do rodapé avançam as páginas de
+   exercícios; um bi-set ou tri-set nunca é partido entre duas páginas.
 5. Voltar à agenda, clicar em **Registrar evolução** e **Salvar evolução e concluir aula**. A aula passa a `realizada` no ClickUp, saindo das pendentes.
 
 O treino fica em subtarefas `Treino CareFit — …` no card permanente do atleta. A cópia aplicada fica em `Sessão CareFit — …` dentro da aula. A evolução também fica no campo existente `Evolução atelta` da aula. Não editar o bloco de registro estruturado diretamente no ClickUp: usar o formulário do painel.

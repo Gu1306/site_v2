@@ -56,6 +56,8 @@ export default function PainelFortalecimento() {
   const requestId = useRef(crypto.randomUUID());
   const completionId = useRef<string>(crypto.randomUUID());
   const loadSequence = useRef(0);
+  // Retrato do treino como ele foi carregado, para saber se há edição não salva.
+  const savedWorkout = useRef('');
   const fail = useCallback((e: unknown) => {
     if (e instanceof ApiError && e.status === 401) { setUser(null); setAgenda(null); setEditor(null); setWorkout(null); setCompletion(null); setMode('agenda'); }
     setError(e instanceof Error ? e.message : 'Falha na conexão. Tente novamente.');
@@ -86,12 +88,19 @@ export default function PainelFortalecimento() {
         const lines = Array.from(el.querySelectorAll('.cf-block-line')).reduce((total, line) => total + line.getBoundingClientRect().height, 0);
         return el.getBoundingClientRect().height - head - lines;
       });
+      // O padrão entra só quando não há o que medir. Usá-lo como piso inflava o
+      // bloco sempre que a altura real ficava abaixo dele, e aí sobrava um
+      // tri-set por página mesmo havendo espaço para dois.
+      const largest = (selector: string, fallback: number) => {
+        const list = heights(selector);
+        return list.length ? Math.max(...list) : fallback;
+      };
       const next: TvMetrics = {
         available: Math.max(defaultMetrics.rowHeight, grid.current.clientHeight - overhead - 4),
-        rowHeight: Math.max(defaultMetrics.rowHeight, ...heights('.cf-exercise:not(.cf-block)')),
-        blockHead: Math.max(defaultMetrics.blockHead, ...heights('.cf-block-head')),
-        blockLine: Math.max(defaultMetrics.blockLine, ...heights('.cf-block-line')),
-        blockPad: Math.max(defaultMetrics.blockPad, ...pads)
+        rowHeight: largest('.cf-exercise:not(.cf-block)', defaultMetrics.rowHeight),
+        blockHead: largest('.cf-block-head', defaultMetrics.blockHead),
+        blockLine: largest('.cf-block-line', defaultMetrics.blockLine),
+        blockPad: pads.length ? Math.max(...pads) : defaultMetrics.blockPad
       };
       // Só troca o estado quando a medida realmente mudou: o objeto novo a cada
       // render reabriria o ciclo de medição sem necessidade.
@@ -101,6 +110,17 @@ export default function PainelFortalecimento() {
     resize.observe(grid.current); return () => resize.disconnect();
   }, [mode, agenda, page]);
   useEffect(() => { setPage(0); }, [slot, day, metrics]);
+  useEffect(() => {
+    // O botão de voltar ficou discreto no modo TV; Esc é a saída óbvia.
+    if (mode !== 'tv') return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setMode('agenda');
+      if (document.fullscreenElement) void document.exitFullscreen();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [mode]);
   const classes = agenda?.day === day ? agenda.classes : [];
   const group = classes?.filter(c => c.slot === slot) || [];
   const pages = new Map(group.map(c => [c.id, c.session ? paginate(c.session.workout.exercises, metrics) : []]));
@@ -125,7 +145,8 @@ export default function PainelFortalecimento() {
   async function openEditor(id: string, item: ClassItem | null = null) {
     await run(async () => {
       const a = await api<Athlete>('athletes/' + id); setEditor(a); setTargetClass(item); setPicker(false);
-      setWorkout(a.revisions[0]?.workout || { title: 'Treino A', displayName: a.name.split(/\s+/).slice(0, 2).join(' ').slice(0, 32), exercises: [emptyExercise()] });
+      const loaded = a.revisions[0]?.workout || { title: 'Treino A', displayName: a.name.split(/\s+/).slice(0, 2).join(' ').slice(0, 32), exercises: [emptyExercise()] };
+      setWorkout(loaded); savedWorkout.current = JSON.stringify(loaded);
       requestId.current = crypto.randomUUID();
     });
   }
@@ -134,6 +155,7 @@ export default function PainelFortalecimento() {
     await run(async () => {
       const revision = await api<Revision>(`athletes/${editor.id}/workout`, { workout, baseRevision: editor.revisions[0]?.id || null, requestId: requestId.current });
       setEditor({ ...editor, revisions: [revision, ...editor.revisions.filter(r => r.id !== revision.id)] });
+      savedWorkout.current = JSON.stringify(workout);
       requestId.current = crypto.randomUUID(); setNotice('Treino salvo no card do atleta.');
     });
   }
@@ -197,6 +219,19 @@ export default function PainelFortalecimento() {
     setWorkout({ ...base, exercises: normalizeBlocks(exercises) });
     requestId.current = crypto.randomUUID();
   }
+  // Fechar sem salvar apagava o treino inteiro digitado — inclusive por um clique
+  // fora do diálogo. Agora o clique fora não fecha nada e a saída pede confirmação
+  // quando há edição pendente.
+  function closeEditor() {
+    if (busy) return;
+    if (workout && JSON.stringify(workout) !== savedWorkout.current && !window.confirm('Sair sem salvar? O treino digitado será perdido.')) return;
+    setEditor(null); setWorkout(null); setTargetClass(null);
+  }
+  function closeCompletion() {
+    if (busy) return;
+    if (evolution.trim() !== (completion?.session?.evolution || '').trim() && !window.confirm('Sair sem salvar? O texto da evolução será perdido.')) return;
+    setCompletion(null);
+  }
   async function enterTv() {
     setMode('tv'); setPage(0);
     try { if (!document.fullscreenElement) await document.documentElement.requestFullscreen(); } catch { /* viewport still works; F11 available */ }
@@ -209,14 +244,18 @@ export default function PainelFortalecimento() {
     <Button className="cf-primary" disabled={busy || checking} type="submit">{checking ? 'Verificando acesso…' : busy ? 'Entrando…' : 'Entrar'}</Button><small>Acesso reservado à equipe CareFit.</small>
   </form></main>;
   return <main className={'cf-portal ' + (mode === 'tv' ? 'cf-tv' : '')}>
-    <header className="cf-top"><div><div className="cf-brand">carefit<span>FORTALECIMENTO</span></div><h1>{mode === 'tv' ? 'Seu treino. Seu ritmo.' : 'Tudo pronto para a aula.'}</h1><p>{new Date(day + 'T12:00:00-03:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Sao_Paulo' })}</p></div>
-      <div className="cf-controls">{mode === 'agenda' ? <><label className="cf-date">Dia das aulas<Input type="date" value={day} onChange={e => e.target.value && setDay(e.target.value)} /></label><Button variant="outline" onClick={() => { setDay(today()); }}>Hoje</Button><Button variant="outline" onClick={() => void run(async () => { await api('logout', {}); setUser(null); setAgenda(null); })} disabled={busy} aria-label="Sair"><LogOut size={18} /></Button></> : <Button variant="outline" onClick={() => void exitTv()}><ArrowLeft size={16} /> Voltar</Button>}</div>
-    </header>
-    <div className="cf-toolbar"><nav aria-label="Horários das aulas">{slots.map(s => <Button key={s} aria-pressed={slot === s} className={slot === s ? 'cf-primary' : ''} variant="outline" onClick={() => setSlot(s)}>{slotLabel(s)} <span className="cf-count">{classes?.filter(c => c.slot === s).length || 0}</span></Button>)}</nav>
-      {mode === 'agenda' && <div className="cf-actions"><Button variant="outline" disabled={busy} onClick={() => { setImportOpen(true); setImportFile(''); setImportItems([]); setImportIssues([]); setError(''); }}><Upload size={16} /> Importar Excel</Button><Button variant="outline" disabled={busy} onClick={() => void run(async () => { setAthletes(await api('athletes')); setQuery(''); setPicker(true); })}><Plus size={16} /> Programar treino</Button><Button className="cf-primary" onClick={() => void enterTv()} disabled={group.length === 0 || group.length > 3 || !group.some(c => c.session)}><Monitor size={17} /> Abrir na TV</Button></div>}
-    </div>
+    {/* Na TV a tela é do atleta: sai o cabeçalho inteiro e fica a marca sobre o treino.
+        O botão de voltar segue no canto, discreto, e Esc também sai. */}
+    {mode === 'tv' ? <div className="cf-tv-mark"><Button variant="ghost" onClick={() => void exitTv()}><ArrowLeft size={16} /> Voltar</Button><img src="/conheca-carefit/assets/carefit-logo-circle.png" alt="CareFit Run Base" /></div> : <>
+      <header className="cf-top"><div><div className="cf-brand">carefit<span>FORTALECIMENTO</span></div><h1>Tudo pronto para a aula.</h1><p>{new Date(day + 'T12:00:00-03:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Sao_Paulo' })}</p></div>
+        <div className="cf-controls"><label className="cf-date">Dia das aulas<Input type="date" value={day} onChange={e => e.target.value && setDay(e.target.value)} /></label><Button variant="outline" onClick={() => { setDay(today()); }}>Hoje</Button><Button variant="outline" onClick={() => void run(async () => { await api('logout', {}); setUser(null); setAgenda(null); })} disabled={busy} aria-label="Sair"><LogOut size={18} /></Button></div>
+      </header>
+      <div className="cf-toolbar"><nav aria-label="Horários das aulas">{slots.map(s => <Button key={s} aria-pressed={slot === s} className={slot === s ? 'cf-primary' : ''} variant="outline" onClick={() => setSlot(s)}>{slotLabel(s)} <span className="cf-count">{classes?.filter(c => c.slot === s).length || 0}</span></Button>)}</nav>
+        <div className="cf-actions"><Button variant="outline" disabled={busy} onClick={() => { setImportOpen(true); setImportFile(''); setImportItems([]); setImportIssues([]); setError(''); }}><Upload size={16} /> Importar Excel</Button><Button variant="outline" disabled={busy} onClick={() => void run(async () => { setAthletes(await api('athletes')); setQuery(''); setPicker(true); })}><Plus size={16} /> Programar treino</Button><Button className="cf-primary" onClick={() => void enterTv()} disabled={group.length === 0 || group.length > 3 || !group.some(c => c.session)}><Monitor size={17} /> Abrir na TV</Button></div>
+      </div>
+    </>}
     {alert}
-    <div className="cf-sync"><span>{syncing ? 'Atualizando aulas…' : agenda ? `Sincronizado às ${new Date(agenda.syncedAt).toLocaleTimeString('pt-BR')}` : 'Carregando aulas…'} · horário de Brasília</span><Button variant="ghost" size="sm" disabled={syncing} onClick={() => void refresh()}><RefreshCw size={14} /> Atualizar</Button></div>
+    {mode === 'agenda' && <div className="cf-sync"><span>{syncing ? 'Atualizando aulas…' : agenda ? `Sincronizado às ${new Date(agenda.syncedAt).toLocaleTimeString('pt-BR')}` : 'Carregando aulas…'} · horário de Brasília</span><Button variant="ghost" size="sm" disabled={syncing} onClick={() => void refresh()}><RefreshCw size={14} /> Atualizar</Button></div>}
     {group.length > 3 ? <div className="cf-empty cf-alert"><h2>Há {group.length} atletas neste horário.</h2><p>Confira os agendamentos no ClickUp. A TV comporta três atletas por turma.</p></div> : <div ref={grid} className={'cf-grid ' + (mode === 'tv' ? 'cf-tv-grid' : '')}>
       {group.map((item, index) => <article className="cf-card" key={item.id}>
         <div className="cf-card-head"><p className="cf-eyebrow">ATLETA {String(index + 1).padStart(2, '0')}</p><h2>{item.session?.workout.displayName || item.name.replace(/\s*—\s*Aula.*$/i, '')}</h2><p>{item.session?.workout.title || 'Treino ainda não separado'}</p></div>
@@ -243,7 +282,7 @@ export default function PainelFortalecimento() {
       {alert}<div className="cf-import-actions"><Button variant="outline" disabled={busy} onClick={() => setImportOpen(false)}>Fechar</Button><Button className="cf-primary" disabled={busy || !importItems.length || importIssues.length > 0 || importItems.every(item => item.state === 'saved')} onClick={() => void importWorkouts()}><Upload size={16} /> {busy ? 'Importando…' : 'Importar para o ClickUp'}</Button></div>
       <p className="cf-import-footnote">A importação salva uma versão no card do atleta. Na aula desejada, ainda é preciso clicar em “Usar nesta aula”.</p>
     </DialogContent></Dialog>
-    <Dialog open={!!editor} onOpenChange={open => { if (!open && !busy) { setEditor(null); setWorkout(null); } }}><DialogContent className="cf-dialog cf-editor"><DialogHeader><DialogTitle>{editor?.name}</DialogTitle><DialogDescription>{targetClass ? 'Prepare o treino e separe a versão que será usada nesta aula.' : 'Preencha os exercícios e salve. Cada alteração cria uma nova versão no ClickUp.'}</DialogDescription></DialogHeader>
+    <Dialog open={!!editor} onOpenChange={open => { if (!open) closeEditor(); }}><DialogContent className="cf-dialog cf-editor" onInteractOutside={event => event.preventDefault()}><DialogHeader><DialogTitle>{editor?.name}</DialogTitle><DialogDescription>{targetClass ? 'Prepare o treino e separe a versão que será usada nesta aula.' : 'Preencha os exercícios e salve. Cada alteração cria uma nova versão no ClickUp.'}</DialogDescription></DialogHeader>
       {workout && <form onSubmit={e => { e.preventDefault(); void saveWorkout(); }}><div className="cf-editor-meta"><label>Nome do treino<Input required maxLength={80} value={workout.title} onChange={e => { setWorkout({ ...workout, title: e.target.value }); requestId.current = crypto.randomUUID(); }} /></label><label>Nome curto na TV<Input required maxLength={32} value={workout.displayName} onChange={e => { setWorkout({ ...workout, displayName: e.target.value }); requestId.current = crypto.randomUUID(); }} /></label></div>
       <div className="cf-editor-rows">{workout.exercises.map((e, i) => {
         const blocks = blocksOf(workout.exercises);
@@ -261,6 +300,6 @@ export default function PainelFortalecimento() {
       <div className="cf-editor-actions"><Button type="button" variant="outline" disabled={workout.exercises.length >= 24 || busy} onClick={() => applyExercises(workout, [...workout.exercises, emptyExercise()])}><Plus size={16} /> Exercício</Button><Button type="submit" disabled={busy} className="cf-primary"><Check size={16} /> {busy ? 'Salvando…' : 'Salvar treino'}</Button></div></form>}
       {targetClass && editor?.revisions.length > 0 && <div className="cf-revisions"><h3>Treinos salvos — escolha para esta aula</h3>{editor.revisions.map(r => <div key={r.id}><span>{r.workout.title} · {new Date(r.createdAt).toLocaleString('pt-BR')}</span><Button disabled={busy} variant="outline" onClick={() => void selectWorkout(r)}>Usar nesta aula</Button></div>)}</div>}{alert}
     </DialogContent></Dialog>
-    <Dialog open={!!completion} onOpenChange={open => { if (!open && !busy) setCompletion(null); }}><DialogContent className="cf-dialog"><DialogHeader><DialogTitle>Evolução da aula</DialogTitle><DialogDescription>{completion?.session?.workout.displayName} · {slotLabel(slot)}. O registro fica no card desta aula.</DialogDescription></DialogHeader><form onSubmit={e => { e.preventDefault(); void run(async () => { await api(`classes/${completion!.id}/complete`, { evolution, requestId: completionId.current }); setCompletion(null); setNotice('Evolução salva. Aula concluída no ClickUp.'); await refresh(); }); }}><label>Como foi a aula?<Textarea required maxLength={5000} rows={7} value={evolution} onChange={e => setEvolution(e.target.value)} placeholder="Execução, cargas realizadas, dificuldades e ajustes para a próxima aula…" /></label>{alert}<Button className="cf-primary" type="submit" disabled={busy || !evolution.trim()}>{busy ? 'Salvando…' : 'Salvar evolução e concluir aula'}</Button></form></DialogContent></Dialog>
+    <Dialog open={!!completion} onOpenChange={open => { if (!open) closeCompletion(); }}><DialogContent className="cf-dialog" onInteractOutside={event => event.preventDefault()}><DialogHeader><DialogTitle>Evolução da aula</DialogTitle><DialogDescription>{completion?.session?.workout.displayName} · {slotLabel(slot)}. O registro fica no card desta aula.</DialogDescription></DialogHeader><form onSubmit={e => { e.preventDefault(); void run(async () => { await api(`classes/${completion!.id}/complete`, { evolution, requestId: completionId.current }); setCompletion(null); setNotice('Evolução salva. Aula concluída no ClickUp.'); await refresh(); }); }}><label>Como foi a aula?<Textarea required maxLength={5000} rows={7} value={evolution} onChange={e => setEvolution(e.target.value)} placeholder="Execução, cargas realizadas, dificuldades e ajustes para a próxima aula…" /></label>{alert}<Button className="cf-primary" type="submit" disabled={busy || !evolution.trim()}>{busy ? 'Salvando…' : 'Salvar evolução e concluir aula'}</Button></form></DialogContent></Dialog>
   </main>;
 }
