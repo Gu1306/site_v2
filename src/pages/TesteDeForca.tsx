@@ -18,7 +18,7 @@ const oQueResponde = [
   "Quanta força cada grupo muscular produz, em quilos, nos dois lados",
   "Se existe diferença entre o lado direito e o esquerdo, e de quanto",
   "Como está a relação entre músculos opostos do mesmo lado",
-  "Se a força mudou desde a última avaliação, e em quais movimentos",
+  "Dados para a equipe comparar com avaliações anteriores feitas na mesma montagem",
   "Onde vale concentrar o trabalho de fortalecimento nas próximas semanas",
 ];
 
@@ -44,23 +44,23 @@ const faqItems = [
   },
   {
     question: "Dói? É seguro?",
-    answer: "Não dói. O teste é isométrico, ou seja, você faz força contra uma resistência fixa e a articulação não se movimenta. Não há impacto, não há carga caindo e não há amplitude de movimento. Se aparecer qualquer desconforto, a tentativa é interrompida.",
+    answer: "O teste é isométrico: você faz força contra uma resistência fixa, na posição orientada pela equipe. A adequação do teste é conferida individualmente. Avise sobre dor ou desconforto; a tentativa deve ser interrompida e reavaliada.",
   },
   {
     question: "Preciso estar lesionado para fazer?",
-    answer: "Não. A maior parte dos corredores faz o teste sem nenhuma queixa, justamente para ter um número de referência antes de precisar. É esse primeiro registro que dá sentido a todos os testes seguintes.",
+    answer: "Não. A avaliação também pode registrar um ponto de partida para corredores sem queixa, conforme seus objetivos e a orientação da equipe.",
   },
   {
     question: "Preciso me preparar de alguma forma?",
-    answer: "Sim, e isso importa. Evite treino forte de pernas nas 24 a 48 horas anteriores. Um teste feito com a musculatura fatigada mede o cansaço, não a sua força. Venha com roupa de treino e, se possível, hidratado e alimentado como num dia normal de treino.",
+    answer: "Combine o preparo com a equipe e informe os treinos recentes, sintomas e condições que possam interferir na avaliação. Venha com roupa que permita as posições dos testes. Procure reproduzir o preparo nas reavaliações.",
   },
   {
     question: "De quanto em quanto tempo devo repetir?",
-    answer: "Depende do seu objetivo. Em ciclo de fortalecimento, repetir a cada 8 a 12 semanas costuma mostrar mudança real. Em retorno de lesão, os intervalos são mais curtos e definidos pelo fisioterapeuta que acompanha o caso.",
+    answer: "O intervalo é definido com a equipe conforme seu objetivo e acompanhamento. Para comparar as medições, é necessário reproduzir protocolo, posição e condições da sessão; uma diferença numérica não comprova, sozinha, mudança real de força.",
   },
   {
     question: "O relatório serve para o meu treinador?",
-    answer: "Serve, e é para isso que ele existe. O relatório traz os números de cada movimento, a comparação entre os lados e a evolução em relação às avaliações anteriores, numa linguagem que treinador e fisioterapeuta conseguem usar para ajustar o trabalho.",
+    answer: "Serve, e é para isso que ele existe. O relatório traz os números de cada movimento e a comparação entre os lados. A equipe pode consultar o histórico e comparar sessões com montagens equivalentes; a comparação longitudinal ainda não aparece automaticamente no documento.",
   },
   {
     question: "Os números podem ser comparados com os de outro aparelho ou de outro lugar?",
@@ -174,7 +174,7 @@ const TesteDeForca = () => {
               { titulo: "Posicionamento", texto: "Para cada movimento existe uma posição definida, com o corpo estabilizado por cintas. A estabilização não é conforto: é o que impede que você compense com o tronco e falseie o resultado." },
               { titulo: "Três tentativas", texto: "Cinco segundos de força crescente em cada uma, com um minuto de descanso entre elas. O comando é sempre o mesmo, dito da mesma forma." },
               { titulo: "Registro", texto: "As três tentativas ficam guardadas, inclusive a mais fraca. O resultado oficial é a média dos três picos; o maior pico entra como informação adicional." },
-              { titulo: "Relatório", texto: "Você recebe o relatório com os números dos dois lados, a comparação entre eles e a evolução em relação às avaliações anteriores." },
+              { titulo: "Relatório", texto: "Você recebe o relatório com os números dos lados medidos e a comparação entre eles. As medições ficam registradas para acompanhamento pela equipe." },
             ].map((etapa, index) => (
               <div key={index} className="flex items-start gap-4 p-5 bg-muted rounded-lg">
                 <ArrowRight className="w-5 h-5 text-accent flex-shrink-0 mt-1" />

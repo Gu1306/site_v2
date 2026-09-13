@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { LogOut, Printer, Upload, FileSpreadsheet, CircleAlert, RotateCcw, Save, Check } from 'lucide-react';
+import { LogOut, Upload, FileSpreadsheet, CircleAlert, RotateCcw, Save, Check } from 'lucide-react';
 import {
-  lerExportFightTech, calcularAvaliacao, MOVIMENTOS,
+  lerExportFightTech, calcularAvaliacao, recalcularResultados, nomesCombinam, dataValida, MOVIMENTOS,
   type Avaliacao, type LeituraExcel, type MovimentoChave,
 } from '@/lib/avaliacaoForca';
 import RelatorioForca from './RelatorioForca';
@@ -52,6 +52,15 @@ export default function PainelAvaliacaoForca() {
   const [atletas, setAtletas] = useState<{ id: string; name: string }[]>([]);
   const [atletaId, setAtletaId] = useState('');
   const requestId = useRef(crypto.randomUUID());
+  const ultimaAssinatura = useRef('');
+  const [identidadeConferida, setIdentidadeConferida] = useState('');
+  const [motivoAssociacao, setMotivoAssociacao] = useState('');
+  type Montagem = {distanciaCm: string; anguloGraus: string; referencia: string; ancoragem: string};
+  const [montagens, setMontagens] = useState<Record<string, Partial<Record<'E' | 'D', Montagem>>>>({});
+  const nomeCard = atletas.find(a => a.id === atletaId)?.name || '';
+  const identidadeAtual = JSON.stringify([nome, nascimento, email, atletaId, nomeCard, leitura?.atletaNoApp, arquivoBase64]);
+  const identidadeDiverge = Boolean(leitura && (!nomesCombinam(nome, leitura.atletaNoApp) || (atletaId && !nomesCombinam(nome, nomeCard))));
+
 
   const falhar = useCallback((e: unknown) => {
     if (e instanceof ApiError && e.status === 401) setUser(null);
@@ -76,7 +85,7 @@ export default function PainelAvaliacaoForca() {
     if (atletaId || !atletas.length || nome.trim().length < 3) return;
     const alvo = nome.trim().toLowerCase();
     const achado = atletas.find(a => a.name.toLowerCase() === alvo)
-      || atletas.find(a => a.name.toLowerCase().startsWith(alvo));
+;
     if (achado) setAtletaId(achado.id);
   }, [nome, atletas, atletaId]);
 
@@ -89,6 +98,7 @@ export default function PainelAvaliacaoForca() {
     setArquivo(''); setArquivoBase64(''); setLeitura(null); setMapa({}); setAvaliacao(null);
     setSalvo(false); setAtletaId(''); setError(''); setNotice('');
     requestId.current = crypto.randomUUID();
+    ultimaAssinatura.current = ''; setIdentidadeConferida(''); setMotivoAssociacao(''); setMontagens({});
   }
 
   async function lerArquivo(file: File) {
@@ -102,6 +112,7 @@ export default function PainelAvaliacaoForca() {
       catch { throw new ApiError('Não foi possível abrir a aba “All”. Exporte novamente pelo FightTech, sem editar o arquivo.', 400); }
       const resultado = lerExportFightTech(linhas);
       setLeitura(resultado);
+      if (resultado.datas.length === 1) setDataAvaliacao(resultado.datas[0]);
       setMapa(Object.fromEntries(resultado.naoReconhecidos.map(nome => [nome, ''])));
       const buffer = await file.arrayBuffer();
       let binario = '';
@@ -115,7 +126,7 @@ export default function PainelAvaliacaoForca() {
   const pesoValido = Number.isFinite(pesoNumero) && pesoNumero >= 25 && pesoNumero <= 250;
   const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
   const faltamMapear = leitura ? leitura.naoReconhecidos.filter(nome => !mapa[nome]).length : 0;
-  const podeGerar = Boolean(leitura?.tentativas.length) && !leitura?.problemas.length && nome.trim().length > 2 && /^\d{4}-\d{2}-\d{2}$/.test(nascimento) && pesoValido && emailValido && faltamMapear === 0;
+  const podeGerar = Boolean(leitura?.tentativas.length) && !leitura?.problemas.length && nome.trim().length > 2 && dataValida(nascimento) && pesoValido && emailValido && faltamMapear === 0;
 
   function gerar() {
     if (!leitura || !podeGerar) return;
@@ -124,8 +135,13 @@ export default function PainelAvaliacaoForca() {
       ...leitura,
       tentativas: leitura.tentativas.map(t => t.chave ? t : { ...t, chave: (mapa[t.exercicioBruto] || null) as MovimentoChave | null }),
     };
-    const resultado = calcularAvaliacao(ajustada, { nome: nome.trim(), nascimento, peso: pesoNumero, email: email.trim().toLowerCase() });
-    setAvaliacao({ ...resultado, data: dataAvaliacao });
+    const atleta = {nome: nome.trim(), nascimento, peso: pesoNumero, email: email.trim().toLowerCase()};
+    try {
+      const previa = calcularAvaliacao(ajustada, atleta);
+      const resultado = recalcularResultados(previa.movimentos, atleta, dataAvaliacao);
+      requestId.current = crypto.randomUUID(); ultimaAssinatura.current = '';
+      setAvaliacao(resultado); setError('');
+    } catch (e) { falhar(e); return; }
     setSalvo(false);
     setNotice('');
   }
@@ -133,11 +149,13 @@ export default function PainelAvaliacaoForca() {
   async function salvar() {
     if (!avaliacao) return;
     await executar(async () => {
-      await api(`atletas/${atletaId}/avaliacoes`, {
+      const payload = {
         requestId: requestId.current,
         atleta: avaliacao.atleta,
         data: avaliacao.data,
         arquivoNome: arquivo,
+        mapa, montagens,
+        confirmacao: {conferida: identidadeConferida === identidadeAtual, cardId: atletaId, nomeCard, atletaNoApp: leitura?.atletaNoApp, motivo: motivoAssociacao},
         arquivoBase64,
         idade: avaliacao.idade,
         // A VPS renderiza o PDF a partir daqui; se faltar campo, falta no documento.
@@ -150,21 +168,19 @@ export default function PainelAvaliacaoForca() {
         })),
         razoes: avaliacao.razoes,
         problemas: avaliacao.problemas,
-      });
+      };
+      const assinatura = JSON.stringify({...payload, requestId: undefined});
+      if (ultimaAssinatura.current && ultimaAssinatura.current !== assinatura) requestId.current = crypto.randomUUID();
+      ultimaAssinatura.current = assinatura;
+      payload.requestId = requestId.current;
+      const resposta = await api<{anexo: boolean}>(`atletas/${atletaId}/avaliacoes`, payload);
+      if (!resposta.anexo) throw new Error('Avaliação salva, mas o Excel ainda não foi confirmado. Repita o envio.');
       setSalvo(true);
-      setNotice('Salva no card do atleta, com o Excel anexado. O PDF com a leitura clínica é gerado na VPS e aparece no mesmo card em alguns minutos.');
+      setNotice('Avaliação salva e Excel confirmado no card. Com o serviço da VPS ativo, o PDF com a leitura automática será anexado ao mesmo card.');
     });
   }
 
-  // Espelha a checagem do servidor para avisar antes de tentar salvar no card errado.
-  const nomeBateComCard = useMemo(() => {
-    const card = atletas.find(a => a.id === atletaId);
-    if (!card || !nome.trim()) return true;
-    const partes = (t: string) => new Set(t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
-      .replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(x => x.length >= 3));
-    const a = partes(nome); const b = partes(card.name);
-    return [...a].some(x => b.has(x));
-  }, [atletas, atletaId, nome]);
+  const nomeBateComCard = !nomeCard || nomesCombinam(nome, nomeCard);
 
   const alertas = useMemo(() => avaliacao ? avaliacao.movimentos.flatMap(m => m.alertas.map(texto => ({ movimento: m.nome, texto }))) : [], [avaliacao]);
 
@@ -193,7 +209,7 @@ export default function PainelAvaliacaoForca() {
         <Button variant="ghost" onClick={() => void executar(async () => { await api('logout', {}); setUser(null); })}><LogOut size={17} /> Sair</Button>
       </header>
 
-      <main className="af-conteudo">
+      <main className="af-conteudo"><fieldset disabled={busy} style={{border: 0, padding: 0, margin: 0, minWidth: 0}}>
         <section className="af-form af-sem-impressao">
           <h2>1. Dados do atleta</h2>
           <div className="af-campos">
@@ -205,7 +221,7 @@ export default function PainelAvaliacaoForca() {
             <label>Peso (kg)<Input required inputMode="decimal" value={peso} onChange={e => { setPeso(e.target.value); setAvaliacao(null); }} placeholder="72,5" />
               {peso && !pesoValido && <small className="af-erro-campo">Peso entre 25 e 250 kg.</small>}
             </label>
-            <label>Data da avaliação<Input type="date" required value={dataAvaliacao} onChange={e => { setDataAvaliacao(e.target.value); setAvaliacao(null); }} /></label>
+            <label>Data da avaliação<Input type="date" required value={dataAvaliacao} readOnly title="Data medida no Excel" /></label>
           </div>
           <p className="af-nota">O peso é digitado aqui de propósito: a força relativa é calculada com este valor, e não com o cadastro do aplicativo, que ninguém confere.</p>
         </section>
@@ -261,8 +277,24 @@ export default function PainelAvaliacaoForca() {
 
         {avaliacao && (
           <>
+            <section className="af-form af-sem-impressao">
+              <h2>3. Registro das montagens</h2>
+              <p>Por lado: distância do marco anatômico ao centro da cinta, ângulo articular e identificação da montagem/ancoragem. Preserve esses registros na reavaliação.</p>
+              {avaliacao.movimentos.flatMap(m => (['E', 'D'] as const).filter(l => l === 'E' ? m.esquerdo : m.direito).map(l => {
+                const valor = montagens[m.chave]?.[l] || {distanciaCm: '', anguloGraus: '', referencia: '', ancoragem: ''};
+                const alterar = (campo: keyof Montagem, texto: string) => {setMontagens(prev => ({...prev, [m.chave]: {...prev[m.chave], [l]: {...valor, [campo]: texto}}})); setSalvo(false);};
+                return <div key={m.chave + l}>
+                  <h3>{m.nome} — {l === 'E' ? 'esquerdo' : 'direito'}</h3>
+                  <div className="af-campos">
+                    <label>Distância (cm)<Input type="number" min="0.1" max="200" step="0.1" value={valor.distanciaCm} onChange={e => alterar('distanciaCm', e.target.value)} /></label>
+                    <label>Ângulo articular (°)<Input type="number" min="0" max="180" value={valor.anguloGraus} onChange={e => alterar('anguloGraus', e.target.value)} /></label>
+                    <label>Marco anatômico<Input maxLength={120} placeholder="Ex.: trocânter maior" value={valor.referencia} onChange={e => alterar('referencia', e.target.value)} /></label>
+                    <label>Montagem e âncora<Input maxLength={300} placeholder="Identificação da foto/estrutura e posição" value={valor.ancoragem} onChange={e => alterar('ancoragem', e.target.value)} /></label>
+                  </div>
+                </div>;
+              }))}
+            </section>
             <div className="af-acoes af-sem-impressao af-acoes-relatorio">
-              <Button onClick={() => window.print()}><Printer size={16} /> Imprimir / salvar PDF</Button>
               <label className="af-atleta">
                 <span>Card no ClickUp</span>
                 <select value={atletaId} onChange={e => { setAtletaId(e.target.value); setSalvo(false); }} disabled={busy || salvo}>
@@ -270,20 +302,26 @@ export default function PainelAvaliacaoForca() {
                   {atletas.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                 </select>
               </label>
+              {leitura && atletaId && <div>
+                <p>No Excel: <strong>{leitura.atletaNoApp}</strong> · Relatório: <strong>{nome}</strong> · Card: <strong>{nomeCard}</strong></p>
+                {identidadeDiverge && <label>Explique a associação dos nomes diferentes<Input maxLength={300} value={motivoAssociacao} onChange={e => {setMotivoAssociacao(e.target.value); setIdentidadeConferida(''); setSalvo(false);}} placeholder="Ex.: cadastro genérico do app, identidade conferida na sessão" /></label>}
+                <label><input type="checkbox" checked={identidadeConferida === identidadeAtual} onChange={e => setIdentidadeConferida(e.target.checked ? identidadeAtual : '')} /> Conferi o atleta, o Excel desta sessão e o card selecionado.</label>
+              </div>}
               {atletaId && !nomeBateComCard && <span className="af-aviso">O nome digitado não parece o mesmo do card escolhido. Confira antes de salvar.</span>}
-              <Button variant="outline" className="af-botao-claro" disabled={busy || salvo || !atletaId} onClick={() => void salvar()}>
+              <Button variant="outline" className="af-botao-claro" disabled={busy || salvo || !atletaId || identidadeConferida !== identidadeAtual || (identidadeDiverge && motivoAssociacao.trim().length < 12)} onClick={() => void salvar()}>
                 {salvo ? <><Check size={16} /> Salvo</> : <><Save size={16} /> {busy ? 'Salvando…' : 'Salvar no ClickUp'}</>}
               </Button>
               {notice && <span className="af-ok">{notice}</span>}
+              {error && <p className="af-erro" role="alert">{error}</p>}
             </div>
             <p className="af-nota af-sem-impressao af-conferencia">
               Abaixo é a <strong>conferência</strong> dos números antes de salvar. O relatório oficial, com a leitura
-              clínica escrita a partir destes dados, é montado na VPS e anexado ao card do atleta no ClickUp.
+              automática descritiva a partir destes dados, é montado na VPS e anexado ao card do atleta no ClickUp.
             </p>
             <RelatorioForca avaliacao={avaliacao} avaliador={user} alertas={alertas} />
           </>
         )}
-      </main>
+      </fieldset></main>
     </div>
   );
 }

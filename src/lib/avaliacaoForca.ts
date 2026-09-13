@@ -130,6 +130,7 @@ const semAcento = (valor: unknown) => String(valor ?? '')
 /** O export traz "27.65" como texto. Aceita vírgula porque o app é localizado. */
 export const numero = (valor: unknown): number | null => {
   if (typeof valor === 'number') return Number.isFinite(valor) ? valor : null;
+  if (typeof valor !== 'string') return null;
   const texto = String(valor ?? '').trim().replace(',', '.');
   if (!texto || !/^-?\d+(\.\d+)?$/.test(texto)) return null;
   const n = Number(texto);
@@ -140,7 +141,7 @@ export const reconhecerMovimento = (nome: string): MovimentoChave | null => {
   const alvo = semAcento(nome);
   if (!alvo) return null;
   for (const movimento of MOVIMENTOS) {
-    if (movimento.sinonimos.some(sinonimo => alvo === sinonimo || alvo.includes(sinonimo))) return movimento.chave;
+    if (movimento.sinonimos.some(sinonimo => alvo === sinonimo)) return movimento.chave;
   }
   return null;
 };
@@ -153,6 +154,44 @@ const lerLado = (valor: unknown): Lado | null => {
 };
 
 const COLUNAS = { data: 0, atleta: 1, exercicio: 2, lado: 3, pico: 4 } as const;
+
+export const dataValida = (valor: unknown): valor is string => {
+  if (typeof valor !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(valor)) return false;
+  const d = new Date(`${valor}T12:00:00Z`);
+  return Number.isFinite(d.getTime()) && d.toISOString().slice(0, 10) === valor;
+};
+
+export const normalizarNome = (valor: string) => semAcento(valor).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+/** Correspondência conservadora; abreviações precisam de associação registrada. */
+export const nomesCombinam = (a: string, b: string) => {
+  const x = normalizarNome(a); const y = normalizarNome(b);
+  return x.length >= 3 && x === y;
+};
+
+/** Fronteira comum do servidor e da VPS: só picos e chaves entram no cálculo. */
+export function recalcularResultados(resultados: { chave: MovimentoChave; esquerdo?: { picos: number[] } | null; direito?: { picos: number[] } | null }[], atleta: Atleta, data: string) {
+  if (!Array.isArray(resultados) || resultados.length < 1 || resultados.length > 7) throw new Error('A avaliação precisa ter de 1 a 7 movimentos.');
+  if (!dataValida(data) || !dataValida(atleta.nascimento)) throw new Error('Data da avaliação ou nascimento inválida.');
+  if (!Number.isFinite(atleta.peso) || atleta.peso < 25 || atleta.peso > 250) throw new Error('Peso deve ficar entre 25 e 250 kg.');
+  const idade = calcularIdade(atleta.nascimento, new Date(`${data}T12:00:00`));
+  if (idade === null) throw new Error('Nascimento incompatível com a data da avaliação.');
+  const chaves = new Set<string>();
+  const tentativas: Tentativa[] = [];
+  for (const r of resultados) {
+    const movimento = MOVIMENTOS.find(m => m.chave === r?.chave);
+    if (!movimento || chaves.has(r.chave)) throw new Error('Movimento desconhecido ou repetido.');
+    chaves.add(r.chave);
+    if (!r.esquerdo && !r.direito) throw new Error('Movimento sem resultado.');
+    for (const lado of ['E', 'D'] as const) {
+      const valor = lado === 'E' ? r.esquerdo : r.direito;
+      if (valor === null || valor === undefined) continue;
+      if (!Array.isArray(valor.picos) || valor.picos.some(p => typeof p !== 'number' || !Number.isFinite(p) || p <= 0 || p > 500)) throw new Error('Há picos de força fora da faixa aceitável.');
+      if (valor.picos.length !== 3) throw new Error('Cada lado medido precisa de três tentativas válidas.');
+      valor.picos.forEach((pico, i) => tentativas.push({exercicioBruto: movimento.nome, chave: movimento.chave, lado, ordem: i + 1, pico, data, atletaNoApp: atleta.nome, linha: tentativas.length + 2}));
+    }
+  }
+  return calcularAvaliacao({tentativas, problemas: [], naoReconhecidos: [], atletaNoApp: atleta.nome, datas: [data]}, atleta, new Date(`${data}T12:00:00`));
+}
 
 /**
  * Lê as linhas cruas da aba `All`. Repete data, nome, exercício e lado para baixo,
@@ -172,35 +211,46 @@ export function lerExportFightTech(linhas: unknown[][]): LeituraExcel {
   let ordem = 0;
 
   const cabecalho = linhas[0] ?? [];
-  if (semAcento(cabecalho[COLUNAS.exercicio]) !== 'exercise' || semAcento(cabecalho[COLUNAS.pico]).indexOf('peak force') !== 0) {
+  if (semAcento(cabecalho[COLUNAS.exercicio]) !== 'exercise' || semAcento(cabecalho[COLUNAS.lado]) !== 'l/r' || semAcento(cabecalho[COLUNAS.pico]) !== 'peak force(kg)') {
     problemas.push('Este arquivo não parece ser o export do FightTech. Esperado o cabeçalho com as colunas “Exercise”, “L/R” e “Peak force(KG)”.');
     return { tentativas, problemas, naoReconhecidos: [], atletaNoApp: '', datas: [] };
   }
 
   for (let i = 1; i < linhas.length; i++) {
     const linha = linhas[i] ?? [];
-    const pico = numero(linha[COLUNAS.pico]);
-    if (pico === null) continue;
+    // Uma separação vazia encerra o contexto: não adivinhar o próximo bloco.
+    if (linha.every(v => v === null || v === undefined || String(v).trim() === '')) {
+      data = ''; atleta = ''; exercicio = ''; lado = null; ordem = 0;
+      continue;
+    }
 
     const dataCelula = String(linha[COLUNAS.data] ?? '').trim();
     const atletaCelula = String(linha[COLUNAS.atleta] ?? '').trim();
     const exercicioCelula = String(linha[COLUNAS.exercicio] ?? '').trim();
     const ladoCelula = lerLado(linha[COLUNAS.lado]);
-
+    const ladoPreenchido = String(linha[COLUNAS.lado] ?? '').trim() !== '';
+    // Identidade/data nova não herda exercício; exercício novo não herda lado.
+    const novaSessao = (dataCelula && dataCelula !== data) || (atletaCelula && atletaCelula !== atleta);
+    if (novaSessao) { exercicio = ''; lado = null; ordem = 0; }
+    if (exercicioCelula && exercicioCelula !== exercicio) { lado = null; ordem = 0; }
     if (dataCelula) data = dataCelula;
     if (atletaCelula) atleta = atletaCelula;
     if (exercicioCelula) exercicio = exercicioCelula;
-    // Bloco novo sempre que o app declara o lado; é o único marcador de início de série.
-    if (ladoCelula) { lado = ladoCelula; ordem = 0; }
+    if (ladoPreenchido) { lado = ladoCelula; ordem = 0; }
+    if (data) datas.add(data.slice(0, 10));
+    if (atleta) nomes.add(atleta);
+    const pico = numero(linha[COLUNAS.pico]);
+    if (pico === null || pico <= 0 || pico > 500) {
+      problemas.push(`Linha ${i + 1}: pico ausente, ilegível ou fora da faixa (0 a 500 kg). Corrija o export.`);
+      continue;
+    }
 
     if (!lado) { problemas.push(`Linha ${i + 1}: não foi possível saber se a tentativa é do lado direito ou esquerdo.`); continue; }
     if (!exercicio) { problemas.push(`Linha ${i + 1}: tentativa sem nome de exercício.`); continue; }
-    if (pico <= 0) { problemas.push(`Linha ${i + 1}: pico de ${pico} kg não é um resultado válido.`); continue; }
+    if (!atleta || !dataValida(data.slice(0, 10))) { problemas.push(`Linha ${i + 1}: identificação ou data ausente/inválida.`); continue; }
 
     const chave = reconhecerMovimento(exercicio);
     if (!chave) naoReconhecidos.add(exercicio);
-    if (data) datas.add(data.slice(0, 10));
-    if (atleta) nomes.add(atleta);
 
     ordem += 1;
     tentativas.push({ exercicioBruto: exercicio, chave, lado, ordem, pico, data, atletaNoApp: atleta, linha: i + 1 });
@@ -250,9 +300,10 @@ const PARES: { titulo: string; a: MovimentoChave; b: MovimentoChave; comparavel:
 ];
 
 export const calcularIdade = (nascimento: string, referencia = new Date()): number | null => {
+  if (!dataValida(nascimento)) return null;
   const partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(nascimento);
   if (!partes) return null;
-  const nasc = new Date(Number(partes[1]), Number(partes[2]) - 1, Number(partes[3]));
+  const nasc = new Date(`${nascimento}T12:00:00`);
   if (Number.isNaN(nasc.getTime())) return null;
   let idade = referencia.getFullYear() - nasc.getFullYear();
   const mes = referencia.getMonth() - nasc.getMonth();
@@ -270,7 +321,7 @@ export function calcularAvaliacao(leitura: LeituraExcel, atleta: Atleta, hoje = 
 
     const alertas: string[] = [];
     const porLado = (lado: Lado): LadoResultado | null => {
-      const picos = doMovimento.filter(t => t.lado === lado).sort((a, b) => a.ordem - b.ordem).map(t => t.pico);
+      const picos = doMovimento.filter(t => t.lado === lado).sort((a, b) => a.linha - b.linha).map(t => t.pico);
       if (!picos.length) return null;
       const nome = lado === 'E' ? 'esquerdo' : 'direito';
       if (picos.length !== 3) alertas.push(`Lado ${nome}: ${picos.length} tentativa(s) em vez de 3. O protocolo pede três tentativas válidas.`);
@@ -283,8 +334,8 @@ export function calcularAvaliacao(leitura: LeituraExcel, atleta: Atleta, hoje = 
     if (!esquerdo || !direito) alertas.push('Só um dos lados foi medido; não é possível calcular assimetria.');
     for (const [resultado, nome] of [[esquerdo, 'esquerdo'], [direito, 'direito']] as const) {
       if (!resultado) continue;
-      if (resultado.cv > CV_MAXIMO) alertas.push(`Lado ${nome}: variação de ${resultado.cv.toFixed(1)}% entre as tentativas. Acima de ${CV_MAXIMO}% costuma indicar problema de execução ou de fixação.`);
-      if (resultado.crescente) alertas.push(`Lado ${nome}: os três picos subiram do primeiro ao último. Parte do resultado pode ser familiarização com o teste, e a média subestima a força real.`);
+      if (resultado.cv > CV_MAXIMO) alertas.push(`Lado ${nome}: variação de ${resultado.cv.toFixed(1)}% entre as tentativas, acima do limite operacional de ${CV_MAXIMO}%. Confira a execução e a fixação.`);
+      if (resultado.crescente) alertas.push(`Lado ${nome}: os três picos subiram do primeiro ao último. O padrão pode estar relacionado à familiarização; não confirma sua causa.`);
     }
 
     let simetria: number | null = null;

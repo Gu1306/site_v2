@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import { lerExportFightTech, calcularAvaliacao, reconhecerMovimento, numero, calcularIdade, faixaAssimetria, CV_MAXIMO } from '../src/lib/avaliacaoForca.ts';
 
@@ -199,6 +200,9 @@ import { IDS } from './fortalecimento.mjs';
 const envioValido = () => ({
   requestId: '11111111-1111-4111-8111-111111111111',
   data: '2026-09-12',
+  arquivoBase64: readFileSync(new URL('./fixtures/fighttech-sintetico.xlsx', import.meta.url)).toString('base64'),
+  confirmacao: {conferida:true, cardId:'atleta1', nomeCard:'Pessoa Teste', atletaNoApp:'Pessoa Teste'},
+  montagens: {'flexao-quadril': {E:{distanciaCm:35,anguloGraus:90,referencia:'Trocânter maior',ancoragem:'Maca A / foto T1'},D:{distanciaCm:35,anguloGraus:90,referencia:'Trocânter maior',ancoragem:'Maca A / foto T1'}}},
   atleta: { nome: 'Pessoa Teste', nascimento: '1990-05-10', peso: 88, email: 'pessoa@exemplo.com' },
   resultados: [{
     chave: 'flexao-quadril', nome: 'Flexão de quadril',
@@ -226,18 +230,18 @@ function bancada() {
     }
     throw new Error('caminho inesperado ' + path);
   };
-  const upload = async (taskId, nome, bytes) => { anexos.push({ taskId, nome, tamanho: bytes.length }); return { id: 'anexo1' }; };
-  return { db, anexos, servico: criarServicoAvaliacao(api, upload) };
+  const upload = async (taskId, nome, bytes) => { anexos.push({taskId, nome, tamanho:bytes.length}); const task=db.get(taskId); task.attachments=[...(task.attachments||[]), {title:nome}]; return {id:'anexo1'}; };
+  return { db, anexos, api, upload, servico: criarServicoAvaliacao(api, upload) };
 }
 
 test('salva a avaliação como subtarefa do atleta e anexa o Excel', async () => {
   const { db, anexos, servico } = bancada();
-  const salvo = await servico.salvar('atleta1', { ...envioValido(), arquivoNome: 'teste.xlsx', arquivoBase64: Buffer.from('conteudo').toString('base64') }, 'livia');
+  const salvo = await servico.salvar('atleta1', envioValido(), 'livia');
   assert.equal(salvo.kind, 'avaliacao-forca');
   assert.equal(salvo.author, 'livia');
   assert.equal(salvo.anexo, true);
   assert.equal(anexos.length, 1);
-  assert.equal(anexos[0].nome, 'teste.xlsx');
+  assert.match(anexos[0].nome, /^fighttech-[a-f0-9]{64}\.xlsx$/);
   const criada = db.get(salvo.id);
   assert.ok(criada.name.startsWith('Avaliação de força CareFit — 2026-09-12'));
   assert.equal(String(criada.parent), 'atleta1');
@@ -263,7 +267,7 @@ test('recusa card que não está na lista de atletas', async () => {
 test('histórico devolve as avaliações do atleta, da mais recente para a mais antiga', async () => {
   const { servico } = bancada();
   await servico.salvar('atleta1', envioValido(), 'livia');
-  await servico.salvar('atleta1', { ...envioValido(), requestId: '22222222-2222-4222-8222-222222222222', data: '2026-12-01' }, 'lais');
+  await servico.salvar('atleta1', { ...envioValido(), requestId: '22222222-2222-4222-8222-222222222222', data: '2026-12-01', arquivoBase64:readFileSync(new URL('./fixtures/fighttech-sintetico-dezembro.xlsx', import.meta.url)).toString('base64') }, 'lais');
   const historico = await servico.historicoDe('atleta1');
   assert.deepEqual(historico.map(h => h.data), ['2026-12-01', '2026-09-12']);
 });
@@ -286,4 +290,79 @@ test('empacotar e desempacotar sobrevivem ao escape de Markdown do ClickUp', () 
   const escapado = texto.replace(/[_[\]]/g, char => '\\' + char);
   assert.deepEqual(desempacotar({ description: texto, markdown_description: escapado }), registro);
   assert.equal(desempacotar({ description: 'CAREFIT_AVALIACAO_V1\nlixo' }), null);
+});
+
+// Regressões da auditoria ASTRA. Dados sintéticos, sem serviços externos.
+import { nomesCombinam, conferirArquivo } from './avaliacao-forca.mjs';
+
+test('R1: pico inválido não apaga a mudança de atleta, exercício e lado', () => {
+  for (const pico of ['erro', '', null]) {
+    const l = lerExportFightTech([cabecalho, ['2026-09-12','Alfa','Hip flexion','L',10],['2026-09-12','Beta','Knee extension','R',pico],['','','','',20],['','','','',30]]);
+    assert.ok(l.problemas.length > 0);
+    assert.equal(l.tentativas[1].atletaNoApp,'Beta');
+    assert.equal(l.tentativas[1].chave,'extensao-joelho');
+    assert.equal(l.tentativas[1].lado,'D');
+  }
+});
+test('R2: lado inválido e mudança de exercício sem lado não herdam esquerda', () => {
+  for (const linha of [['','','','Bilateral',20],['','','Knee extension','',20]]) {
+    const l=lerExportFightTech([cabecalho,['2026-09-12','Alfa','Hip flexion','L',10],linha,['','','','',30]]);
+    assert.equal(l.tentativas.length,1); assert.ok(l.problemas.length>=2);
+  }
+});
+test('separador vazio encerra contexto e unidade incorreta é rejeitada', () => {
+  const l=lerExportFightTech([cabecalho,['2026-09-12','Alfa','Hip flexion','L',10],[],['','','','',30]]);
+  assert.equal(l.tentativas.length,1); assert.ok(l.problemas.length);
+  const h=[...cabecalho];h[4]='Peak force(N)'; assert.equal(lerExportFightTech([h]).tentativas.length,0);
+  assert.ok(lerExportFightTech([h]).problemas.length);
+});
+test('R4/R5: recalcula tudo e descarta nomes, alertas, idade e razões livres', () => {
+  const b=envioValido();b.resultados[0].esquerdo={picos:[10,10,10],media:999,maior:999,cv:NaN,crescente:true};
+  b.resultados[0].direito={picos:[20,20,20]};b.resultados[0].assimetria=123;
+  b.resultados[0].nome='alfa@example.invalid';b.resultados[0].alertas=['Nome sigiloso'];b.razoes=[{titulo:'Nome sigiloso',valor:999}];b.idade=110;
+  const v=validarEnvio(b);assert.equal(v.resultados[0].esquerdo.media,10);assert.equal(v.resultados[0].assimetria,50);assert.equal(v.idade,36);
+  assert.equal(v.resultados[0].nome,'Flexão de quadril'); assert.ok(!JSON.stringify(v).includes('sigiloso'));assert.equal(v.razoes.length,0);
+});
+test('rejeita chaves duplicadas, datas inexistentes, tentativas excedentes e números não finitos', () => {
+  assert.equal(calcularIdade('2026-02-31'),null);
+  assert.throws(()=>validarEnvio({...envioValido(),data:'2026-02-31'}),/data/);
+  const b=envioValido();b.resultados.push(b.resultados[0]);assert.throws(()=>validarEnvio(b),/repetido/);
+  for(const picos of [[1,2,3,4],[1,2],[1,2,Infinity],[1,2,'3']]) {const c=envioValido();c.resultados[0].esquerdo.picos=picos;assert.throws(()=>validarEnvio(c));}
+});
+test('R6: coincidência de partícula ou primeiro nome não equivale a identidade', () => {
+  assert.equal(nomesCombinam('Ana dos Santos','Bruno dos Reis'),false);
+  assert.equal(nomesCombinam('Ana Silva','Ana Souza'),false);
+  assert.equal(nomesCombinam(' JOÃO  SILVA ','Joao Silva'),true);
+});
+test('R6: exige conferência do Excel e registra motivo de associação divergente', async () => {
+  const {servico}=bancada();const b=envioValido();b.atleta.nome='Outro Atleta';
+  await assert.rejects(()=>servico.salvar('atleta1',b,'equipe'),/motivo/);
+  b.confirmacao.motivo='Cadastro genérico conferido durante a sessão';
+  const r=await servico.salvar('atleta1',b,'equipe');assert.equal(r.associacao.divergente,true);assert.equal(r.associacao.conferidaPor,'equipe');assert.equal(r.origem.atletaNoApp,'Pessoa Teste');
+});
+test('Excel original prevalece: adulterar picos ou informar outra data é recusado', async () => {
+  const b=envioValido();b.resultados[0].esquerdo.picos=[10,10,10];
+  await assert.rejects(()=>conferirArquivo(b),/divergem/);
+  await assert.rejects(()=>conferirArquivo({...envioValido(),data:'2026-09-13'}),/data medida/);
+});
+test('R8: retry retoma upload após falha e não cria segunda subtarefa', async () => {
+  const {api,upload,db}=bancada();let vezes=0;
+  const servico=criarServicoAvaliacao(api,async(...args)=>{if(++vezes===1)throw new Error('rede simulada');return upload(...args);});
+  await assert.rejects(()=>servico.salvar('atleta1',envioValido(),'equipe'),/rede simulada/);
+  const r=await servico.salvar('atleta1',envioValido(),'equipe');assert.equal(r.anexo,true);assert.equal(vezes,2);assert.equal(db.get('atleta1').subtasks.length,1);
+});
+test('R8: resposta perdida de upload é recuperada sem duplicação', async () => {
+  const {api,upload,anexos}=bancada();let vezes=0;
+  const servico=criarServicoAvaliacao(api,async(...args)=>{await upload(...args);if(++vezes===1)throw new Error('resposta perdida');});
+  await assert.rejects(()=>servico.salvar('atleta1',envioValido(),'equipe'));
+  const r=await servico.salvar('atleta1',envioValido(),'equipe');assert.equal(r.anexo,true);assert.equal(anexos.length,1);
+});
+test('mesmo requestId com outro conteúdo é conflito; duas chamadas simultâneas criam uma tarefa', async () => {
+  const {servico,db}=bancada();const [a,b]=await Promise.all([servico.salvar('atleta1',envioValido(),'equipe'),servico.salvar('atleta1',envioValido(),'equipe')]);
+  assert.equal(a.id,b.id);assert.equal(db.get('atleta1').subtasks.length,1);
+  const c=envioValido();c.atleta.peso=90;await assert.rejects(()=>servico.salvar('atleta1',c,'equipe'),/outros dados/);
+});
+test('registro da montagem por lado é obrigatório antes de criar a tarefa', async () => {
+  const {servico,db}=bancada();const b=envioValido();delete b.montagens;
+  await assert.rejects(()=>servico.salvar('atleta1',b,'equipe'),/distância e ângulo/);assert.equal(db.get('atleta1').subtasks.length,0);
 });

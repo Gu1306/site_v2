@@ -2,6 +2,10 @@
 // Mesmo desenho do painel de fortalecimento: subtarefa com JSON embutido,
 // idempotência por requestId e releitura para confirmar o que foi gravado.
 import { IDS, PublicError } from './fortalecimento.mjs';
+import { createHash } from 'node:crypto';
+import { readSheet } from 'read-excel-file/node';
+import { recalcularResultados, lerExportFightTech, calcularAvaliacao, nomesCombinam, dataValida, MOVIMENTOS } from './forca-core.mjs';
+export { nomesCombinam } from './forca-core.mjs';
 
 export const MARCADOR = 'CAREFIT_AVALIACAO_V1';
 const PREFIXO = 'Avaliação de força CareFit — ';
@@ -40,70 +44,50 @@ export function empacotar(registro) {
   return texto;
 }
 
-/** Listas de texto livre entram no card; limita quantidade e tamanho. */
-const lista = (valor, maxItens, maxTexto) => (Array.isArray(valor) ? valor : [])
-  .slice(0, maxItens).map(v => String(v ?? '').slice(0, maxTexto)).filter(Boolean);
-
 const texto = (valor, rotulo, max) => {
   if (typeof valor !== 'string' || !valor.trim() || valor.length > max) throw new PublicError(`Confira ${rotulo}.`);
   return valor.trim();
 };
+const hash = valor => createHash('sha256').update(valor).digest('hex');
 
 export function validarEnvio(body) {
-  if (!/^[0-9a-f-]{36}$/.test(body?.requestId || '')) throw new PublicError('Identificador da operação inválido.');
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(body?.data || '')) throw new PublicError('Confira a data da avaliação.');
-
-  const atleta = body.atleta || {};
-  const email = String(atleta.email || '').trim().toLowerCase();
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body?.requestId || '')) throw new PublicError('Identificador da operação inválido.');
+  if (!dataValida(body?.data)) throw new PublicError('Confira a data da avaliação.');
+  const entrada = body.atleta || {};
+  const email = String(entrada.email || '').trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 120) throw new PublicError('Confira o e-mail do atleta.');
-  const peso = Number(atleta.peso);
-  if (!Number.isFinite(peso) || peso < 25 || peso > 250) throw new PublicError('Peso deve ficar entre 25 e 250 kg.');
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(atleta.nascimento || '')) throw new PublicError('Confira a data de nascimento.');
+  if (!dataValida(entrada.nascimento)) throw new PublicError('Confira a data de nascimento.');
+  const atleta = {nome: texto(entrada.nome, 'o nome do atleta', 80), nascimento: entrada.nascimento, peso: Number(entrada.peso), email};
+  let calculo;
+  try { calculo = recalcularResultados(body.resultados, atleta, body.data); }
+  catch (erro) { throw new PublicError(erro.message); }
+  return {requestId: body.requestId, data: body.data, atleta, idade: calculo.idade, resultados: calculo.movimentos, razoes: calculo.razoes, problemas: calculo.problemas};
+}
 
-  if (!Array.isArray(body.resultados) || !body.resultados.length || body.resultados.length > 7) {
-    throw new PublicError('A avaliação precisa ter de 1 a 7 movimentos.');
-  }
-  const lado = valor => {
-    if (valor === null || valor === undefined) return null;
-    const picos = Array.isArray(valor.picos) ? valor.picos.map(Number) : [];
-    if (!picos.length || picos.length > 6 || picos.some(p => !Number.isFinite(p) || p <= 0 || p > 500)) {
-      throw new PublicError('Há picos de força fora da faixa aceitável.');
-    }
-    return {
-      picos, media: Number(valor.media), maior: Number(valor.maior),
-      cv: Number(valor.cv) || 0, crescente: Boolean(valor.crescente),
-    };
-  };
-  const resultados = body.resultados.map(r => ({
-    chave: texto(r.chave, 'o movimento', 40),
-    nome: texto(r.nome, 'o nome do movimento', 60),
-    esquerdo: lado(r.esquerdo),
-    direito: lado(r.direito),
-    assimetria: r.assimetria === null || r.assimetria === undefined ? null : Number(r.assimetria),
-    ladoMenor: r.ladoMenor === 'E' || r.ladoMenor === 'D' ? r.ladoMenor : null,
-    alertas: lista(r.alertas, 12, 300),
+export async function conferirArquivo(body) {
+  const base64 = body.arquivoBase64;
+  if (typeof base64 !== 'string' || base64.length > 2_666_668 || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(base64)) throw new PublicError('Excel ausente ou inválido (máximo 2 MB).');
+  const bytes = Buffer.from(base64, 'base64');
+  if (!bytes.length || bytes.length > 2_000_000) throw new PublicError('Excel ausente ou acima de 2 MB.');
+  let linhas;
+  try { linhas = await readSheet(bytes, 'All'); }
+  catch { throw new PublicError('Não foi possível ler a aba All do Excel. Exporte novamente pelo FightTech.'); }
+  if (linhas.length > 1000) throw new PublicError('O arquivo tem linhas demais para uma avaliação.');
+  const leitura = lerExportFightTech(linhas);
+  if (leitura.problemas.length) throw new PublicError(leitura.problemas.join(' '));
+  const mapa = Object.fromEntries(leitura.naoReconhecidos.map(nome => {
+    const chave = body.mapa?.[nome];
+    if (!MOVIMENTOS.some(m => m.chave === chave)) throw new PublicError(`Mapeie o exercício: ${nome}`);
+    return [nome, chave];
   }));
-  if (resultados.every(r => !r.esquerdo && !r.direito)) throw new PublicError('Nenhum resultado foi enviado.');
-
-  const idade = Number(body.idade);
-  const razoes = (Array.isArray(body.razoes) ? body.razoes : []).slice(0, 12).map(r => ({
-    titulo: String(r.titulo ?? '').slice(0, 80),
-    lado: r.lado === 'E' || r.lado === 'D' ? r.lado : null,
-    valor: Number(r.valor) || 0,
-    detalhe: String(r.detalhe ?? '').slice(0, 60),
-    comparavel: Boolean(r.comparavel),
-    nota: r.nota ? String(r.nota).slice(0, 400) : undefined,
-  }));
-
-  return {
-    requestId: body.requestId,
-    data: body.data,
-    atleta: { nome: texto(atleta.nome, 'o nome do atleta', 80), nascimento: atleta.nascimento, peso, email },
-    idade: Number.isFinite(idade) && idade >= 0 && idade < 120 ? idade : null,
-    resultados,
-    razoes,
-    problemas: lista(body.problemas, 12, 300),
-  };
+  leitura.tentativas = leitura.tentativas.map(t => ({...t, chave: t.chave || mapa[t.exercicioBruto]}));
+  if (leitura.datas[0] !== body.data) throw new PublicError('A data da avaliação precisa ser a data medida no Excel.');
+  const calculo = calcularAvaliacao(leitura, body.atleta, new Date(`${body.data}T12:00:00`));
+  const envio = validarEnvio({...body, resultados: calculo.movimentos});
+  // Também confere o que foi exibido no navegador antes de salvar.
+  const exibido = validarEnvio(body);
+  if (JSON.stringify(exibido.resultados) !== JSON.stringify(envio.resultados)) throw new PublicError('Os resultados exibidos divergem do Excel. Gere a conferência novamente.', 409);
+  return {envio, bytes, origem: {atletaNoApp: leitura.atletaNoApp, data: leitura.datas[0], sha256: hash(bytes), mapa, tentativas: leitura.tentativas}};
 }
 
 /** Anexo vai por multipart; o cliente JSON do painel não serve para isso. */
@@ -122,24 +106,8 @@ export function criarUploader(token, fetcher = fetch) {
   };
 }
 
-/** Normaliza para comparar nomes: sem acento, sem pontuação, minúsculo. */
-const chaveNome = valor => String(valor ?? '').normalize('NFD')
-  .replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
-
-/**
- * O card do ClickUp é escolhido numa lista; o nome vem digitado. Se os dois não
- * compartilharem nenhum nome próprio, é quase certo que o card está errado —
- * e gravar uma avaliação no atleta errado é o pior erro possível aqui.
- */
-export function nomesCombinam(digitado, noCard) {
-  const partes = texto => new Set(chaveNome(texto).split(' ').filter(p => p.length >= 3));
-  const a = partes(digitado); const b = partes(noCard);
-  if (!a.size || !b.size) return false;
-  for (const parte of a) if (b.has(parte)) return true;
-  return false;
-}
-
 export function criarServicoAvaliacao(api, upload) {
+  const emCurso = new Map();
   async function cardAtleta(id) {
     if (!/^[a-zA-Z0-9_-]{3,40}$/.test(id)) throw new PublicError('Card inválido.');
     const t = await api(`/task/${id}?include_subtasks=true&include_markdown_description=true`);
@@ -173,38 +141,70 @@ export function criarServicoAvaliacao(api, upload) {
     async historicoDe(id) { return historico(await cardAtleta(id)); },
 
     async salvar(atletaId, body, usuario) {
-      const envio = validarEnvio(body);
-      const card = await cardAtleta(atletaId);
-      if (!nomesCombinam(envio.atleta.nome, card.name)) {
-        throw new PublicError(`O nome digitado ("${envio.atleta.nome}") não bate com o card escolhido ("${card.name}"). Confira o atleta antes de salvar.`, 409);
+      // Evita duas criações concorrentes no mesmo processo; deploy deve manter uma réplica.
+      const chaveOperacao = `${atletaId}:${body?.requestId}`;
+      const anterior = emCurso.get(chaveOperacao);
+      const assinatura = hash(JSON.stringify(body));
+      if (anterior) {
+        if (anterior.assinatura !== assinatura) throw new PublicError('Operação em curso com conteúdo diferente.', 409);
+        return anterior.promessa;
       }
-
-      const anteriores = await historico(card);
-      const repetido = anteriores.find(r => r.requestId === envio.requestId);
-      if (repetido) return repetido;
-
-      const registro = {
-        kind: 'avaliacao-forca', ...envio,
-        author: usuario, createdAt: new Date().toISOString(),
-      };
-      const criada = await api(`/list/${IDS.athletes}/task`, 'POST', {
-        name: `${PREFIXO}${registro.data}`, parent: atletaId,
-        markdown_content: empacotar(registro), notify_all: false,
-      });
-      const confirmada = desempacotar(await api(`/task/${criada.id}?include_markdown_description=true`));
-      if (confirmada?.requestId !== registro.requestId) {
-        throw new PublicError('Não foi possível confirmar a avaliação salva. Atualize antes de tentar de novo.', 503);
-      }
-
-      let anexo = null;
-      if (body.arquivoBase64 && upload) {
-        const bytes = Buffer.from(String(body.arquivoBase64), 'base64');
-        if (bytes.length > 3_000_000) throw new PublicError('O Excel excede o tamanho aceito para anexo.');
-        const nome = String(body.arquivoNome || 'avaliacao-forca.xlsx').replace(/[^\w.\- ]/g, '_').slice(0, 80);
-        anexo = await upload(criada.id, nome, bytes);
-      }
-
-      return { ...confirmada, id: criada.id, anexo: Boolean(anexo), card: card.name };
+      const promessa = salvarUma(atletaId, body, usuario);
+      emCurso.set(chaveOperacao, {assinatura, promessa});
+      try { return await promessa; } finally { emCurso.delete(chaveOperacao); }
     },
   };
+
+  async function salvarUma(atletaId, body, usuario) {
+    validarEnvio(body);
+    if (typeof upload !== 'function') throw new PublicError('Anexo do Excel indisponível.', 503);
+    const {envio, bytes, origem} = await conferirArquivo(body);
+    const card = await cardAtleta(atletaId);
+    const confirmacao = body.confirmacao;
+    if (confirmacao?.conferida !== true || confirmacao.cardId !== atletaId || confirmacao.nomeCard !== card.name || confirmacao.atletaNoApp !== origem.atletaNoApp) throw new PublicError('Confira o atleta do Excel e o card escolhido antes de salvar.', 409);
+    const divergente = !nomesCombinam(envio.atleta.nome, card.name) || !nomesCombinam(envio.atleta.nome, origem.atletaNoApp);
+    const motivo = divergente ? texto(confirmacao.motivo, 'o motivo da associação dos nomes diferentes', 300) : '';
+    if (divergente && motivo.length < 12) throw new PublicError('Explique a associação dos nomes diferentes (mínimo 12 caracteres).', 409);
+    const associacao = {cardId: atletaId, nomeCard: card.name, atletaNoApp: origem.atletaNoApp, divergente, motivo};
+    const montagens = validarMontagens(body.montagens, envio.resultados);
+    const anexoNome = `fighttech-${origem.sha256}.xlsx`;
+    const conteudoHash = hash(JSON.stringify({envio, origem, associacao, montagens}));
+    const anteriores = await historico(card);
+    const repetido = anteriores.find(r => r.requestId === envio.requestId);
+    if (repetido && repetido.conteudoHash !== conteudoHash) throw new PublicError('Este identificador já foi usado com outros dados. Gere uma nova avaliação.', 409);
+    let task;
+    let registro;
+    if (repetido) {
+      task = await api(`/task/${repetido.id}?include_markdown_description=true`);
+      registro = desempacotar(task);
+    } else {
+      registro = {kind: 'avaliacao-forca', schemaVersion: 2, ...envio, origem, associacao: {...associacao, conferidaPor: usuario, conferidaEm: new Date().toISOString()}, montagens, anexoNome, conteudoHash, author: usuario, createdAt: new Date().toISOString()};
+      const criada = await api(`/list/${IDS.athletes}/task`, 'POST', {name: `${PREFIXO}${registro.data}`, parent: atletaId, markdown_content: empacotar(registro), notify_all: false});
+      task = await api(`/task/${criada.id}?include_markdown_description=true`);
+    }
+    const confirmada = desempacotar(task);
+    if (confirmada?.conteudoHash !== conteudoHash || String(task.parent) !== atletaId) throw new PublicError('Não foi possível confirmar a avaliação salva. Repita o envio para recuperar a operação.', 503);
+    const temAnexo = () => (task.attachments || []).some(a => (a.title || a.name) === anexoNome);
+    if (!temAnexo()) {
+      await upload(task.id, anexoNome, bytes);
+      task = await api(`/task/${task.id}?include_markdown_description=true`);
+      if (!temAnexo()) throw new PublicError('Avaliação salva; anexo ainda não confirmado. Repita o envio para conferir ou recuperar o Excel.', 503);
+    }
+    return {...confirmada, id: task.id, anexo: true, card: card.name};
+  }
+}
+
+export function validarMontagens(valor, resultados) {
+  const montagens = {};
+  for (const r of resultados) {
+    montagens[r.chave] = {};
+    for (const lado of ['E', 'D']) {
+      if (!(lado === 'E' ? r.esquerdo : r.direito)) continue;
+      const m = valor?.[r.chave]?.[lado];
+      const distanciaCm = Number(m?.distanciaCm); const anguloGraus = Number(m?.anguloGraus);
+      if (!m || !Number.isFinite(distanciaCm) || distanciaCm <= 0 || distanciaCm > 200 || m.anguloGraus === '' || !Number.isFinite(anguloGraus) || anguloGraus < 0 || anguloGraus > 180) throw new PublicError(`Registre distância e ângulo de ${r.nome}, lado ${lado}.`);
+      montagens[r.chave][lado] = {distanciaCm, anguloGraus, referencia: texto(m.referencia, 'o marco de referência da distância', 120), ancoragem: texto(m.ancoragem, 'a montagem e ancoragem', 300)};
+    }
+  }
+  return montagens;
 }
