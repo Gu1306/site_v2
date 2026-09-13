@@ -5,6 +5,7 @@ import serveHandler from 'serve-handler';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { clickupClient, createService, PublicError } from './fortalecimento.mjs';
+import { criarServicoAvaliacao, criarUploader } from './avaliacao-forca.mjs';
 
 /*
  * Preview de link por rota.
@@ -64,14 +65,14 @@ function comPreview(html, preview, url) {
 
 export function passwordHash(password, salt = randomBytes(16).toString('hex')) { return `${salt}:${scryptSync(password, salt, 32).toString('hex')}`; }
 function equal(a, b) { const x = Buffer.from(a); const y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); }
-export function createServer(env = process.env, service = createService(clickupClient(env.CLICKUP_API_TOKEN))) {
+export function createServer(env = process.env, service = createService(clickupClient(env.CLICKUP_API_TOKEN)), avaliacao = criarServicoAvaliacao(clickupClient(env.CLICKUP_API_TOKEN), criarUploader(env.CLICKUP_API_TOKEN))) {
   const origin = env.PORTAL_ORIGIN || 'http://localhost:8080';
   const secure = origin.startsWith('https://');
   const secret = env.PORTAL_SESSION_SECRET || '';
   let users = {}; try { users = JSON.parse(env.PORTAL_USERS_JSON || '{}'); } catch { /* fail closed */ }
   const ready = secret.length >= 32 && env.CLICKUP_API_TOKEN && users && typeof users === 'object' && Object.keys(users).length > 0 && Object.values(users).every(hash => typeof hash === 'string' && /^[a-f0-9]{32}:[a-f0-9]{64}$/.test(hash));
   const sign = x => createHmac('sha256', secret).update(x).digest('base64url');
-  const cookie = (value, age) => `carefit_session=${value}; HttpOnly; SameSite=Strict; Path=/api/fortalecimento; Max-Age=${age}${secure ? '; Secure' : ''}`;
+  const cookie = (value, age) => `carefit_session=${value}; HttpOnly; SameSite=Strict; Path=/api; Max-Age=${age}${secure ? '; Secure' : ''}`;
   const attempts = new Map();
   function session(req) {
     const raw = /(?:^|;\s*)carefit_session=([^;]+)/.exec(req.headers.cookie || '')?.[1] || '';
@@ -79,9 +80,9 @@ export function createServer(env = process.env, service = createService(clickupC
     if (!payload || !sig || !equal(sig, sign(payload))) return null;
     try { const data = JSON.parse(Buffer.from(payload, 'base64url')); return data.exp > Date.now() && Object.hasOwn(users, data.user) && data.version === sign(users[data.user]) ? data.user : null; } catch { return null; }
   }
-  async function body(req) {
+  async function body(req, limite = 50000) {
     let size = 0; const chunks = [];
-    for await (const chunk of req) { size += chunk.length; if (size > 50000) throw new PublicError('Conteúdo muito grande.', 413); chunks.push(chunk); }
+    for await (const chunk of req) { size += chunk.length; if (size > limite) throw new PublicError('Conteúdo muito grande.', 413); chunks.push(chunk); }
     try { return JSON.parse(Buffer.concat(chunks).toString()); } catch { throw new PublicError('Conteúdo inválido.'); }
   }
   return http.createServer(async (req, res) => {
@@ -89,11 +90,12 @@ export function createServer(env = process.env, service = createService(clickupC
     try {
       const url = new URL(req.url, 'http://localhost');
       if (url.pathname === '/healthz') return send(200, { ok: true });
-      if (url.pathname.startsWith('/api/fortalecimento/')) {
+      const prefixo = ['/api/fortalecimento/', '/api/avaliacao-forca/'].find(p => url.pathname.startsWith(p));
+      if (prefixo) {
         res.setHeader('X-Frame-Options', 'DENY');
         if (!ready) throw new PublicError('O painel está aguardando a configuração de acesso da equipe.', 503);
         if (req.method !== 'GET' && (req.headers.origin !== origin || !req.headers['content-type']?.startsWith('application/json'))) throw new PublicError('Reabra o painel pelo endereço oficial.', 403);
-        const route = url.pathname.slice('/api/fortalecimento/'.length);
+        const route = url.pathname.slice(prefixo.length);
         if (route === 'login' && req.method === 'POST') {
           // Per-account limits also cover deployments behind a trusted reverse proxy.
           const input = await body(req); const user = String(input.user || '').toLowerCase();
@@ -112,6 +114,15 @@ export function createServer(env = process.env, service = createService(clickupC
         const user = session(req); if (!user) throw new PublicError('Entre com seu acesso da equipe.', 401);
         if (route === 'session' && req.method === 'GET') return send(200, { user });
         if (route === 'logout' && req.method === 'POST') { res.setHeader('Set-Cookie', cookie('', 0)); return send(200, { ok: true }); }
+        if (prefixo === '/api/avaliacao-forca/') {
+          if (route === 'atletas' && req.method === 'GET') return send(200, await avaliacao.atletas());
+          const historico = /^atletas\/([a-zA-Z0-9_-]+)\/historico$/.exec(route);
+          if (historico && req.method === 'GET') return send(200, await avaliacao.historicoDe(historico[1]));
+          const registro = /^atletas\/([a-zA-Z0-9_-]+)\/avaliacoes$/.exec(route);
+          // O Excel viaja em base64 dentro do JSON, por isso o limite maior aqui.
+          if (registro && req.method === 'POST') return send(200, await avaliacao.salvar(registro[1], await body(req, 6000000), user));
+          throw new PublicError('Página não encontrada.', 404);
+        }
         if (route === 'agenda' && req.method === 'GET') return send(200, await service.agenda(url.searchParams.get('day') || ''));
         if (route === 'athletes' && req.method === 'GET') return send(200, await service.athletes());
         const athlete = /^athletes\/([a-zA-Z0-9_-]+)$/.exec(route);
@@ -129,7 +140,8 @@ export function createServer(env = process.env, service = createService(clickupC
       }
       if (!['GET', 'HEAD'].includes(req.method)) return send(405, { error: 'Método não permitido.' });
       res.setHeader('X-Content-Type-Options', 'nosniff');
-      if (url.pathname === '/painel-fortalecimento') { res.setHeader('X-Robots-Tag', 'noindex, nofollow'); res.setHeader('X-Frame-Options', 'DENY'); }
+      if (url.pathname === '/painel-fortalecimento' || url.pathname === '/painel-avaliacao-forca') { res.setHeader('X-Robots-Tag', 'noindex, nofollow'); res.setHeader('X-Frame-Options', 'DENY'); }
+
       // Rotas que circulam em mensagem devolvem o index.html com o preview
       // reescrito (ver PREVIEWS no topo). Se o dist ainda não existe, segue o
       // fluxo normal em vez de derrubar a página.
