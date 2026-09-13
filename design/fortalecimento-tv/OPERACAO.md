@@ -42,14 +42,14 @@ mandou. Quando o treino tem bloco, a tabela da subtarefa ganha uma coluna `Bloco
 
 O botão **Importar Excel** oferece o arquivo `modelo-treinos-carefit.xlsx`. A aba `Treinos`
 tem estas colunas, nesta ordem: `Nome do treino`, `Atleta no ClickUp`, `Nome curto na TV`,
-`Exercício`, `Séries`, `Repetições/tempo`, `Carga + unidade` e `Pausa (s)`.
+`Exercício`, `Séries`, `Repetições/tempo`, `Carga + unidade`, `Pausa (s)` e `Bloco`.
 
-Há ainda uma coluna opcional `Bloco`, que o modelo distribuído **ainda não traz**: quem
-quiser importar bi-set precisa acrescentá-la à direita, com esse nome no cabeçalho. Linhas
-vizinhas do mesmo treino com o mesmo valor nessa coluna (`A`, `1`, o que for) viram um
-bloco; célula vazia é exercício solto. O mesmo rótulo repetido longe dali começa outro
-bloco, porque bi-set é sempre uma sequência. Sem a coluna, a importação funciona como
-antes.
+A coluna `Bloco` faz parte do modelo e é opcional. Linhas vizinhas do mesmo treino com o
+mesmo valor nessa coluna (`A`, `1`, o que for) formam um bi-set, tri-set ou circuito de até
+quatro exercícios. Célula vazia é exercício solto. O mesmo rótulo repetido longe dali começa
+outro bloco, porque o agrupamento é sempre uma sequência. Na TV o bloco aparece em um cartão
+único, nunca é partido entre duas páginas e usa a pausa do último exercício. Um arquivo antigo
+sem a coluna continua sendo importado como antes.
 
 Cada linha representa um exercício. Nome do treino, atleta e nome curto devem ser repetidos
 nas linhas do mesmo treino. O painel ignora maiúsculas e acentos ao localizar o nome, mas só

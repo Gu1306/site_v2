@@ -18,22 +18,23 @@ const headers = [[
   'Séries',
   'Repetições/tempo',
   'Carga + unidade',
-  'Pausa (s)'
+  'Pausa (s)',
+  'Bloco'
 ]];
-workouts.getRange('A1:H1').values = headers;
-workouts.getRange('A2:H101').values = Array.from({ length: 100 }, () => Array(8).fill(null));
+workouts.getRange('A1:I1').values = headers;
+workouts.getRange('A2:I101').values = Array.from({ length: 100 }, () => Array(9).fill(null));
 workouts.freezePanes.freezeRows(1);
 workouts.showGridLines = false;
 workouts.tabColor = '#E89A70';
-workouts.getRange('A1:H101').format.font = { name: 'Aptos', size: 11, color: '#123C40' };
-workouts.getRange('A1:H1').format = {
+workouts.getRange('A1:I101').format.font = { name: 'Aptos', size: 11, color: '#123C40' };
+workouts.getRange('A1:I1').format = {
   fill: '#123C40',
   font: { name: 'Aptos', size: 11, bold: true, color: '#FFFFFF' },
   rowHeight: 30,
   wrapText: true,
   verticalAlignment: 'center'
 };
-workouts.getRange('A2:H101').format = {
+workouts.getRange('A2:I101').format = {
   fill: '#F8F3EE',
   rowHeight: 24,
   verticalAlignment: 'center'
@@ -46,6 +47,7 @@ workouts.getRange('E1:E101').format.columnWidth = 10;
 workouts.getRange('F1:F101').format.columnWidth = 20;
 workouts.getRange('G1:G101').format.columnWidth = 20;
 workouts.getRange('H1:H101').format.columnWidth = 12;
+workouts.getRange('I1:I101').format.columnWidth = 16;
 workouts.getRange('E2:E101').format.numberFormat = '0';
 workouts.getRange('H2:H101').format.numberFormat = '0';
 
@@ -57,7 +59,7 @@ instructions.getRange('A1:B1').format = {
   font: { name: 'Aptos', size: 15, bold: true, color: '#FFFFFF' },
   rowHeight: 34
 };
-instructions.getRange('A3:B11').values = [
+instructions.getRange('A3:B12').values = [
   ['Como usar', 'Preencha a aba Treinos e envie este arquivo no Painel de Fortalecimento.'],
   ['Uma linha', 'Cada linha representa um exercício.'],
   ['Mesmo treino', 'Repita nome do treino, atleta e nome curto em todas as linhas daquele treino.'],
@@ -66,25 +68,26 @@ instructions.getRange('A3:B11').values = [
   ['Séries', 'Número inteiro de 1 a 20.'],
   ['Repetições/tempo', 'Exemplos: 10, 8/lado ou 30 s.'],
   ['Carga + unidade', 'Exemplos: 12 kg, elástico leve ou corpo.'],
-  ['Pausa', 'Tempo em segundos, de 0 a 900.']
+  ['Pausa', 'Tempo em segundos, de 0 a 900.'],
+  ['Bloco', 'Opcional. Para bi-set ou tri-set, repita o mesmo valor nas linhas vizinhas do mesmo treino — até 4 exercícios. Vazio = exercício solto.']
 ];
-instructions.getRange('A3:A11').format = {
+instructions.getRange('A3:A12').format = {
   fill: '#E89A70',
   font: { name: 'Aptos', size: 11, bold: true, color: '#123C40' },
   verticalAlignment: 'center'
 };
-instructions.getRange('B3:B11').format = {
+instructions.getRange('B3:B12').format = {
   fill: '#F8F3EE',
   font: { name: 'Aptos', size: 11, color: '#123C40' },
   wrapText: true,
   verticalAlignment: 'center'
 };
-instructions.getRange('A3:B11').format.rowHeight = 38;
-instructions.getRange('A1:A11').format.columnWidth = 20;
-instructions.getRange('B1:B11').format.columnWidth = 72;
+instructions.getRange('A3:B12').format.rowHeight = 38;
+instructions.getRange('A1:A12').format.columnWidth = 20;
+instructions.getRange('B1:B12').format.columnWidth = 72;
 
 workbook.recalculate();
-const inspection = await workbook.inspect({ kind: 'table', range: 'Treinos!A1:H5', include: 'values,formulas' });
+const inspection = await workbook.inspect({ kind: 'table', range: 'Treinos!A1:I5', include: 'values,formulas' });
 if (!inspection) throw new Error('Não foi possível inspecionar o modelo.');
 const preview = await workbook.render({ sheetName: 'Como preencher', autoCrop: 'all', scale: 1, format: 'png' });
 await fs.mkdir(fileURLToPath(new URL('../work/', import.meta.url)), { recursive: true });
