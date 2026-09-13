@@ -67,3 +67,7 @@ proxima-acao: Lucas importar o primeiro Excel no painel e validar o treino aplic
 - 2026-09-05: o horizonte do formulário continua em 15 dias; a API do site tem o seu próprio (21 dias por padrão, teto de 180). Mexer no formulário mudaria o que os atletas veem hoje.
 - 2026-09-05: agendamento NO AR. Web App publicado, deploy do site feito, e o teste de concorrência na última vaga passou em produção — duas reservas simultâneas, uma entrou e a outra recebeu `LOTADA`. O Google Forms segue em paralelo: os dois escrevem na mesma planilha.
 - 2026-09-05: a URL /exec vive no código, não em variável do Railway. Ela aparece no bundle de qualquer jeito (o navegador a chama), então a env var só adicionava uma forma silenciosa de falhar. O `Dockerfile` ganhou o ARG/ENV para o override continuar possível.
+
+## 2026-09-13 — Biomecânica desativada
+
+Gustavo informou que o produto ainda não existe e pediu apenas desativar sua página. Retirados rota comercial, links do menu/rodapé/comunidade e sitemap. Acesso direto redireciona temporariamente (302) para /servicos, com noindex. Código da página preservado para futura reativação.

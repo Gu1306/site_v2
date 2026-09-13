@@ -30,7 +30,6 @@ const AvaliacaoCorredor = lazy(() => import("./pages/AvaliacaoCorredor"));
 const FortalecimentoCorredores = lazy(() => import("./pages/FortalecimentoCorredores"));
 const TesteDeForca = lazy(() => import("./pages/TesteDeForca"));
 const FisioterapiaTriatletas = lazy(() => import("./pages/FisioterapiaTriatletas"));
-const BiomecanicaCorrida = lazy(() => import("./pages/BiomecanicaCorrida"));
 const TreinamentoMaratona = lazy(() => import("./pages/TreinamentoMaratona"));
 const PrevencaoLesoes = lazy(() => import("./pages/PrevencaoLesoes"));
 const LesoesNaCorrida = lazy(() => import("./pages/LesoesNaCorrida"));
@@ -111,7 +110,6 @@ const App = () => (
             <Route path="/fortalecimento-para-corredores-ribeirao-preto" element={<FortalecimentoCorredores />} />
             <Route path="/teste-de-forca-ribeirao-preto" element={<TesteDeForca />} />
             <Route path="/fisioterapia-para-triatletas-ribeirao-preto" element={<FisioterapiaTriatletas />} />
-            <Route path="/biomecanica-da-corrida-ribeirao-preto" element={<BiomecanicaCorrida />} />
             <Route path="/treinamento-para-maratona-ribeirao-preto" element={<TreinamentoMaratona />} />
             <Route path="/prevencao-de-lesoes-na-corrida-ribeirao-preto" element={<PrevencaoLesoes />} />
             <Route path="/lesoes-na-corrida" element={<LesoesNaCorrida />} />

@@ -89,6 +89,11 @@ export function createServer(env = process.env, service = createService(clickupC
     const send = (status, data) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' }); res.end(JSON.stringify(data)); };
     try {
       const url = new URL(req.url, 'http://localhost');
+      // Produto ainda indisponível; preservar o endereço sem oferecer contratação.
+      if (url.pathname.replace(/\/+$/, '') === '/biomecanica-da-corrida-ribeirao-preto') {
+        res.writeHead(302, { Location: '/servicos', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' });
+        return res.end();
+      }
       if (url.pathname === '/healthz') return send(200, { ok: true });
       const prefixo = ['/api/fortalecimento/', '/api/avaliacao-forca/'].find(p => url.pathname.startsWith(p));
       if (prefixo) {
