@@ -107,3 +107,29 @@ test('private API authentication, CSRF, cookie security and authorization', asyn
   const payload = await response.text(); assert.ok(!payload.includes('fake-test-token')); assert.ok(!payload.includes('custom_fields'));
   assert.equal((await fetch(base + 'session', { headers: { Cookie: cookie.split(';')[0] + 'tampered' } })).status, 401);
 });
+const biset = { title: 'Treino com bi-set', displayName: 'Pessoa Teste', exercises: [
+  { name: 'Agachamento', sets: 3, reps: '10', load: '20 kg', rest: 0, group: 5 },
+  { name: 'Afundo', sets: 3, reps: '10', load: '12 kg', rest: 90, group: 5 },
+  { name: 'Prancha', sets: 3, reps: '30 s', load: 'corpo', rest: 60 }
+] };
+test('bi-set é renumerado pelo servidor e recusado fora de sequência ou grande demais', () => {
+  const valid = validateWorkout(biset);
+  assert.deepEqual(valid.exercises.map(e => e.group), [1, 1, undefined]);
+  assert.ok(!('group' in valid.exercises[2]), 'exercício solto não guarda bloco');
+  assert.ok(!('group' in validateWorkout({ ...biset, exercises: [{ ...biset.exercises[0], group: 3 }] }).exercises[0]), 'bloco de um deixa de ser bloco');
+  const five = Array.from({ length: 5 }, (_, i) => ({ name: `Exercício ${i + 1}`, sets: 3, reps: '10', load: 'corpo', rest: 0, group: 2 }));
+  assert.throws(() => validateWorkout({ ...biset, exercises: five }), /no máximo 4/);
+  const apart = [{ ...biset.exercises[0], group: 1 }, { ...biset.exercises[2] }, { ...biset.exercises[1], group: 1 }];
+  assert.throws(() => validateWorkout({ ...biset, exercises: apart }), /sequência/);
+});
+test('a tabela do ClickUp ganha a coluna do bloco só quando o treino tem bi-set', async () => {
+  const { service, db } = fixture();
+  const plain = await service.saveWorkout('athlete1', { workout, requestId: 'bloco1', baseRevision: null }, 'lucas');
+  assert.ok(!db.get(plain.id).markdown_description.includes('Bloco'));
+  const grouped = await service.saveWorkout('athlete1', { workout: biset, requestId: 'bloco2', baseRevision: plain.id }, 'lucas');
+  const text = db.get(grouped.id).markdown_description;
+  assert.match(text, /Bloco \| Exercício/);
+  assert.match(text, /Bi-set 1 \| Agachamento/);
+  assert.match(text, /— \| Prancha/);
+  assert.deepEqual(unpack(db.get(grouped.id)).workout.exercises.map(e => e.group), [1, 1, undefined]);
+});

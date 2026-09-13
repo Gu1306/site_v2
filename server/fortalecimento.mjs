@@ -14,12 +14,49 @@ function clean(value, label, max = 100, required = true) {
   if (typeof value !== 'string' || value.length > max || (required && !value.trim())) throw new PublicError(`Confira ${label}.`);
   return value.trim();
 }
+export const MAX_BLOCK = 4;
+// Bi-set e tri-set: exercícios vizinhos com o mesmo `group` formam um bloco. O campo é
+// opcional — treinos gravados antes desta versão não têm `group` e cada exercício vira
+// um bloco de um. O painel envia os blocos já numerados; aqui a numeração é refeita do
+// zero para que o registro no ClickUp nunca dependa do que o navegador mandou.
+export function exerciseBlocks(exercises) {
+  const blocks = [];
+  exercises.forEach((exercise, index) => {
+    const previous = blocks[blocks.length - 1];
+    const id = exercise.group ?? null;
+    if (id !== null && previous && (exercises[previous[previous.length - 1]].group ?? null) === id) previous.push(index);
+    else blocks.push([index]);
+  });
+  return blocks;
+}
+export const blockLabel = size => (size === 2 ? 'Bi-set' : size === 3 ? 'Tri-set' : 'Circuito');
 export function validateWorkout(w) {
   if (!w || !Array.isArray(w.exercises) || !w.exercises.length || w.exercises.length > 24) throw new PublicError('Cadastre de 1 a 24 exercícios.');
-  return { title: clean(w.title, 'o nome do treino', 80), displayName: clean(w.displayName, 'o nome na TV', 32), exercises: w.exercises.map(e => {
+  const exercises = w.exercises.map(e => {
     if (!Number.isInteger(e.sets) || e.sets < 1 || e.sets > 20 || !Number.isInteger(e.rest) || e.rest < 0 || e.rest > 900) throw new PublicError('Séries: 1 a 20. Pausa: 0 a 900 segundos.');
-    return { name: clean(e.name, 'o exercício', 80), sets: e.sets, reps: clean(e.reps, 'as repetições/tempo', 25), load: clean(e.load, 'a carga com unidade', 25), rest: e.rest };
-  }) };
+    if (e.group !== undefined && e.group !== null && !Number.isInteger(e.group)) throw new PublicError('Confira o agrupamento dos exercícios.');
+    return { name: clean(e.name, 'o exercício', 80), sets: e.sets, reps: clean(e.reps, 'as repetições/tempo', 25), load: clean(e.load, 'a carga com unidade', 25), rest: e.rest, group: e.group ?? null };
+  });
+  const blocks = exerciseBlocks(exercises);
+  const seen = new Set();
+  for (const block of blocks) {
+    if (block.length > MAX_BLOCK) throw new PublicError(`Um bi-set ou tri-set aceita no máximo ${MAX_BLOCK} exercícios.`);
+    const id = exercises[block[0]].group;
+    if (id === null) continue;
+    // Ids repetidos em blocos separados indicariam exercícios fora de ordem.
+    if (seen.has(id)) throw new PublicError('Exercícios do mesmo bloco precisam ficar em sequência.');
+    seen.add(id);
+  }
+  let number = 0;
+  blocks.forEach(block => {
+    const grouped = block.length > 1;
+    if (grouped) number += 1;
+    for (const index of block) {
+      if (grouped) exercises[index].group = number;
+      else delete exercises[index].group;
+    }
+  });
+  return { title: clean(w.title, 'o nome do treino', 80), displayName: clean(w.displayName, 'o nome na TV', 32), exercises };
 }
 const MARKER = 'CAREFIT_PORTAL_V1';
 export function unpack(task) {
@@ -39,8 +76,24 @@ export function unpack(task) {
 function pack(record, heading) {
   let text = heading + '\n\n';
   if (record.workout) {
-    text += `${record.workout.title}\n\nExercício | Séries | Repetições/tempo | Carga | Pausa\n--- | --- | --- | --- | ---\n`;
-    text += record.workout.exercises.map(e => [e.name, e.sets, e.reps, e.load, `${e.rest} s`].map(v => String(v).replace(/[|\r\n]/g, ' ')).join(' | ')).join('\n');
+    const exercises = record.workout.exercises;
+    const blocks = exerciseBlocks(exercises);
+    const names = new Map();
+    let number = 0;
+    for (const block of blocks) {
+      if (block.length < 2) continue;
+      number += 1;
+      for (const index of block) names.set(index, `${blockLabel(block.length)} ${number}`);
+    }
+    // A coluna do bloco só aparece quando o treino tem bi-set ou tri-set, para
+    // que os treinos simples continuem com a mesma tabela de sempre no ClickUp.
+    const columns = names.size ? ['Bloco', 'Exercício', 'Séries', 'Repetições/tempo', 'Carga', 'Pausa'] : ['Exercício', 'Séries', 'Repetições/tempo', 'Carga', 'Pausa'];
+    text += `${record.workout.title}\n\n${columns.join(' | ')}\n${columns.map(() => '---').join(' | ')}\n`;
+    text += exercises.map((e, index) => {
+      const cells = [e.name, e.sets, e.reps, e.load, `${e.rest} s`];
+      if (names.size) cells.unshift(names.get(index) || '—');
+      return cells.map(v => String(v).replace(/[|\r\n]/g, ' ')).join(' | ');
+    }).join('\n');
   }
   if (record.evolution) text += '\n\nEvolução: ' + record.evolution;
   return text + `\n\nRegistro do painel CareFit — editar pelo painel para preservar o histórico.\n\n\`\`\`json\n${MARKER}\n${JSON.stringify(record)}\n\`\`\`\n`;

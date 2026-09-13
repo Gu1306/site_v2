@@ -14,11 +14,42 @@ Implementação: 09/09/2026. Rota: `/painel-fortalecimento` no site atual da Car
 
 O treino fica em subtarefas `Treino CareFit — …` no card permanente do atleta. A cópia aplicada fica em `Sessão CareFit — …` dentro da aula. A evolução também fica no campo existente `Evolução atelta` da aula. Não editar o bloco de registro estruturado diretamente no ClickUp: usar o formulário do painel.
 
+### Bi-set e tri-set
+
+No formulário, entre duas linhas de exercício há o botão **Juntar em bi-set**. Ele une o
+exercício à linha de cima; clicando de novo na linha seguinte, o bi-set vira tri-set. Um
+bloco aceita no máximo quatro exercícios e só une exercícios vizinhos — para agrupar dois
+que estão separados, digite-os em sequência. **Separar** desfaz o bloco, levando junto os
+exercícios que vinham depois dele.
+
+Ao juntar, a pausa dos exercícios que deixam de ser o último do bloco vai a zero: em
+bi-set a pausa existe no fim do bloco, não entre os exercícios. O campo continua editável
+para quem quiser uma transição curta entre eles.
+
+Na TV o bloco aparece como um cartão único, marcado `BI-SET`, `TRI-SET` ou `CIRCUITO`, com
+os exercícios em linhas compactas e a pausa do bloco no cabeçalho. **O bloco nunca é
+partido entre duas páginas:** se não couber no que resta da página, ele começa a próxima
+inteiro. É por isso que o cartão do bloco é mais baixo que a soma dos exercícios soltos —
+um tri-set cabe onde antes só cabiam dois exercícios.
+
+Blocos são opcionais e o campo é novo: treinos gravados antes desta versão continuam
+válidos, com cada exercício exibido como sempre. O painel envia os blocos já numerados,
+mas o servidor renumera tudo do zero e recusa bloco fora de sequência ou com mais de
+quatro exercícios — a numeração gravada no ClickUp nunca depende do que o navegador
+mandou. Quando o treino tem bloco, a tabela da subtarefa ganha uma coluna `Bloco`.
+
 ### Modelo Excel
 
 O botão **Importar Excel** oferece o arquivo `modelo-treinos-carefit.xlsx`. A aba `Treinos`
 tem estas colunas, nesta ordem: `Nome do treino`, `Atleta no ClickUp`, `Nome curto na TV`,
 `Exercício`, `Séries`, `Repetições/tempo`, `Carga + unidade` e `Pausa (s)`.
+
+Há ainda uma coluna opcional `Bloco`, que o modelo distribuído **ainda não traz**: quem
+quiser importar bi-set precisa acrescentá-la à direita, com esse nome no cabeçalho. Linhas
+vizinhas do mesmo treino com o mesmo valor nessa coluna (`A`, `1`, o que for) viram um
+bloco; célula vazia é exercício solto. O mesmo rótulo repetido longe dali começa outro
+bloco, porque bi-set é sempre uma sequência. Sem a coluna, a importação funciona como
+antes.
 
 Cada linha representa um exercício. Nome do treino, atleta e nome curto devem ser repetidos
 nas linhas do mesmo treino. O painel ignora maiúsculas e acentos ao localizar o nome, mas só

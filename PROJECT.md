@@ -30,12 +30,19 @@ proxima-acao: Lucas importar o primeiro Excel no painel e validar o treino aplic
 - Operação, arquitetura e publicação: `design/fortalecimento-tv/OPERACAO.md`
 - Modelo Excel de treinos: `public/modelo-treinos-carefit.xlsx`
 - Validação da importação: `src/lib/fortalecimentoImport.ts`
+- Bi-set e tri-set (blocos, rótulo e paginação da TV): `src/lib/fortalecimentoBlocos.ts`
 
 ## Dados sensíveis
 
 - Credenciais de produção vivem nos serviços correspondentes e em arquivos locais ignorados pelo Git; nunca registrar valores neste arquivo.
 
 ## Decisões importantes
+
+- 2026-09-13: o painel passou a montar bi-set e tri-set. Exercícios vizinhos com o mesmo `group` formam um bloco de até quatro; o campo é opcional e treinos gravados antes continuam válidos. Na TV o bloco vira um cartão único e compacto e **nunca é partido entre duas páginas** — foi o problema relatado: um tri-set aparecia dividido porque só cabiam dois exercícios na tela. A paginação deixou de contar exercícios por página e passou a empacotar blocos por altura medida, então o cartão do bloco, mais baixo que a soma dos exercícios soltos, cabe onde antes cabiam dois.
+- 2026-09-13: juntar exercícios zera a pausa dos que deixam de ser o último do bloco. Em bi-set a pausa existe no fim do bloco, não entre os exercícios; o campo continua editável para transições curtas.
+- 2026-09-13: o servidor renumera os blocos do zero e recusa bloco fora de sequência ou com mais de quatro exercícios. A numeração gravada no ClickUp não depende do que o navegador enviou, no mesmo espírito do resto do painel.
+- 2026-09-13: a importação por Excel aceita uma coluna opcional `Bloco`, mas o `modelo-treinos-carefit.xlsx` distribuído ainda **não** a contém — `scripts/build-fortalecimento-template.mjs` depende de `@oai/artifact-tool`, que não está instalado aqui. Até o modelo ser regerado, quem quiser importar bi-set acrescenta a coluna à mão.
+- 2026-09-13: alteração preparada em `git worktree` separada (`C:\Projetos\carefit-site-circuito`), de novo porque havia sessão do Codex ativa no repo com `feat/teste-de-forca` em aberto. Os arquivos do painel de fortalecimento eram idênticos entre a branch e a `main`; só o `PROJECT.md` divergia e foi reescrito sobre a versão da `main`.
 
 - 2026-09-12: preview de link passou a ser por rota, no servidor. O robô do WhatsApp não roda JavaScript e, como o site é uma SPA, lia sempre o `index.html` — o preview de qualquer link caía na foto de corrida e no título institucional. O `useSeo` não resolve isso: roda no cliente, depois que o robô já foi embora. O mapa `PREVIEWS` no topo de `server/index.mjs` reescreve title/description/canonical/og/twitter; incluir outra rota é acrescentar uma entrada. Vale hoje para `/ficha` e `/agendamento-fortalecimento`.
 - 2026-09-12: a imagem de preview (`public/og-fortalecimento.jpg`) usa só a faixa da foto da arte de fortalecimento, sem o texto dela. O cartão do WhatsApp já mostra título e descrição como texto, então repetir a frase na imagem só tira espaço da foto.
