@@ -44,6 +44,7 @@ const ConhecaCareFit = lazy(() => import("./pages/ConhecaCareFit"));
 const Feedback = lazy(() => import("./pages/Feedback"));
 const FichaPreAula = lazy(() => import("./pages/FichaPreAula"));
 const AgendamentoFortalecimento = lazy(() => import("./pages/AgendamentoFortalecimento"));
+const FortalecimentoTurma = lazy(() => import("./pages/FortalecimentoTurma"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -123,6 +124,7 @@ const App = () => (
             <Route path="/conheca-a-carefit" element={<ConhecaCareFit />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/ficha" element={<FichaPreAula />} />
+            <Route path="/fortalecimento-em-turma" element={<FortalecimentoTurma />} />
             <Route path="/agendamento-fortalecimento" element={<AgendamentoFortalecimento />} />
             <Route path="/painel-fortalecimento" element={<PainelFortalecimento />} />
             <Route path="/painel-avaliacao-forca" element={<PainelAvaliacaoForca />} />
