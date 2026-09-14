@@ -69,7 +69,7 @@ const FortalecimentoCorredores = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild variant="hero" size="lg" className="text-lg px-8 py-4">
-              <Link to="/agendamento-fortalecimento">Reservar minha aula</Link>
+              <Link to="/fortalecimento-em-turma">Ver as turmas e reservar</Link>
             </Button>
             <Button variant="whatsapp" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
               <MessageCircle className="w-5 h-5" />
@@ -338,7 +338,7 @@ const FortalecimentoCorredores = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Button asChild variant="hero" size="lg" className="text-lg px-8 py-4">
-              <Link to="/agendamento-fortalecimento">Reservar minha aula</Link>
+              <Link to="/fortalecimento-em-turma">Ver as turmas e reservar</Link>
             </Button>
             <Button variant="whatsapp" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
               <MessageCircle className="w-5 h-5" />
