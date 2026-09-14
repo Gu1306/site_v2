@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "start": "node server/index.mjs",
     "test:fortalecimento": "node --test server/*.test.mjs",
-    "prebuild": "node scripts/sync-sitemap.mjs"
+    "prebuild": "node scripts/sync-forca-core.mjs --check && node scripts/sync-sitemap.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

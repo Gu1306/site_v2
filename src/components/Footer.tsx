@@ -38,11 +38,6 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/biomecanica-da-corrida-ribeirao-preto" className="text-sm text-primary-foreground/70 hover:text-accent transition-colors">
-                  Biomecânica da Corrida
-                </Link>
-              </li>
-              <li>
                 <Link to="/treinamento-para-maratona-ribeirao-preto" className="text-sm text-primary-foreground/70 hover:text-accent transition-colors">
                   Treinamento para Maratona
                 </Link>

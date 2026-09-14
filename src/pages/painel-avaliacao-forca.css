@@ -1,0 +1,145 @@
+/* Painel interno da avaliação de força. O relatório é desenhado para sair em A4
+   pelo "imprimir" do navegador, então tudo que é controle vira invisível na impressão. */
+
+.af-carregando { display: grid; place-items: center; min-height: 60vh; color: #6b7280; }
+
+.af-login { display: grid; place-items: center; min-height: 100vh; background: #f5f5f4; padding: 24px; }
+.af-login form { width: 100%; max-width: 360px; background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.1); display: grid; gap: 14px; }
+.af-login h1 { font-size: 22px; font-weight: 700; color: #1f2937; }
+.af-login p { font-size: 14px; color: #6b7280; margin-top: -8px; }
+.af-login label { display: grid; gap: 6px; font-size: 14px; font-weight: 500; color: #374151; }
+
+.af-pagina { min-height: 100vh; background: #f5f5f4; }
+.af-topo { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px; background: #fff; border-bottom: 1px solid #e5e7eb; }
+.af-topo h1 { font-size: 18px; font-weight: 700; color: #1f2937; }
+.af-topo span { font-size: 13px; color: #6b7280; }
+
+.af-conteudo { max-width: 960px; margin: 0 auto; padding: 24px; display: grid; gap: 20px; }
+
+.af-form { background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.08); display: grid; gap: 14px; }
+.af-form h2 { font-size: 16px; font-weight: 700; color: #1f2937; }
+.af-campos { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.af-campos label { display: grid; gap: 6px; font-size: 14px; font-weight: 500; color: #374151; align-content: start; }
+.af-nota { font-size: 13px; color: #6b7280; line-height: 1.5; }
+.af-erro { color: #b91c1c; font-size: 14px; }
+.af-erro-campo { color: #b91c1c; font-size: 12px; }
+.af-ok { color: #15803d; font-size: 14px; }
+.af-conferencia { background: #F4EDE4; border-left: 3px solid #D4A656; padding: 12px 16px; border-radius: 6px; color: #0E3C41; }
+.af-aviso { color: #B87A00; font-size: 13px; max-width: 280px; }
+
+.af-arquivo { display: grid; gap: 8px; font-size: 14px; font-weight: 500; color: #374151; }
+.af-arquivo > span { display: inline-flex; align-items: center; gap: 8px; }
+.af-arquivo-resumo { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px; background: #f9fafb; border-radius: 8px; font-size: 14px; color: #374151; }
+.af-arquivo-resumo strong { margin-left: auto; }
+.af-arquivo-resumo em { font-style: normal; color: #6b7280; font-size: 13px; }
+
+.af-problemas { border: 1px solid #fecaca; background: #fef2f2; border-radius: 8px; padding: 14px; display: grid; gap: 6px; }
+.af-problemas > div { display: flex; align-items: center; gap: 8px; color: #b91c1c; }
+.af-problemas p { font-size: 13px; color: #7f1d1d; line-height: 1.5; }
+
+.af-mapa { border: 1px solid #fed7aa; background: #fff7ed; border-radius: 8px; padding: 14px; display: grid; gap: 10px; }
+.af-mapa > p { font-size: 13px; color: #9a3412; line-height: 1.5; }
+.af-mapa label { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; font-size: 14px; }
+.af-mapa select { border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 10px; font-size: 14px; background: #fff; }
+
+.af-acoes { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.af-acoes-relatorio { background: #fff; padding: 14px 24px; border-radius: 12px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.08); }
+/* O outline do design system some sobre fundo claro se não receber fundo próprio. */
+.af-botao-claro { background: #fff; }
+
+.af-atleta { display: grid; gap: 4px; font-size: 12px; color: #6b7280; }
+.af-atleta select { border: 1px solid #d1d5db; border-radius: 6px; padding: 7px 10px; font-size: 14px; background: #fff; color: #1f2937; min-width: 220px; }
+
+/* ---------- Relatório ---------- */
+/* Verde petróleo #0E3C41, bege #F4EDE4 e dourado #D4A656 são a marca.
+   As três cores de faixa (#12805A, #B87A00, #A8322A) foram validadas para
+   daltonismo e contraste e vivem no componente, junto do rótulo escrito. */
+
+.rf { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+      color: #1f2937; font-size: 14px; line-height: 1.55; }
+.rf section { margin-top: 30px; }
+.rf h3 { font-size: 13px; font-weight: 700; color: #0E3C41; margin-bottom: 12px; padding-bottom: 6px;
+         border-bottom: 2px solid #D4A656; letter-spacing: 0.06em; text-transform: uppercase; }
+
+.rf-topo { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+           padding-bottom: 18px; border-bottom: 4px solid #0E3C41; }
+.rf-marca { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #C8643D; font-weight: 700; }
+.rf-topo h2 { font-size: 25px; font-weight: 700; margin-top: 4px; color: #0E3C41; line-height: 1.15; }
+.rf-sub { color: #6b7280; font-size: 13px; margin-top: 2px; }
+.rf-id { text-align: right; font-size: 12.5px; color: #4b5563; }
+.rf-nome { font-size: 17px; font-weight: 700; color: #0E3C41; }
+
+.rf-resumo { display: grid; grid-template-columns: 200px 1fr; gap: 28px; align-items: start;
+             margin-top: 24px; background: #F4EDE4; border-radius: 10px; padding: 22px 24px; }
+.rf-resumo-mapa { display: grid; place-items: center; }
+.rf-corpo { width: 100%; max-width: 200px; height: auto; }
+.rf-resumo-texto h3 { margin-top: 0; }
+.rf-headline { font-size: 15px; line-height: 1.5; color: #1f2937; }
+.rf-resumo-nota { margin-top: 8px; font-size: 12.5px; color: #4b5563; }
+
+.rf-indice { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 20px;
+             list-style: none; padding: 0; font-size: 12px; }
+.rf-indice li { display: grid; grid-template-columns: 17px 1fr auto; gap: 7px; align-items: center; }
+.rf-indice-nome { color: #1f2937; }
+.rf-indice-valor { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.rf-legenda-cores { margin-top: 16px; padding-top: 12px; border-top: 1px solid #DED5C6; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #374151; }
+.rf-legenda-cores span { display: inline-flex; align-items: center; gap: 6px; }
+.rf-legenda-cores i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+.rf-legenda-cores small { flex-basis: 100%; color: #6b7280; font-size: 11.5px; }
+
+/* Barras espelhadas em torno de um eixo central */
+.rf-barras { display: grid; gap: 7px; }
+.rf-barras-topo { display: grid; grid-template-columns: 150px 1fr 58px; gap: 10px; font-size: 10.5px;
+                  color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+.rf-barras-topo > div { display: grid; grid-template-columns: 1fr 1fr; }
+.rf-barras-topo > div span:first-child { text-align: center; }
+.rf-barras-topo > div span:last-child { text-align: center; }
+.rf-barra-linha { display: grid; grid-template-columns: 150px 1fr 58px; gap: 10px; align-items: center; }
+.rf-barra-nome { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #1f2937; }
+.rf-num { width: 17px; height: 17px; border-radius: 50%; color: #fff; font-size: 10px; font-weight: 700;
+          display: inline-grid; place-items: center; flex-shrink: 0; }
+.rf-barra-par { display: grid; grid-template-columns: 1fr 2px 1fr; align-items: center; }
+.rf-barra-lado { display: flex; align-items: center; gap: 6px; height: 17px; }
+.rf-esq { justify-content: flex-end; }
+.rf-dir { justify-content: flex-start; }
+.rf-fill { height: 15px; display: block; }
+.rf-esq .rf-fill { border-radius: 4px 0 0 4px; }
+.rf-dir .rf-fill { border-radius: 0 4px 4px 0; }
+.rf-eixo { background: #0E3C41; height: 21px; }
+.rf-valor { font-size: 11px; color: #4b5563; white-space: nowrap; }
+.rf-barra-assim { font-size: 12.5px; font-weight: 700; text-align: right; }
+
+.rf-tabela { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.rf-tabela th, .rf-tabela td { padding: 7px 9px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+.rf-tabela th { background: #F4EDE4; font-weight: 700; font-size: 11px; color: #0E3C41;
+                text-transform: uppercase; letter-spacing: 0.04em; }
+.rf-tabela td:first-child { font-weight: 500; }
+
+.rf-legenda { margin-top: 8px; font-size: 11.5px; color: #6b7280; line-height: 1.5; }
+.rf-lista { display: grid; gap: 6px; font-size: 12.5px; color: #374151; padding-left: 18px; list-style: disc; }
+
+.rf-rodape { margin-top: 32px; padding-top: 18px; border-top: 2px solid #F4EDE4;
+             font-size: 12px; color: #4b5563; display: grid; gap: 8px; }
+.rf-assinatura { margin-top: 8px; color: #6b7280; font-size: 11px; }
+
+/* ---------- Impressão ---------- */
+
+@media print {
+  .af-sem-impressao, .af-topo, .af-form { display: none !important; }
+  .af-pagina { background: #fff; }
+  .af-conteudo { max-width: none; padding: 0; gap: 0; }
+  .rf { box-shadow: none; border-radius: 0; padding: 0; font-size: 10.5pt; }
+  .rf section { margin-top: 16px; break-inside: avoid; }
+  .rf-resumo { break-inside: avoid; }
+  .rf-tabela { font-size: 9pt; }
+  .rf-tabela th, .rf-tabela td { padding: 4px 6px; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  .rf-rodape { break-inside: avoid; }
+  /* o navegador corta cor de fundo por padrão; sem isso as barras somem no papel */
+  .rf-fill, .rf-num, .rf-tabela th, .rf-resumo, .rf-legenda-cores i, .rf-eixo {
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  @page { size: A4; margin: 13mm; }
+}

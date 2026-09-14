@@ -24,7 +24,6 @@ const guiasPerformance = [
   { nome: "Avaliação do corredor", href: "/avaliacao-do-corredor-ribeirao-preto", desc: "O que medimos antes de montar qualquer plano — e por quê." },
   { nome: "Fortalecimento para corredores", href: "/fortalecimento-para-corredores-ribeirao-preto", desc: "Força não é hipertrofia. É o que sustenta cada quilômetro." },
   { nome: "Recovery para corredores", href: "/recovery-corredores-ribeirao-preto", desc: "Gelo, calor, compressão, liberação: o que cada técnica faz de verdade." },
-  { nome: "Biomecânica da corrida", href: "/biomecanica-da-corrida-ribeirao-preto", desc: "Cadência, pisada, tronco: o que muda a economia de corrida." },
   { nome: "Treinamento para maratona", href: "/treinamento-para-maratona-ribeirao-preto", desc: "Do volume à recuperação: como chegar inteiro nos 42 km." },
 ];
 
