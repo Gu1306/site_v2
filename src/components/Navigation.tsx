@@ -53,6 +53,7 @@ const Navigation = () => {
         { name: "Prevenção de Lesões", href: "/prevencao-de-lesoes-na-corrida-ribeirao-preto" },
       ],
     },
+    { name: "Planos", href: "/planos" },
     { name: "CareFit Cast", href: "/carefit-cast" },
     { name: "Blog", href: "/blog" },
     { name: "Guias", href: "/comunidade" },
