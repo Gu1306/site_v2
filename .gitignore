@@ -29,3 +29,6 @@ work/
 
 # canvas de design (payload grande do editor; as fontes .dc.html ficam versionadas)
 design/portal-corrida-016.html
+
+# Canvas montado do Claude Design (~2MB, editor embutido) — as fontes .dc.html bastam
+design/planos/planos-carefit-run-base.html
