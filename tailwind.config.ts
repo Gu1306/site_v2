@@ -81,6 +81,8 @@ export default {
 			fontFamily: {
 				'montserrat': ['Montserrat', 'sans-serif'],
 				'poppins': ['Poppins', 'sans-serif'],
+				// Condensada alta, para nomes de plano e números grandes.
+				'shoulders': ['"Big Shoulders Display"', 'Montserrat', 'sans-serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

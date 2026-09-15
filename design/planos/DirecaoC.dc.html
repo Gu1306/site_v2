@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Poppins:wght@400;500;600&family=Playfair+Display:ital,wght@1,400;1,500&display=swap">
+  <style>
+    body { margin: 0; font-family: "Poppins", system-ui, sans-serif; }
+    a { color: #D4A656; } a:hover { color: #b8862f; }
+  </style>
+</helmet>
+
+<div style="width: 1280px; min-height: 1120px; background: #F4EDE4; box-sizing: border-box; color: #0E3C41;">
+
+  <!-- ============ faixa petroleo com a montanha ============ -->
+  <div style="position: relative; background: #0E3C41; padding: 44px 64px 96px; overflow: hidden;">
+
+    <svg viewBox="0 0 1280 320" preserveAspectRatio="none" style="position: absolute; left: 0; bottom: 0; width: 100%; height: 220px; opacity: 0.5;">
+      <path d="M0 320 L300 120 L470 240 L760 40 L1000 190 L1280 60 L1280 320 Z" fill="#12494F"></path>
+      <path d="M0 320 L220 200 L430 290 L720 150 L980 260 L1280 170 L1280 320 Z" fill="#1A5A5E"></path>
+    </svg>
+
+    <div style="position: relative;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 34px;">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+          <path d="M2 21 L9 8 L13 15 L16.5 9 L22 21 Z" fill="#D4A656"></path>
+          <path d="M16.5 9 L16.5 2 L21 4 L16.5 6" stroke="#C8643D" stroke-width="1.8" fill="none" stroke-linejoin="round"></path>
+        </svg>
+        <span style="font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; color: #A7BEBD;">CareFit Run Base &middot; Temporada 2026</span>
+      </div>
+
+      <h1 style="margin: 0 0 16px; max-width: 18ch; font-family: 'Montserrat', sans-serif; font-size: 62px; font-weight: 800; line-height: 0.98; letter-spacing: -0.02em; color: #F4EDE4; text-wrap: balance;">Seu desafio começa na base</h1>
+      <p style="margin: 0; max-width: 40ch; font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 21px; line-height: 1.45; color: #D4A656;">A gente caminha junto até o topo. Cada plano é um trecho dessa subida.</p>
+    </div>
+  </div>
+
+  <!-- ============ waypoints das categorias ============ -->
+  <div style="display: flex; gap: 0; align-items: stretch; margin: -46px 64px 0; position: relative; background: #FFFFFF; border-radius: 12px; box-shadow: 0 14px 40px -22px rgba(14,60,65,0.55); overflow: hidden;">
+    <div style="flex: 1; padding: 20px 26px; border-bottom: 4px solid #C8643D; background: #FFFFFF;">
+      <div style="font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;">Recovery</div>
+      <div style="font-size: 12px; color: #5d7370; margin-top: 3px;">Recuperar para aguentar o treino</div>
+    </div>
+    <div style="flex: 1; padding: 20px 26px; border-left: 1px solid #ece3d6; border-bottom: 4px solid transparent;">
+      <div style="font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #5d7370;">Fortalecimento</div>
+      <div style="font-size: 12px; color: #5d7370; margin-top: 3px;">Construir a base que sustenta</div>
+    </div>
+    <div style="flex: 1; padding: 20px 26px; border-left: 1px solid #ece3d6; border-bottom: 4px solid transparent;">
+      <div style="font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #5d7370;">Recovery + Fortalecimento</div>
+      <div style="font-size: 12px; color: #5d7370; margin-top: 3px;">Os dois no mesmo ciclo</div>
+    </div>
+  </div>
+
+  <!-- ============ os planos como degraus da subida ============ -->
+  <div style="padding: 44px 64px 0;">
+    <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px;">
+      <span style="font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; color: #C8643D;">A subida do recovery</span>
+      <span style="flex: 1; height: 1px; background: #ddd2c2;"></span>
+      <span style="font-size: 12px; color: #5d7370;">Quanto mais alto, menor a sessão</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; align-items: end; padding-top: 18px;">
+
+      <!-- degrau 1 -->
+      <div style="background: #FFFFFF; border: 1px solid #e6dcd0; border-radius: 10px; padding: 20px; padding-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #5d7370;">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #c3d0ce; flex: none;"></span>Largada
+        </div>
+        <div style="font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 800; margin-top: 8px;">Avulsa</div>
+        <div style="font-size: 12px; color: #5d7370; margin-top: 2px;">1 sessão &middot; quando precisar</div>
+        <div style="font-family: 'Montserrat', sans-serif; font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 14px;"><span style="font-size: 14px; vertical-align: super;">R$ </span>230</div>
+        <div style="font-size: 12px; color: #5d7370; font-variant-numeric: tabular-nums; margin-top: 2px;">R$ 230 a sessão</div>
+      </div>
+
+      <!-- degrau 2 -->
+      <div style="background: #FFFFFF; border: 1px solid #e6dcd0; border-radius: 10px; padding: 20px; padding-bottom: 42px;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #5d7370;">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #C8643D; flex: none;"></span>Ritmo
+        </div>
+        <div style="font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 800; margin-top: 8px;">Quinzenal</div>
+        <div style="font-size: 12px; color: #5d7370; margin-top: 2px;">2 sessões &middot; a cada 15 dias</div>
+        <div style="font-family: 'Montserrat', sans-serif; font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 14px;"><span style="font-size: 14px; vertical-align: super;">R$ </span>430</div>
+        <div style="font-size: 12px; color: #5d7370; font-variant-numeric: tabular-nums; margin-top: 2px;">R$ 215 a sessão</div>
+      </div>
+
+      <!-- degrau 3 -->
+      <div style="background: #FFFFFF; border: 1px solid #e6dcd0; border-radius: 10px; padding: 20px; padding-bottom: 66px;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #5d7370;">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #C8643D; flex: none;"></span>Base forte
+        </div>
+        <div style="font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 800; margin-top: 8px;">Mensal</div>
+        <div style="font-size: 12px; color: #5d7370; margin-top: 2px;">4 sessões &middot; 1× por semana</div>
+        <div style="font-family: 'Montserrat', sans-serif; font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 14px;"><span style="font-size: 14px; vertical-align: super;">R$ </span>800</div>
+        <div style="font-size: 12px; color: #5d7370; font-variant-numeric: tabular-nums; margin-top: 2px;">R$ 200 a sessão</div>
+      </div>
+
+      <!-- cume -->
+      <div style="background: #0E3C41; border: 2px solid #D4A656; border-radius: 10px; padding: 20px; padding-bottom: 94px; color: #F4EDE4; box-shadow: 0 16px 40px -22px rgba(212,166,86,0.85);">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #D4A656;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="flex: none;"><path d="M6 22 V3 L17 6 L6 9" stroke="#D4A656" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+          Ápice
+        </div>
+        <div style="font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 800; margin-top: 8px;">Semestral</div>
+        <div style="font-size: 12px; color: #A7BEBD; margin-top: 2px;">12 sessões &middot; em 6 meses</div>
+        <div style="font-family: 'Montserrat', sans-serif; font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 14px; color: #F0CE85;"><span style="font-size: 14px; vertical-align: super;">R$ </span>2.280</div>
+        <div style="font-size: 12px; color: #D4A656; font-variant-numeric: tabular-nums; margin-top: 2px;">R$ 190 a sessão &mdash; o menor</div>
+      </div>
+
+    </div>
+
+    <!-- linha da subida -->
+    <div style="height: 2px; background: linear-gradient(90deg, #ddd2c2, #C8643D 55%, #D4A656); margin-top: 18px;"></div>
+  </div>
+
+  <!-- ============ porta de entrada ============ -->
+  <div style="margin: 34px 64px 0; display: flex; align-items: center; justify-content: space-between; gap: 24px; background: #FFFFFF; border-left: 5px solid #C8643D; border-radius: 4px; padding: 22px 26px;">
+    <div>
+      <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #C8643D;">Antes da largada</div>
+      <div style="font-family: 'Montserrat', sans-serif; font-size: 25px; font-weight: 800; margin-top: 4px;">Primeira sessão</div>
+      <div style="font-size: 14px; color: #4a605d; margin-top: 4px; max-width: 62ch;">Você conhece a base, passa pelo protocolo inteiro com a fisioterapeuta e sai com a leitura do seu corpo. A segunda sessão é por nossa conta.</div>
+    </div>
+    <div style="text-align: right; flex: none;">
+      <div style="font-family: 'Montserrat', sans-serif; font-size: 38px; font-weight: 800; font-variant-numeric: tabular-nums; color: #C8643D;"><span style="font-size: 16px; vertical-align: super;">R$ </span>230</div>
+      <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #5d7370;">duas sessões &middot; R$ 115 cada</div>
+    </div>
+  </div>
+
+  <div style="padding: 30px 64px 48px; font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 24px; color: #0E3C41;">Cuidar não é parar. É evoluir.</div>
+
+</div>
+</x-dc>
+</body>
+</html>

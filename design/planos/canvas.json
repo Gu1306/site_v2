@@ -1,0 +1,47 @@
+{
+  "pages": [
+    { "id": "page-1", "name": "B modernizado" },
+    { "id": "page-2", "name": "Direções descartadas" }
+  ],
+  "artboards": [
+    { "file": "Main.dc.html", "title": "B+ · Claro intenso", "page": "page-1", "x": 0, "y": 0, "w": 1280, "h": 1180 },
+    { "file": "BEscuro.dc.html", "title": "B+ · Petróleo", "page": "page-1", "x": 1400, "y": 0, "w": 1280, "h": 1180 },
+    { "file": "DirecaoA.dc.html", "title": "A · Tabela editorial (descartada)", "page": "page-2", "x": 0, "y": 0, "w": 1280, "h": 940 },
+    { "file": "DirecaoC.dc.html", "title": "C · A montanha (descartada)", "page": "page-2", "x": 1400, "y": 0, "w": 1280, "h": 1120 }
+  ],
+  "annotations": [
+    {
+      "id": "brief",
+      "x": 0,
+      "y": -400,
+      "page": "page-1",
+      "w": 700,
+      "text": "B + o artefato escuro, misturados.\n\nA anatomia do B ficou intacta: aba, card com topo colorido, mote, preço, checklist, custo unitário embaixo. O que entrou do escuro foi o que dava a intensidade:\n\n• Big Shoulders Display — a condensada alta em caixa alta, nos nomes e nos números. É a maior parte do \"moderno\".\n• Topos metálicos com o brilho diagonal, em vez de cor chapada.\n• Checklist mais denso: filete fino e valor alinhado à direita, em vez de bullet solto.\n• A escada de preço, que o B não tinha.\n• A montanha da marca no cabeçalho."
+    },
+    {
+      "id": "nota-claro",
+      "x": 0,
+      "y": 1320,
+      "w": 560,
+      "page": "page-1",
+      "text": "B+ CLARO INTENSO\n\nA intensidade fica concentrada numa faixa petróleo no topo, com a montanha e o título gigante; daí para baixo é a página clara do B. As abas montam em cima da virada entre o escuro e o claro.\n\nPor que: entra no site de hoje sem brigar com nenhuma outra página. O corredor que vem da home não sente que trocou de site.\n\nTradeoff: a intensidade acaba no cabeçalho. Da dobra para baixo continua sendo uma página de preço clara — mais moderna que a de hoje, mas não \"intensa\"."
+    },
+    {
+      "id": "nota-escuro",
+      "x": 1400,
+      "y": 1320,
+      "w": 560,
+      "page": "page-1",
+      "text": "B+ PETRÓLEO\n\nMesmos cards, mesma ordem, mesma escada — só que a página inteira é escura, com a montanha atrás e o dourado brilhando no destaque.\n\nPor que: é a versão que mais se parece com o artefato que você gostou. O dourado do Semestral só funciona de verdade sobre escuro; no claro ele fica discreto.\n\nTradeoff: vira a única página escura do site. Ou /planos assume ser uma exceção proposital, ou o resto do site vai parecer velho ao lado dela — e aí o trabalho cresce muito além desta página."
+    },
+    {
+      "id": "descartadas",
+      "x": 0,
+      "y": -280,
+      "page": "page-2",
+      "w": 700,
+      "text": "Direções A e C, não escolhidas. Guardadas aqui só como referência — a decisão foi seguir com o B modernizado, na primeira página."
+    }
+  ],
+  "launch": { "view": "canvas", "page": "page-1" }
+}
