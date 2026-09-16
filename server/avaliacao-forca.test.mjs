@@ -362,7 +362,11 @@ test('mesmo requestId com outro conteúdo é conflito; duas chamadas simultânea
   assert.equal(a.id,b.id);assert.equal(db.get('atleta1').subtasks.length,1);
   const c=envioValido();c.atleta.peso=90;await assert.rejects(()=>servico.salvar('atleta1',c,'equipe'),/outros dados/);
 });
-test('registro da montagem por lado é obrigatório antes de criar a tarefa', async () => {
+test('registro das montagens é opcional para salvar o relatório', async () => {
   const {servico,db}=bancada();const b=envioValido();delete b.montagens;
+  const r=await servico.salvar('atleta1',b,'equipe');assert.equal(r.anexo,true);assert.deepEqual(desempacotar(db.get(r.id)).montagens,{});
+});
+test('montagem parcialmente preenchida continua exigindo distância e ângulo', async () => {
+  const {servico,db}=bancada();const b=envioValido();b.montagens={'flexao-quadril':{E:{referencia:'trocânter'}}};
   await assert.rejects(()=>servico.salvar('atleta1',b,'equipe'),/distância e ângulo/);assert.equal(db.get('atleta1').subtasks.length,0);
 });

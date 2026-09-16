@@ -197,12 +197,14 @@ export function criarServicoAvaliacao(api, upload) {
 export function validarMontagens(valor, resultados) {
   const montagens = {};
   for (const r of resultados) {
-    montagens[r.chave] = {};
     for (const lado of ['E', 'D']) {
       if (!(lado === 'E' ? r.esquerdo : r.direito)) continue;
       const m = valor?.[r.chave]?.[lado];
+      const preenchido = m && Object.values(m).some(v => String(v ?? '').trim() !== '');
+      if (!preenchido) continue;
       const distanciaCm = Number(m?.distanciaCm); const anguloGraus = Number(m?.anguloGraus);
       if (!m || !Number.isFinite(distanciaCm) || distanciaCm <= 0 || distanciaCm > 200 || m.anguloGraus === '' || !Number.isFinite(anguloGraus) || anguloGraus < 0 || anguloGraus > 180) throw new PublicError(`Registre distância e ângulo de ${r.nome}, lado ${lado}.`);
+      if (!montagens[r.chave]) montagens[r.chave] = {};
       montagens[r.chave][lado] = {distanciaCm, anguloGraus, referencia: texto(m.referencia, 'o marco de referência da distância', 120), ancoragem: texto(m.ancoragem, 'a montagem e ancoragem', 300)};
     }
   }

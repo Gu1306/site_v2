@@ -278,8 +278,8 @@ export default function PainelAvaliacaoForca() {
         {avaliacao && (
           <>
             <section className="af-form af-sem-impressao">
-              <h2>3. Registro das montagens</h2>
-              <p>Por lado: distância do marco anatômico ao centro da cinta, ângulo articular e identificação da montagem/ancoragem. Preserve esses registros na reavaliação.</p>
+              <h2>3. Registro opcional das montagens</h2>
+              <p>Opcional para salvar e gerar o relatório. Quando disponível, registre por lado a distância do marco anatômico ao centro da cinta, o ângulo articular e a identificação da montagem/ancoragem para preservar na reavaliação.</p>
               {avaliacao.movimentos.flatMap(m => (['E', 'D'] as const).filter(l => l === 'E' ? m.esquerdo : m.direito).map(l => {
                 const valor = montagens[m.chave]?.[l] || {distanciaCm: '', anguloGraus: '', referencia: '', ancoragem: ''};
                 const alterar = (campo: keyof Montagem, texto: string) => {setMontagens(prev => ({...prev, [m.chave]: {...prev[m.chave], [l]: {...valor, [campo]: texto}}})); setSalvo(false);};
@@ -315,8 +315,7 @@ export default function PainelAvaliacaoForca() {
               {error && <p className="af-erro" role="alert">{error}</p>}
             </div>
             <p className="af-nota af-sem-impressao af-conferencia">
-              Abaixo é a <strong>conferência</strong> dos números antes de salvar. O relatório oficial, com a leitura
-              automática descritiva a partir destes dados, é montado na VPS e anexado ao card do atleta no ClickUp.
+              Abaixo é a <strong>conferência</strong> dos números antes de salvar. O relatório oficial é montado na VPS e anexado ao card do atleta no ClickUp.
             </p>
             <RelatorioForca avaliacao={avaliacao} avaliador={user} alertas={alertas} />
           </>
