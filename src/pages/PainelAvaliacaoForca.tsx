@@ -176,7 +176,7 @@ export default function PainelAvaliacaoForca() {
       const resposta = await api<{anexo: boolean}>(`atletas/${atletaId}/avaliacoes`, payload);
       if (!resposta.anexo) throw new Error('Avaliação salva, mas o Excel ainda não foi confirmado. Repita o envio.');
       setSalvo(true);
-      setNotice('Avaliação salva e Excel confirmado no card. Com o serviço da VPS ativo, o PDF com a leitura automática será anexado ao mesmo card.');
+      setNotice('Avaliação salva e Excel confirmado na subtarefa do atleta. Com o serviço da VPS ativo, o PDF será anexado à mesma subtarefa.');
     });
   }
 
