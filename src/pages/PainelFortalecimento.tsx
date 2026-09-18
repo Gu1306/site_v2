@@ -95,8 +95,12 @@ export default function PainelFortalecimento() {
         const list = heights(selector);
         return list.length ? Math.max(...list) : fallback;
       };
-      const next: TvMetrics = {
-        available: Math.max(defaultMetrics.rowHeight, grid.current.clientHeight - overhead - 4),
+      const available = Math.max(defaultMetrics.rowHeight, grid.current.clientHeight - overhead - 4);
+      // As alturas dos exercícios só são medidas no bloco 1. Cada página tem
+      // exercícios diferentes, então medir a página aberta mudava a paginação a
+      // cada clique em "Próximo bloco" — e a mudança devolvia a TV ao bloco 1.
+      const next = (previous: TvMetrics): TvMetrics => page > 0 ? { ...previous, available } : {
+        available,
         rowHeight: largest('.cf-exercise:not(.cf-block)', defaultMetrics.rowHeight),
         blockHead: largest('.cf-block-head', defaultMetrics.blockHead),
         blockLine: largest('.cf-block-line', defaultMetrics.blockLine),
@@ -104,12 +108,13 @@ export default function PainelFortalecimento() {
       };
       // Só troca o estado quando a medida realmente mudou: o objeto novo a cada
       // render reabriria o ciclo de medição sem necessidade.
-      setMetrics(previous => (Object.keys(next) as (keyof TvMetrics)[]).every(field => Math.abs(next[field] - previous[field]) < 1) ? previous : next);
+      setMetrics(previous => { const measured = next(previous); return (Object.keys(measured) as (keyof TvMetrics)[]).every(field => Math.abs(measured[field] - previous[field]) < 1) ? previous : measured; });
     };
     const resize = new ResizeObserver(measure);
     resize.observe(grid.current); return () => resize.disconnect();
   }, [mode, agenda, page]);
-  useEffect(() => { setPage(0); }, [slot, day, metrics]);
+  // Mudança de medida não volta ao bloco 1: `safePage` já recua se sobrar página.
+  useEffect(() => { setPage(0); }, [slot, day]);
   useEffect(() => {
     // O botão de voltar ficou discreto no modo TV; Esc é a saída óbvia.
     if (mode !== 'tv') return;
