@@ -12,6 +12,13 @@ export type Episode = {
 
 export const episodes: Episode[] = [
   {
+    youtubeId: "uLFe--8uQ5g",
+    title: "EP 13 — De Ribeirão Preto a Chamonix: Paulo Galvão, a revelação do trail em 2026",
+    guest: "Paulo Galvão",
+    description:
+      "Há um ano, Paulo Galvão inaugurou a cadeira do CareFit Cast com o 6º lugar geral na La Mission. Um ano depois, voltou aos mesmos 110 km e cravou o 4º lugar geral; um mês depois, foi 3º geral nos 108 km da UTMB Paraty e garantiu a vaga para a CCC, em Chamonix, em 2027. Nesta conversa de duas horas, ele destrincha o ano inteiro: treinar trabalhando o dia todo e sem patrocínio, as semanas de quase 200 km, o \"furacão\" de junho, o fortalecimento com 8 exercícios, o recovery de segunda-feira na CareFit, as duas provas contadas por dentro e o sonho do Mont Blanc. Pessoas comuns com feitos extraordinários.",
+  },
+  {
     youtubeId: "v9DUmlZFRkE",
     title: "EP 12 — A prova começa antes da largada: Paulo Galvão e o 4º lugar geral nos 110 km da La Mission",
     guest: "Paulo Galvão",
