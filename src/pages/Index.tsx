@@ -44,53 +44,70 @@ const Index = () => {
     description: "Suporte psicológico e mental para desenvolver a mentalidade vencedora do corredor de alta performance.",
     produtos: "Presente em: Jornada Propósito"
   }];
+  // Contados nos mapas mentais dos atletas em 15/10/2026 (398 atletas; prova só conta com tempo de conclusão).
+  // Arredondados para baixo para o "+" continuar verdadeiro.
   const numeros = [{
-    numero: 167,
+    numero: 395,
     suffix: "+",
-    texto: "Corredores transformados",
+    texto: "Corredores atendidos",
     animated: true
   }, {
-    numero: 29,
+    numero: 145,
+    suffix: "+",
+    texto: "Meia maratonistas",
+    animated: true
+  }, {
+    numero: 45,
     suffix: "+",
     texto: "Maratonistas",
     animated: true
   }, {
-    numero: 7,
-    suffix: "+",
+    numero: 8,
+    suffix: "",
     texto: "Ultramaratonistas",
     animated: true
-  }, {
-    numero: 3,
-    suffix: "",
-    texto: "Anos de jornada",
-    animated: false
   }];
   return <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 md:pt-28 pb-16">
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
         backgroundImage: `url(${heroRunners})`
       }} />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-transparent" />
-        
+
         <div className="relative z-10 container mx-auto px-4 text-center text-white">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-montserrat font-bold mb-6 leading-tight">
-            Corra com propósito. Evolua com ciência. <span className="text-earth">
-Viva com equilíbrio.</span>
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/30 rounded-full px-4 py-2 mb-4 md:mb-6 font-montserrat font-semibold text-sm md:text-base">
+            💚 Recomendada por 95% de quem veio
+          </div>
+
+          <h1 className="text-[2rem] md:text-6xl lg:text-7xl font-montserrat font-bold mb-4 md:mb-6 leading-tight">
+            Você não corre sozinho. <span className="text-earth">A gente cuida pra você seguir correndo.</span>
           </h1>
-          
-          <p className="text-lg md:text-xl mb-4 max-w-4xl mx-auto leading-relaxed font-poppins font-medium text-white/95">
-            A CareFit Run Base é um centro especializado em fisioterapia esportiva, recovery, fortalecimento e nutrição para corredores em Ribeirão Preto.
+
+          <p className="text-base md:text-xl mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed font-poppins font-medium text-white/95">
+            Fisioterapia, fortalecimento e recuperação feitos para corredores, em Ribeirão Preto. Aqui, uma dor pequena não vira lesão grande, e cada decisão é tomada com dado, não com achismo.
           </p>
 
-          <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed font-poppins font-light">
+          <p className="text-xs md:text-sm uppercase tracking-wider mb-2 md:mb-3 font-montserrat font-semibold text-white/80">
+            Pra quem chega com
           </p>
-          
-          <div className="flex justify-center">
-            <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8 py-4 text-lg font-montserrat font-semibold" onClick={() => navigate('/servicos')}>
-              Descubra Sua Solução Ideal
+          <ul className="flex flex-wrap justify-center gap-2 md:gap-3 mb-8 md:mb-10 max-w-4xl mx-auto">
+            {["Dor que não passa", "Prova chegando", "Lesão que sempre volta", "Medo de parar de novo"].map((problema) => <li key={problema} className="bg-white/15 rounded-full px-3 py-1.5 md:px-4 md:py-2 font-poppins text-xs md:text-base">
+                {problema}
+              </li>)}
+          </ul>
+
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8 py-4 text-lg font-montserrat font-semibold" onClick={() => navigate('/conheca-a-carefit')}>
+              Quero minhas 2 sessões
+            </Button>
+            <Button size="lg" variant="outline" className="bg-white/10 border-2 border-white text-white hover:bg-white hover:text-primary px-8 py-4 text-lg font-montserrat font-semibold" onClick={handleWhatsApp}>
+              Falar no WhatsApp
             </Button>
           </div>
+          <p className="mt-4 font-poppins text-sm text-white/80">
+            Agende a 1ª sessão e ganhe a 2ª de cortesia
+          </p>
         </div>
       </section>
 
@@ -334,7 +351,7 @@ Viva com equilíbrio.</span>
               Histórias que inspiram
             </h2>
             <p className="text-xl opacity-90 max-w-3xl mx-auto font-poppins">
-              Mais de 100 jornadas transformadas
+              Quase 400 corredores já passaram pela base
             </p>
           </div>
 
