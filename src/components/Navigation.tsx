@@ -21,6 +21,15 @@ const Navigation = () => {
   const [openMobileDropdown, setOpenMobileDropdown] = useState<string | null>(null);
   const location = useLocation();
   const dropdownTimeout = useRef<NodeJS.Timeout | null>(null);
+  // No celular o botão flutuante cobria os CTAs do topo; ele só aparece depois da primeira tela.
+  const [passouDoTopo, setPassouDoTopo] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setPassouDoTopo(window.scrollY > window.innerHeight * 0.6);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const isActive = (path: string) => location.pathname === path;
   const isDropdownActive = (items: DropdownItem[]) =>
@@ -238,7 +247,11 @@ const Navigation = () => {
       </nav>
 
       {/* WhatsApp Floating Button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div
+        className={`fixed bottom-6 right-6 z-50 transition-opacity duration-300 md:opacity-100 md:pointer-events-auto ${
+          passouDoTopo ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      >
         <Button
           variant="whatsapp"
           size="icon"
