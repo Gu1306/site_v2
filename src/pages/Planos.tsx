@@ -203,7 +203,7 @@ const fortalecimento: Plano[] = [
           { texto: "Ficha individual e mobilidade", valor: "incluso", on: true },
           { texto: "Duração do ciclo", valor: "4 meses", on: true },
           { texto: "Plano de recovery ativo", valor: "pré-requisito", on: true },
-          { texto: "Desconto na avaliação de força", valor: "R$ 200", on: true },
+          { texto: "Desconto na avaliação de força", valor: "R$ 190", on: true },
         ],
       },
     ],
@@ -253,7 +253,7 @@ const combinado: Plano[] = [
     mote: "O único plano que acompanha um ciclo de treino do começo ao fim.",
     preco: "4.230",
     notas: ["6× de R$ 705", "R$ 65 a aula · R$ 190 a sessão"],
-    selo: "Economia de R$ 700",
+    selo: "Economia de R$ 680",
     tom: "ouro",
     secoes: [
       {
@@ -267,7 +267,7 @@ const combinado: Plano[] = [
       {
         titulo: "Acompanhamento",
         linhas: [
-          { texto: "Teste de força na entrada e reteste no fim", valor: "R$ 400", on: true },
+          { texto: "Teste de força na entrada e reteste no fim", valor: "R$ 380", on: true },
           { texto: "Revisão do programa a cada 8 aulas", valor: "4 revisões", on: true },
           { texto: "Prioridade na reserva de horário", valor: "incluso", on: true },
           { texto: "Acompanhamento semanal pelo Strava", valor: "incluso", on: true },
@@ -627,7 +627,7 @@ const Planos = () => {
                 <div>
                   <p className="text-[9px] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Com plano</p>
                   <p className="font-shoulders text-3xl font-extrabold tabular-nums" style={{ color: "#8A6A2A" }}>
-                    R$ 200
+                    R$ 190
                   </p>
                 </div>
               </div>
