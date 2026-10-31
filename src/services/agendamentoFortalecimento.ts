@@ -40,6 +40,9 @@ const ENDPOINT =
 /** Sem endpoint a página não tenta buscar nada e mostra o aviso de configuração. */
 export const agendamentoConfigurado = ENDPOINT !== "";
 
+/** Web App do fortalecimento, para a página passar ao componente de agenda. */
+export const endpointFortalecimento = ENDPOINT;
+
 export interface AulaDisponivel {
   /** "2026-09-07T06:00" — hora local de São Paulo. É o que o POST devolve. */
   id: string;
@@ -109,8 +112,8 @@ async function lerJson(resposta: Response): Promise<Record<string, unknown>> {
   }
 }
 
-function garantirEndpoint() {
-  if (!agendamentoConfigurado) {
+function garantirEndpoint(endpoint: string) {
+  if (!endpoint) {
     throw new ErroAgendamento(
       "CONFIG",
       "O agendamento online ainda não está ligado nesta versão do site."
@@ -125,13 +128,18 @@ export interface JanelaBusca {
   fim: string;
 }
 
+/**
+ * `endpoint` é opcional: outras modalidades (yoga) têm o próprio Web App e
+ * reaproveitam este cliente inteiro. Sem argumento, vale o do fortalecimento.
+ */
 export async function buscarAulas(
   janela: JanelaBusca,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  endpoint: string = ENDPOINT
 ): Promise<AulaDisponivel[]> {
-  garantirEndpoint();
+  garantirEndpoint(endpoint);
 
-  const url = `${ENDPOINT}?inicio=${encodeURIComponent(janela.inicio)}&fim=${encodeURIComponent(janela.fim)}`;
+  const url = `${endpoint}?inicio=${encodeURIComponent(janela.inicio)}&fim=${encodeURIComponent(janela.fim)}`;
 
   let resposta: Response;
   try {
@@ -162,12 +170,15 @@ export interface PedidoReserva {
   idempotencia: string;
 }
 
-export async function reservarAula(pedido: PedidoReserva): Promise<ReservaConfirmada> {
-  garantirEndpoint();
+export async function reservarAula(
+  pedido: PedidoReserva,
+  endpoint: string = ENDPOINT
+): Promise<ReservaConfirmada> {
+  garantirEndpoint(endpoint);
 
   let resposta: Response;
   try {
-    resposta = await fetch(ENDPOINT, {
+    resposta = await fetch(endpoint, {
       method: "POST",
       // Ver o comentário do topo: text/plain evita o preflight.
       headers: { "Content-Type": "text/plain;charset=utf-8" },

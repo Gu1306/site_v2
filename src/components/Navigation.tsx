@@ -45,6 +45,7 @@ const Navigation = () => {
         { name: "Teste de Força", href: "/teste-de-forca-ribeirao-preto" },
         { name: "Fortalecimento para Corredores", href: "/fortalecimento-para-corredores-ribeirao-preto" },
         { name: "Agendar Aula de Fortalecimento", href: "/agendamento-fortalecimento" },
+        { name: "Agendar Aula de Yoga", href: "/agendamento-yoga" },
         { name: "Recovery para Corredores", href: "/recovery-corredores-ribeirao-preto" },
         { name: "Treinamento para Maratona", href: "/treinamento-para-maratona-ribeirao-preto" },
       ],

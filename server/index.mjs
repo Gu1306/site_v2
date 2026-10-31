@@ -33,6 +33,12 @@ const PREVIEWS = {
     imagem: '/og-fortalecimento.jpg',
     alt: 'Área de fortalecimento da CareFit Run Base',
   },
+  '/agendamento-yoga': {
+    titulo: 'Agendar aula de yoga — CareFit Run Base',
+    descricao: 'Yoga às terças e quintas, das 6h às 7h, em Ribeirão Preto. Escolha o dia e reserve sua vaga.',
+    imagem: '/og-fortalecimento.jpg',
+    alt: 'CareFit Run Base',
+  },
 };
 
 /** `dist/index.html` só muda em deploy, então lê uma vez e guarda. */
