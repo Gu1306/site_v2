@@ -9,7 +9,8 @@ import AgendamentoAulas, { type ConfigAgendamento } from "@/components/Agendamen
  * para o bundle de qualquer jeito e variável sem ARG no Dockerfile deixa a
  * página muda sem erro no log.
  */
-const ENDPOINT_YOGA = "";
+const ENDPOINT_YOGA =
+  "https://script.google.com/macros/s/AKfycbxh9ceNePIIaavA9WKaDBKstVAF7jeG0KC_UZ5eXKlLZUZHj2FRm64ErhMvS7JwMOzLYA/exec";
 
 const CONFIG: ConfigAgendamento = {
   endpoint: ENDPOINT_YOGA,
