@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LogOut, Upload, FileSpreadsheet, CircleAlert, RotateCcw, Save, Check } from 'lucide-react';
 import {
-  lerExportFightTech, calcularAvaliacao, recalcularResultados, nomesCombinam, dataValida, MOVIMENTOS,
+  lerExportFightTech, calcularAvaliacao, recalcularResultados, normalizarNome, dataValida, MOVIMENTOS,
   type Avaliacao, type LeituraExcel, type MovimentoChave,
 } from '@/lib/avaliacaoForca';
 import RelatorioForca from './RelatorioForca';
@@ -51,15 +51,18 @@ export default function PainelAvaliacaoForca() {
   const [salvo, setSalvo] = useState(false);
   const [atletas, setAtletas] = useState<{ id: string; name: string }[]>([]);
   const [atletaId, setAtletaId] = useState('');
+  const [busca, setBusca] = useState('');
   const requestId = useRef(crypto.randomUUID());
   const ultimaAssinatura = useRef('');
-  const [identidadeConferida, setIdentidadeConferida] = useState('');
-  const [motivoAssociacao, setMotivoAssociacao] = useState('');
   type Montagem = {distanciaCm: string; anguloGraus: string; referencia: string; ancoragem: string};
   const [montagens, setMontagens] = useState<Record<string, Partial<Record<'E' | 'D', Montagem>>>>({});
   const nomeCard = atletas.find(a => a.id === atletaId)?.name || '';
-  const identidadeAtual = JSON.stringify([nome, nascimento, email, atletaId, nomeCard, leitura?.atletaNoApp, arquivoBase64]);
-  const identidadeDiverge = Boolean(leitura && (!nomesCombinam(nome, leitura.atletaNoApp) || (atletaId && !nomesCombinam(nome, nomeCard))));
+  // Busca pelo nome sem depender de acento nem de caixa; a lista curta evita rolagem.
+  const encontrados = useMemo(() => {
+    const alvo = normalizarNome(busca);
+    if (alvo.length < 2) return [];
+    return atletas.filter(a => normalizarNome(a.name).includes(alvo)).slice(0, 8);
+  }, [atletas, busca]);
 
 
   const falhar = useCallback((e: unknown) => {
@@ -80,25 +83,27 @@ export default function PainelAvaliacaoForca() {
     api<{ id: string; name: string }[]>('atletas').then(setAtletas).catch(falhar);
   }, [user, falhar]);
 
-  // Pré-seleciona o card quando o nome digitado bate com um atleta do ClickUp.
-  useEffect(() => {
-    if (atletaId || !atletas.length || nome.trim().length < 3) return;
-    const alvo = nome.trim().toLowerCase();
-    const achado = atletas.find(a => a.name.toLowerCase() === alvo)
-;
-    if (achado) setAtletaId(achado.id);
-  }, [nome, atletas, atletaId]);
-
   async function executar(acao: () => Promise<void>) {
     setBusy(true); setError(''); setNotice('');
     try { await acao(); } catch (e) { falhar(e); } finally { setBusy(false); }
   }
 
+  // Trocar o Excel não desfaz a escolha do atleta, que agora é o primeiro passo.
   function limpar() {
     setArquivo(''); setArquivoBase64(''); setLeitura(null); setMapa({}); setAvaliacao(null);
-    setSalvo(false); setAtletaId(''); setError(''); setNotice('');
+    setSalvo(false); setError(''); setNotice('');
     requestId.current = crypto.randomUUID();
-    ultimaAssinatura.current = ''; setIdentidadeConferida(''); setMotivoAssociacao(''); setMontagens({});
+    ultimaAssinatura.current = ''; setMontagens({});
+  }
+
+  function limparTudo() {
+    limpar(); setAtletaId(''); setBusca('');
+  }
+
+  function escolherAtleta(atleta: { id: string; name: string }) {
+    setAtletaId(atleta.id); setBusca(''); setSalvo(false);
+    // O nome do relatório acompanha o card escolhido, a não ser que a equipe já tenha digitado outro.
+    if (!nome.trim() || nome.trim() === nomeCard) { setNome(atleta.name); setAvaliacao(null); }
   }
 
   async function lerArquivo(file: File) {
@@ -155,7 +160,7 @@ export default function PainelAvaliacaoForca() {
         data: avaliacao.data,
         arquivoNome: arquivo,
         mapa, montagens,
-        confirmacao: {conferida: identidadeConferida === identidadeAtual, cardId: atletaId, nomeCard, atletaNoApp: leitura?.atletaNoApp, motivo: motivoAssociacao},
+        confirmacao: {cardId: atletaId, nomeCard, atletaNoApp: leitura?.atletaNoApp},
         arquivoBase64,
         idade: avaliacao.idade,
         // A VPS renderiza o PDF a partir daqui; se faltar campo, falta no documento.
@@ -179,8 +184,6 @@ export default function PainelAvaliacaoForca() {
       setNotice('Avaliação salva e Excel confirmado na subtarefa do atleta. Com o serviço da VPS ativo, o PDF será anexado à mesma subtarefa.');
     });
   }
-
-  const nomeBateComCard = !nomeCard || nomesCombinam(nome, nomeCard);
 
   const alertas = useMemo(() => avaliacao ? avaliacao.movimentos.flatMap(m => m.alertas.map(texto => ({ movimento: m.nome, texto }))) : [], [avaliacao]);
 
@@ -211,7 +214,26 @@ export default function PainelAvaliacaoForca() {
 
       <main className="af-conteudo"><fieldset disabled={busy} style={{border: 0, padding: 0, margin: 0, minWidth: 0}}>
         <section className="af-form af-sem-impressao">
-          <h2>1. Dados do atleta</h2>
+          <h2>1. Atleta</h2>
+          {atletaId ? (
+            <div className="af-selecionado">
+              <div><span>CARD NO CLICKUP</span><strong>{nomeCard}</strong></div>
+              <Button variant="ghost" onClick={() => { setAtletaId(''); setBusca(''); setSalvo(false); }}>Trocar atleta</Button>
+            </div>
+          ) : (
+            <div className="af-busca">
+              <label>Procure o atleta pelo nome
+                <Input value={busca} autoComplete="off" onChange={e => setBusca(e.target.value)} placeholder="Comece a digitar o nome do atleta" />
+              </label>
+              {normalizarNome(busca).length >= 2 && (
+                <ul className="af-resultados">
+                  {encontrados.map(a => <li key={a.id}><button type="button" onClick={() => escolherAtleta(a)}>{a.name}</button></li>)}
+                  {!encontrados.length && <li className="af-vazio">Nenhum card com esse nome. Confira a lista de atletas no ClickUp.</li>}
+                </ul>
+              )}
+              <p className="af-nota">O relatório vai para o card escolhido aqui. Sem atleta escolhido, o salvamento fica travado.</p>
+            </div>
+          )}
           <div className="af-campos">
             <label>Nome completo<Input required maxLength={80} value={nome} onChange={e => { setNome(e.target.value); setAvaliacao(null); }} placeholder="Nome do atleta" /></label>
             <label>Data de nascimento<Input type="date" required value={nascimento} onChange={e => { setNascimento(e.target.value); setAvaliacao(null); }} /></label>
@@ -271,7 +293,7 @@ export default function PainelAvaliacaoForca() {
 
           <div className="af-acoes">
             <Button disabled={!podeGerar || busy} onClick={gerar}>Gerar relatório</Button>
-            {(leitura || avaliacao) && <Button variant="ghost" onClick={limpar}><RotateCcw size={16} /> Limpar</Button>}
+            {(leitura || avaliacao) && <Button variant="ghost" onClick={limparTudo}><RotateCcw size={16} /> Limpar</Button>}
           </div>
         </section>
 
@@ -295,22 +317,15 @@ export default function PainelAvaliacaoForca() {
               }))}
             </section>
             <div className="af-acoes af-sem-impressao af-acoes-relatorio">
-              <label className="af-atleta">
-                <span>Card no ClickUp</span>
-                <select value={atletaId} onChange={e => { setAtletaId(e.target.value); setSalvo(false); }} disabled={busy || salvo}>
-                  <option value="">Escolha o atleta…</option>
-                  {atletas.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                </select>
-              </label>
-              {leitura && atletaId && <div>
-                <p>No Excel: <strong>{leitura.atletaNoApp}</strong> · Relatório: <strong>{nome}</strong> · Card: <strong>{nomeCard}</strong></p>
-                {identidadeDiverge && <label>Explique a associação dos nomes diferentes<Input maxLength={300} value={motivoAssociacao} onChange={e => {setMotivoAssociacao(e.target.value); setIdentidadeConferida(''); setSalvo(false);}} placeholder="Ex.: cadastro genérico do app, identidade conferida na sessão" /></label>}
-                <label><input type="checkbox" checked={identidadeConferida === identidadeAtual} onChange={e => setIdentidadeConferida(e.target.checked ? identidadeAtual : '')} /> Conferi o atleta, o Excel desta sessão e o card selecionado.</label>
-              </div>}
-              {atletaId && !nomeBateComCard && <span className="af-aviso">O nome digitado não parece o mesmo do card escolhido. Confira antes de salvar.</span>}
-              <Button variant="outline" className="af-botao-claro" disabled={busy || salvo || !atletaId || identidadeConferida !== identidadeAtual || (identidadeDiverge && motivoAssociacao.trim().length < 12)} onClick={() => void salvar()}>
+              <div className="af-destino">
+                <span>VAI PARA O CARD</span>
+                <strong>{nomeCard || 'nenhum atleta escolhido'}</strong>
+                {leitura?.atletaNoApp && <em>no app do dinamômetro: {leitura.atletaNoApp}</em>}
+              </div>
+              <Button variant="outline" className="af-botao-claro" disabled={busy || salvo || !atletaId} onClick={() => void salvar()}>
                 {salvo ? <><Check size={16} /> Salvo</> : <><Save size={16} /> {busy ? 'Salvando…' : 'Salvar no ClickUp'}</>}
               </Button>
+              {!atletaId && <span className="af-aviso">Escolha o atleta no passo 1 para liberar o salvamento.</span>}
               {notice && <span className="af-ok">{notice}</span>}
               {error && <p className="af-erro" role="alert">{error}</p>}
             </div>

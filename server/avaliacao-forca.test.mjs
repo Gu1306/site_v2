@@ -201,7 +201,7 @@ const envioValido = () => ({
   requestId: '11111111-1111-4111-8111-111111111111',
   data: '2026-09-12',
   arquivoBase64: readFileSync(new URL('./fixtures/fighttech-sintetico.xlsx', import.meta.url)).toString('base64'),
-  confirmacao: {conferida:true, cardId:'atleta1', nomeCard:'Pessoa Teste', atletaNoApp:'Pessoa Teste'},
+  confirmacao: {cardId:'atleta1', nomeCard:'Pessoa Teste', atletaNoApp:'Pessoa Teste'},
   montagens: {'flexao-quadril': {E:{distanciaCm:35,anguloGraus:90,referencia:'Trocânter maior',ancoragem:'Maca A / foto T1'},D:{distanciaCm:35,anguloGraus:90,referencia:'Trocânter maior',ancoragem:'Maca A / foto T1'}}},
   atleta: { nome: 'Pessoa Teste', nascimento: '1990-05-10', peso: 88, email: 'pessoa@exemplo.com' },
   resultados: [{
@@ -334,11 +334,10 @@ test('R6: coincidência de partícula ou primeiro nome não equivale a identidad
   assert.equal(nomesCombinam('Ana Silva','Ana Souza'),false);
   assert.equal(nomesCombinam(' JOÃO  SILVA ','Joao Silva'),true);
 });
-test('R6: exige conferência do Excel e registra motivo de associação divergente', async () => {
+test('R6: nome diferente do app não trava o salvamento, mas fica registrado', async () => {
   const {servico}=bancada();const b=envioValido();b.atleta.nome='Outro Atleta';
-  await assert.rejects(()=>servico.salvar('atleta1',b,'equipe'),/motivo/);
-  b.confirmacao.motivo='Cadastro genérico conferido durante a sessão';
-  const r=await servico.salvar('atleta1',b,'equipe');assert.equal(r.associacao.divergente,true);assert.equal(r.associacao.conferidaPor,'equipe');assert.equal(r.origem.atletaNoApp,'Pessoa Teste');
+  const r=await servico.salvar('atleta1',b,'equipe');
+  assert.equal(r.associacao.divergente,true);assert.equal(r.associacao.conferidaPor,'equipe');assert.equal(r.origem.atletaNoApp,'Pessoa Teste');
 });
 test('Excel original prevalece: adulterar picos ou informar outra data é recusado', async () => {
   const b=envioValido();b.resultados[0].esquerdo.picos=[10,10,10];

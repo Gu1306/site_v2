@@ -160,12 +160,10 @@ export function criarServicoAvaliacao(api, upload) {
     if (typeof upload !== 'function') throw new PublicError('Anexo do Excel indisponível.', 503);
     const {envio, bytes, origem} = await conferirArquivo(body);
     const card = await cardAtleta(atletaId);
-    const confirmacao = body.confirmacao;
-    if (confirmacao?.conferida !== true || confirmacao.cardId !== atletaId || confirmacao.nomeCard !== card.name || confirmacao.atletaNoApp !== origem.atletaNoApp) throw new PublicError('Confira o atleta do Excel e o card escolhido antes de salvar.', 409);
+    // O card é escolhido no começo do painel e é ele que manda no destino. A divergência
+    // de nome (o app do dinamômetro costuma ter só o primeiro nome) fica registrada, não bloqueia.
     const divergente = !nomesCombinam(envio.atleta.nome, card.name) || !nomesCombinam(envio.atleta.nome, origem.atletaNoApp);
-    const motivo = divergente ? texto(confirmacao.motivo, 'o motivo da associação dos nomes diferentes', 300) : '';
-    if (divergente && motivo.length < 12) throw new PublicError('Explique a associação dos nomes diferentes (mínimo 12 caracteres).', 409);
-    const associacao = {cardId: atletaId, nomeCard: card.name, atletaNoApp: origem.atletaNoApp, divergente, motivo};
+    const associacao = {cardId: atletaId, nomeCard: card.name, atletaNoApp: origem.atletaNoApp, divergente, motivo: ''};
     const montagens = validarMontagens(body.montagens, envio.resultados);
     const anexoNome = `fighttech-${origem.sha256}.xlsx`;
     const conteudoHash = hash(JSON.stringify({envio, origem, associacao, montagens}));
