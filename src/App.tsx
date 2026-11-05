@@ -46,6 +46,7 @@ const Feedback = lazy(() => import("./pages/Feedback"));
 const FichaPreAula = lazy(() => import("./pages/FichaPreAula"));
 const AgendamentoFortalecimento = lazy(() => import("./pages/AgendamentoFortalecimento"));
 const AgendamentoYoga = lazy(() => import("./pages/AgendamentoYoga"));
+const Links = lazy(() => import("./pages/Links"));
 const FortalecimentoTurma = lazy(() => import("./pages/FortalecimentoTurma"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
@@ -53,7 +54,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const PainelFortalecimento = lazy(() => import("./pages/PainelFortalecimento"));
 const PainelAvaliacaoForca = lazy(() => import("./pages/PainelAvaliacaoForca"));
 
-const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto", "/painel-fortalecimento", "/painel-avaliacao-forca"];
+const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto", "/painel-fortalecimento", "/painel-avaliacao-forca", "/links"];
 
 const ConditionalNavigation = () => {
   const { pathname } = useLocation();
@@ -130,6 +131,7 @@ const App = () => (
             <Route path="/fortalecimento-em-turma" element={<FortalecimentoTurma />} />
             <Route path="/agendamento-fortalecimento" element={<AgendamentoFortalecimento />} />
             <Route path="/agendamento-yoga" element={<AgendamentoYoga />} />
+            <Route path="/links" element={<Links />} />
             <Route path="/painel-fortalecimento" element={<PainelFortalecimento />} />
             <Route path="/painel-avaliacao-forca" element={<PainelAvaliacaoForca />} />
             <Route path="/blog" element={<Blog />} />
