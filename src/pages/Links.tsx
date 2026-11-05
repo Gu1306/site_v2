@@ -65,6 +65,13 @@ const DESTAQUES: Item[] = [
     imagem: recovery,
     pos: "center 40%",
   },
+  {
+    titulo: "Sessão Jornada Recovery",
+    sub: "Para quem já tem sessões em aberto",
+    href: "https://carefitrunbase.com.br/agendar",
+    imagem: recovery,
+    pos: "center 60%",
+  },
 ];
 
 const EXPLORAR: Item[] = [
