@@ -2,7 +2,6 @@ import { useSeo } from "@/hooks/useSeo";
 import logo from "@/assets/logocarefitclub.png";
 import espaco from "@/assets/hero-runners.jpg";
 import fortalecimento from "@/assets/treino_funcional.jpg";
-import gelo from "@/assets/banheira_imersao.jpg";
 import recovery from "@/assets/recovery_atletas.jpg";
 import comunidade from "@/assets/maratona_grupo.jpg";
 import fisio from "@/assets/sala-fisioterapia.jpg";
@@ -69,12 +68,8 @@ const DESTAQUES: Item[] = [
 ];
 
 const EXPLORAR: Item[] = [
-  { titulo: "Ice Mind Experience", sub: "Imersão em gelo, respiração e mente", href: "/ice-mind-experience", imagem: gelo, pos: "center 70%" },
-  { titulo: "Planos e preços", sub: "Escolha o formato que cabe na sua rotina", href: "/planos", imagem: recovery, pos: "center 40%" },
-  { titulo: "Serviços", sub: "Fisioterapia, recovery, avaliação e mais", href: "/servicos", imagem: fisio, pos: "center" },
-  { titulo: "Comunidade CareFit", sub: "Corra junto com a gente", href: "/comunidade-carefit", imagem: comunidade, pos: "center 40%" },
   { titulo: "Conheça o espaço", sub: "Por dentro da base, em Ribeirão Preto", href: "/espaco", imagem: espaco, pos: "center" },
-  { titulo: "Blog", sub: "Lesões, treino e recuperação sem achismo", href: "/blog", imagem: recovery, pos: "center 60%" },
+  { titulo: "Serviços", sub: "Fisioterapia, recovery, avaliação e mais", href: "/servicos", imagem: fisio, pos: "center" },
   { titulo: "CareFit Cast no YouTube", sub: "Podcast e vídeos", href: "https://www.youtube.com/@CAREFITRUNBASE", imagem: comunidade, pos: "center", externo: true },
 ];
 
