@@ -39,6 +39,13 @@ const DESTAQUES: Item[] = [
     externo: true,
   },
   {
+    titulo: "Agendar 1ª sessão",
+    sub: "Escolha o dia e o horário da sua primeira sessão",
+    href: "/agendar",
+    imagem: fisio,
+    pos: "center",
+  },
+  {
     titulo: "Yoga · terça e quinta, 6h",
     sub: "Reserve sua vaga na aula (6 vagas)",
     href: "/agendamento-yoga",
@@ -53,15 +60,16 @@ const DESTAQUES: Item[] = [
     pos: "center 35%",
   },
   {
-    titulo: "Ice Mind Experience",
-    sub: "Imersão em gelo, respiração e mente",
-    href: "/ice-mind-experience",
-    imagem: gelo,
-    pos: "center 70%",
+    titulo: "Teste de força",
+    sub: "Meça sua força e descubra o que fortalecer",
+    href: "/teste-de-forca-ribeirao-preto",
+    imagem: recovery,
+    pos: "center 40%",
   },
 ];
 
 const EXPLORAR: Item[] = [
+  { titulo: "Ice Mind Experience", sub: "Imersão em gelo, respiração e mente", href: "/ice-mind-experience", imagem: gelo, pos: "center 70%" },
   { titulo: "Planos e preços", sub: "Escolha o formato que cabe na sua rotina", href: "/planos", imagem: recovery, pos: "center 40%" },
   { titulo: "Serviços", sub: "Fisioterapia, recovery, avaliação e mais", href: "/servicos", imagem: fisio, pos: "center" },
   { titulo: "Comunidade CareFit", sub: "Corra junto com a gente", href: "/comunidade-carefit", imagem: comunidade, pos: "center 40%" },
