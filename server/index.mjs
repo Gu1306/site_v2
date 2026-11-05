@@ -33,6 +33,12 @@ const PREVIEWS = {
     imagem: '/og-fortalecimento.jpg',
     alt: 'Área de fortalecimento da CareFit Run Base',
   },
+  '/primeira-sessao': {
+    titulo: 'Agendar primeira sessão | CareFit Run Base',
+    descricao: 'Escolha o profissional, o dia e o horário da sua primeira sessão na CareFit Run Base, em Ribeirão Preto.',
+    imagem: '/og-image.jpg',
+    alt: 'CareFit Run Base',
+  },
   '/links': {
     titulo: 'CareFit Run Base | Links',
     descricao: 'Agende, reserve yoga e fortalecimento, conheça o Ice Mind e fale com a CareFit Run Base, em Ribeirão Preto.',

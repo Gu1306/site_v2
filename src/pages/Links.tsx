@@ -14,13 +14,13 @@ import fisio from "@/assets/sala-fisioterapia.jpg";
  * Tudo em estilo inline/CSS próprio para não depender do tema claro/escuro do site.
  */
 
-const WHATS = "https://api.whatsapp.com/send?phone=5516996008849";
-const MAPS =
+export const WHATS = "https://api.whatsapp.com/send?phone=5516996008849";
+export const MAPS =
   "https://maps.google.com/?q=Av.+Áurea+Aparecida+Bragheto+Machado,+241+-+City+Ribeirão,+Ribeirão+Preto+-+SP,+14021-460";
 
-const wa = (texto: string) => `${WHATS}&text=${encodeURIComponent(texto)}`;
+export const wa = (texto: string) => `${WHATS}&text=${encodeURIComponent(texto)}`;
 
-interface Item {
+export interface Item {
   titulo: string;
   sub: string;
   href: string;
@@ -41,7 +41,7 @@ const DESTAQUES: Item[] = [
   {
     titulo: "Agendar 1ª sessão",
     sub: "Escolha o dia e o horário da sua primeira sessão",
-    href: "/agendar",
+    href: "/primeira-sessao",
     imagem: fisio,
     pos: "center",
   },
@@ -78,7 +78,7 @@ const EXPLORAR: Item[] = [
   { titulo: "CareFit Cast no YouTube", sub: "Podcast e vídeos", href: "https://www.youtube.com/@CAREFITRUNBASE", imagem: comunidade, pos: "center", externo: true },
 ];
 
-const CSS = `
+export const CSS = `
 .lk{--verde:#0E3C41;--verde2:#145159;--dourado:#C9B27C;--bege:#F3ECDD;min-height:100vh;background:radial-gradient(1200px 600px at 50% -10%,#1b6670 0%,var(--verde) 55%,#082a2e 100%);color:var(--bege);font-family:Montserrat,Poppins,system-ui,sans-serif;padding:32px 16px 48px}
 .lk *{box-sizing:border-box}
 .lk-wrap{max-width:560px;margin:0 auto}
@@ -108,7 +108,7 @@ const CSS = `
 @media (prefers-reduced-motion:reduce){.lk-card{transition:none}}
 `;
 
-function Card({ item, hero }: { item: Item; hero?: boolean }) {
+export function Card({ item, hero }: { item: Item; hero?: boolean }) {
   const extra = item.externo ? { target: "_blank", rel: "noopener noreferrer" } : {};
   const zap = item.href.startsWith(WHATS);
   return (
