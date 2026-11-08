@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 import Navigation from "./components/Navigation";
+import { paginaVista } from "./lib/tracking";
 
 // A home é a porta de entrada: entra no bundle inicial para não custar
 // um round-trip extra antes da primeira pintura. Todas as outras rotas
@@ -75,6 +76,17 @@ const ScrollToTop = () => {
   return null;
 };
 
+// Cada troca de rota vira um page_view no Google tag (públicos de remarketing).
+const PageViewTracker = () => {
+  const { pathname, search } = useLocation();
+  useEffect(() => {
+    // Espera o título da página nova (useSeo) antes de registrar.
+    const t = window.setTimeout(() => paginaVista(pathname + search), 300);
+    return () => window.clearTimeout(t);
+  }, [pathname, search]);
+  return null;
+};
+
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
     <div
@@ -94,6 +106,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ScrollToTop />
+        <PageViewTracker />
         <ConditionalNavigation />
         <Suspense fallback={<PageLoader />}>
           <Routes>

@@ -48,7 +48,23 @@ export function initGoogleTag() {
   document.head.appendChild(s);
 
   window.gtag("js", new Date());
-  window.gtag("config", TAG);
+  // O site é SPA: a troca de página não recarrega. O page_view é enviado por
+  // `paginaVista()` a cada rota (inclusive a primeira), por isso desligado aqui.
+  window.gtag("config", TAG, { send_page_view: false });
+}
+
+/** Páginas internas (TV da base) não entram nos públicos de remarketing. */
+const SEM_RASTREIO = ["/painel-"];
+
+/** Registra a página vista; é o que alimenta os públicos de remarketing do Ads. */
+export function paginaVista(caminho: string) {
+  if (typeof window === "undefined" || !window.gtag) return;
+  if (SEM_RASTREIO.some((p) => caminho.startsWith(p))) return;
+  window.gtag("event", "page_view", {
+    page_path: caminho,
+    page_location: window.location.href,
+    page_title: document.title,
+  });
 }
 
 /** Guarda gclid/UTM da primeira visita da sessão (a landing pode ser trocada por outra página). */
