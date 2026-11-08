@@ -1,10 +1,84 @@
 /**
  * Conteúdo das landing pages de anúncio (rotas /lp/:slug).
  * Textos de sintoma/causa/FAQ vêm das páginas SEO existentes do site; nada aqui
- * promete cura. Preço: R$ 230 e a 2ª sessão é cortesia (confirmado no site em 12/10/2026).
+ * promete cura.
+ *
+ * Duas ofertas (Gustavo, 08/11/2026):
+ * - DOR que limita a corrida → avaliação completa com fisioterapeuta, R$ 180
+ *   (é a "Avaliação de reabilitação" do /planos; sessão de tratamento R$ 130).
+ * - RECOVERY → 1ª sessão R$ 230 e a 2ª é cortesia.
  */
 
 export type Foto = "fisio" | "recovery" | "corrida";
+
+export interface Oferta {
+  /** Destaque no topo, ex.: "Avaliação completa R$ 180". */
+  destaque: string;
+  /** Complemento do destaque, ex.: "com fisioterapeuta". */
+  complemento: string;
+  botao: string;
+  botaoCurto: string;
+  passosTitulo: string;
+  passos: { t: string; d: string }[];
+  /** Frase do bloco final. */
+  fim: string;
+  /** Perguntas que valem para todas as páginas desta oferta. */
+  faq: { q: string; a: string }[];
+}
+
+const COMO_AGENDAR = {
+  q: "Como eu agendo?",
+  a: "Escolha o fisioterapeuta e o horário no calendário, ou chame no WhatsApp. Leva poucos minutos.",
+};
+
+export const OFERTA_AVALIACAO: Oferta = {
+  destaque: "Avaliação completa R$ 180",
+  complemento: "com fisioterapeuta",
+  botao: "Agendar minha avaliação",
+  botaoCurto: "Agendar avaliação",
+  passosTitulo: "Como é a sua avaliação",
+  passos: [
+    {
+      t: "Avaliação completa",
+      d: "Com fisioterapeuta: a sua dor, desde quando ela aparece, o histórico, a carga de treino e testes do que o seu corpo sustenta hoje.",
+    },
+    { t: "O que está pesando", d: "Você entende o que pode estar por trás da dor e o que precisa mudar no treino." },
+    { t: "Proposta de tratamento", d: "Você sai com o plano do seu caso: o que fazer agora e quantas sessões fazem sentido." },
+  ],
+  fim: "Avaliação completa com fisioterapeuta: R$ 180.",
+  faq: [
+    {
+      q: "O que acontece na avaliação?",
+      a: "Um fisioterapeuta avalia o seu caso por completo, e você sai com uma proposta de tratamento e com o que ajustar no treino.",
+    },
+    {
+      q: "E depois da avaliação?",
+      a: "Se fizer sentido tratar, as sessões de fisioterapia custam R$ 130 cada. Você decide depois de ver a proposta.",
+    },
+    COMO_AGENDAR,
+  ],
+};
+
+export const OFERTA_RECOVERY: Oferta = {
+  destaque: "1ª sessão R$ 230",
+  complemento: "e a 2ª sessão é cortesia",
+  botao: "Agendar minha 1ª sessão",
+  botaoCurto: "Agendar 1ª sessão",
+  passosTitulo: "Como é a sua primeira sessão",
+  passos: [
+    { t: "Avaliação completa", d: "A gente entende como você está: treino, cansaço, histórico e o que o corpo sustenta hoje." },
+    { t: "Direcionamento claro", d: "Você sai sabendo o que ajustar em treino, força e recuperação." },
+    { t: "2ª sessão de cortesia", d: "Quem faz a primeira sessão ganha a segunda." },
+  ],
+  fim: "1ª sessão R$ 230 e a 2ª sessão é cortesia.",
+  faq: [
+    {
+      q: "O que acontece na primeira sessão?",
+      a: "Você faz uma avaliação completa e sai com um direcionamento claro do que fazer. Quem faz a primeira sessão ganha a segunda de cortesia.",
+    },
+    COMO_AGENDAR,
+  ],
+};
 
 export interface LpConfig {
   slug: string;
@@ -17,10 +91,12 @@ export interface LpConfig {
   titulo: string;
   subtitulo: string;
   foto: Foto;
+  oferta: Oferta;
   /** Bloco "Você se reconhece?" */
   reconhece: { titulo: string; itens: string[] };
   /** Bloco "Como a gente cuida" (3 a 4 itens curtos). */
   cuidado: { titulo: string; itens: { t: string; d: string }[] };
+  /** Perguntas desta página; as da oferta entram depois, automaticamente. */
   faq: { q: string; a: string }[];
   /** Mensagem inicial do WhatsApp (sem a etiqueta de origem, que é acrescentada). */
   zap: string;
@@ -28,33 +104,23 @@ export interface LpConfig {
   depoimentos?: { texto: string; autor: string }[];
 }
 
-const FAQ_COMUM = [
-  {
-    q: "O que acontece na primeira sessão?",
-    a: "Você faz uma avaliação completa do seu caso e sai com um direcionamento claro do que fazer. Quem faz a primeira sessão ganha a segunda de cortesia.",
-  },
-  {
-    q: "Como eu agendo?",
-    a: "Escolha o profissional e o horário no calendário, ou chame no WhatsApp. Leva poucos minutos.",
-  },
-];
-
 export const LPS: LpConfig[] = [
   {
     slug: "fisioterapia-ribeirao-preto",
     tag: "fisioterapia",
     seoTitulo: "Fisioterapia esportiva em Ribeirão Preto | CareFit Run Base",
-    seoDescricao: "Fisioterapia para quem corre e treina em Ribeirão Preto. 1ª sessão R$ 230 e a 2ª de cortesia. Agende online.",
+    seoDescricao: "Dor limitando a sua corrida? Avaliação completa com fisioterapeuta em Ribeirão Preto por R$ 180. Agende online.",
     selo: "Fisioterapia esportiva · Ribeirão Preto",
-    titulo: "Fisioterapia para quem corre e treina, em Ribeirão Preto",
-    subtitulo: "Avaliação completa do seu caso e um plano claro do que fazer. Escolha o dia e o horário e agende em minutos.",
+    titulo: "Dor limitando a sua corrida? Fisioterapia esportiva em Ribeirão Preto",
+    subtitulo: "Uma avaliação completa com fisioterapeuta para entender a sua dor e sair com o plano do seu caso. Escolha o dia e o horário em minutos.",
     foto: "fisio",
+    oferta: OFERTA_AVALIACAO,
     reconhece: {
       titulo: "Isso acontece com você?",
       itens: [
         "Uma dor que aparece no treino e não passa sozinha",
+        "Você já diminuiu o treino ou parou de correr por causa dela",
         "Uma lesão que sempre volta no mesmo ponto",
-        "Vontade de se cuidar antes de a dor tirar você da corrida",
       ],
     },
     cuidado: {
@@ -67,22 +133,22 @@ export const LPS: LpConfig[] = [
     },
     faq: [
       {
-        q: "Preciso estar lesionado para ir?",
-        a: "Não. A CareFit trabalha tanto com dor e reabilitação quanto com prevenção, fortalecimento e recovery.",
+        q: "E se eu não estiver com dor?",
+        a: "A avaliação é para quem está com dor. Para prevenção, fortalecimento e recovery a CareFit tem outros caminhos: chame no WhatsApp que a gente indica o melhor para você.",
       },
-      ...FAQ_COMUM,
     ],
-    zap: "Oi! Quero agendar minha primeira sessão de fisioterapia na CareFit.",
+    zap: "Oi! Estou com dor que está atrapalhando a corrida e quero agendar uma avaliação de fisioterapia na CareFit.",
   },
   {
     slug: "canelite",
     tag: "canelite",
     seoTitulo: "Canelite: tratamento em Ribeirão Preto | CareFit Run Base",
-    seoDescricao: "Dor na canela ao correr? Avaliação completa e plano individual. 1ª sessão R$ 230 e a 2ª de cortesia.",
+    seoDescricao: "Dor na canela ao correr? Avaliação completa com fisioterapeuta em Ribeirão Preto por R$ 180.",
     selo: "Canelite · Fisioterapia para corredores",
     titulo: "Dor na canela ao correr? Entenda a causa e volte a treinar",
-    subtitulo: "A canelite costuma estar ligada a carga, força e pisada. Na primeira sessão a gente avalia o seu caso e monta o plano.",
+    subtitulo: "A canelite costuma estar ligada a carga, força e pisada. Na avaliação com fisioterapeuta a gente entende o seu caso e monta o plano.",
     foto: "corrida",
+    oferta: OFERTA_AVALIACAO,
     reconhece: {
       titulo: "Você sente isso?",
       itens: [
@@ -109,19 +175,19 @@ export const LPS: LpConfig[] = [
         q: "Canelite pode virar fratura por estresse?",
         a: "Sim. Quando a sobrecarga continua sem tratamento adequado, pode evoluir para fratura por estresse da tíbia. Por isso vale avaliar cedo.",
       },
-      ...FAQ_COMUM,
     ],
-    zap: "Oi! Estou com dor na canela e quero agendar minha primeira sessão na CareFit.",
+    zap: "Oi! Estou com dor na canela e quero agendar uma avaliação de fisioterapia na CareFit.",
   },
   {
     slug: "fascite-plantar",
     tag: "fascite-plantar",
     seoTitulo: "Fascite plantar: tratamento em Ribeirão Preto | CareFit Run Base",
-    seoDescricao: "Dor no calcanhar ou na sola do pé? Avaliação completa e plano individual. 1ª sessão R$ 230 e a 2ª de cortesia.",
+    seoDescricao: "Dor no calcanhar ou na sola do pé? Avaliação completa com fisioterapeuta em Ribeirão Preto por R$ 180.",
     selo: "Fascite plantar · Fisioterapia para corredores",
     titulo: "Dor no calcanhar ao correr? Descubra a causa e volte a treinar",
-    subtitulo: "Na primeira sessão a gente avalia pé, panturrilha e carga de treino para montar o plano do seu caso.",
+    subtitulo: "Na avaliação com fisioterapeuta a gente olha pé, panturrilha e carga de treino para montar o plano do seu caso.",
     foto: "fisio",
+    oferta: OFERTA_AVALIACAO,
     reconhece: {
       titulo: "Você sente isso?",
       itens: [
@@ -148,19 +214,19 @@ export const LPS: LpConfig[] = [
         q: "Palmilha ajuda na fascite plantar?",
         a: "Pode ajudar no suporte do arco e na distribuição de carga, mas precisa ser avaliada para o seu caso.",
       },
-      ...FAQ_COMUM,
     ],
-    zap: "Oi! Estou com dor no calcanhar e quero agendar minha primeira sessão na CareFit.",
+    zap: "Oi! Estou com dor no calcanhar e quero agendar uma avaliação de fisioterapia na CareFit.",
   },
   {
     slug: "dor-no-joelho",
     tag: "dor-no-joelho",
     seoTitulo: "Dor no joelho ao correr: fisioterapia em Ribeirão Preto | CareFit Run Base",
-    seoDescricao: "Dor no joelho na corrida? Avaliação completa e plano individual. 1ª sessão R$ 230 e a 2ª de cortesia.",
+    seoDescricao: "Dor no joelho na corrida? Avaliação completa com fisioterapeuta em Ribeirão Preto por R$ 180.",
     selo: "Joelho do corredor · Fisioterapia esportiva",
     titulo: "Dor no joelho ao correr? Veja se continua, ajusta ou investiga",
-    subtitulo: "Muitas vezes é sobrecarga ou desequilíbrio muscular. A avaliação mostra o que está pesando no seu joelho e o que ajustar.",
+    subtitulo: "Muitas vezes é sobrecarga ou desequilíbrio muscular. A avaliação com fisioterapeuta mostra o que está pesando no seu joelho e o que ajustar.",
     foto: "corrida",
+    oferta: OFERTA_AVALIACAO,
     reconhece: {
       titulo: "Você sente isso?",
       itens: [
@@ -187,19 +253,19 @@ export const LPS: LpConfig[] = [
         q: "Dor no joelho na corrida é grave?",
         a: "Nem sempre. Muitas vezes vem de sobrecarga ou desequilíbrios musculares, mas deve ser avaliada para não piorar.",
       },
-      ...FAQ_COMUM,
     ],
-    zap: "Oi! Estou com dor no joelho ao correr e quero agendar minha primeira sessão na CareFit.",
+    zap: "Oi! Estou com dor no joelho ao correr e quero agendar uma avaliação de fisioterapia na CareFit.",
   },
   {
     slug: "tendinite-aquiles",
     tag: "aquiles",
     seoTitulo: "Dor no tendão de Aquiles: fisioterapia em Ribeirão Preto | CareFit Run Base",
-    seoDescricao: "Dor no tendão de Aquiles ao correr? Avaliação completa e plano individual. 1ª sessão R$ 230 e a 2ª de cortesia.",
+    seoDescricao: "Dor no tendão de Aquiles ao correr? Avaliação completa com fisioterapeuta em Ribeirão Preto por R$ 180.",
     selo: "Tendão de Aquiles · Fisioterapia para corredores",
     titulo: "Dor no tendão de Aquiles? Ajuste a carga e volte a correr com segurança",
-    subtitulo: "Na primeira sessão a gente avalia carga, força da panturrilha e mobilidade para montar o plano do seu caso.",
+    subtitulo: "Na avaliação com fisioterapeuta a gente olha carga, força da panturrilha e mobilidade para montar o plano do seu caso.",
     foto: "fisio",
+    oferta: OFERTA_AVALIACAO,
     reconhece: {
       titulo: "Você sente isso?",
       itens: [
@@ -226,9 +292,8 @@ export const LPS: LpConfig[] = [
         q: "Tendinite do Aquiles pode virar ruptura?",
         a: "Se a sobrecarga continuar sem tratamento adequado, a tendinopatia pode evoluir para ruptura parcial ou total. Vale avaliar cedo.",
       },
-      ...FAQ_COMUM,
     ],
-    zap: "Oi! Estou com dor no tendão de Aquiles e quero agendar minha primeira sessão na CareFit.",
+    zap: "Oi! Estou com dor no tendão de Aquiles e quero agendar uma avaliação de fisioterapia na CareFit.",
   },
   {
     slug: "recovery",
@@ -239,6 +304,7 @@ export const LPS: LpConfig[] = [
     titulo: "Recupere melhor depois do treino forte, do longão e da prova",
     subtitulo: "Recovery com protocolo, num espaço feito para isso. Na primeira sessão a gente avalia como você está e o que faz sentido para o seu ciclo.",
     foto: "recovery",
+    oferta: OFERTA_RECOVERY,
     reconhece: {
       titulo: "Para quem é",
       itens: [
@@ -260,7 +326,6 @@ export const LPS: LpConfig[] = [
         q: "Recovery é só para quem está lesionado?",
         a: "Não. É uma ferramenta de recuperação para quem treina, e pode ser uma porta de entrada leve para cuidar do corpo na rotina.",
       },
-      ...FAQ_COMUM,
     ],
     zap: "Oi! Quero agendar minha primeira sessão de recovery na CareFit.",
   },

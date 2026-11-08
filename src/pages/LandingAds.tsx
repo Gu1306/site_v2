@@ -36,6 +36,8 @@ export default function LandingAds() {
   };
   const aoAgendar = (onde: string) => () => track("agendar_click", { lp: lp.tag, onde });
   const aoZap = (onde: string) => () => track("whatsapp_click", { lp: lp.tag, onde });
+  const of = lp.oferta;
+  const faq = [...lp.faq, ...of.faq];
 
   return (
     <main className="lp">
@@ -49,11 +51,11 @@ export default function LandingAds() {
           <h1>{lp.titulo}</h1>
           <p className="lp-sub">{lp.subtitulo}</p>
           <p className="lp-oferta">
-            <b>1ª sessão R$ 230</b> · e a 2ª sessão é cortesia
+            <b>{of.destaque}</b> · {of.complemento}
           </p>
           <div className="lp-cta">
             <Link className="lp-btn lp-btn-pri" to={AGENDAR} onClick={aoAgendar("hero")}>
-              Agendar minha 1ª sessão
+              {of.botao}
             </Link>
             <a className="lp-btn lp-btn-zap" href={zapHref()} target="_blank" rel="noopener noreferrer" onClick={aoZap("hero")}>
               Falar no WhatsApp
@@ -84,20 +86,14 @@ export default function LandingAds() {
       </section>
 
       <section className="lp-sec">
-        <h2>Como é a sua primeira sessão</h2>
+        <h2>{of.passosTitulo}</h2>
         <ol className="lp-passos">
-          <li>
-            <b>Avaliação completa</b>
-            <span>A gente entende o seu caso: dor, histórico, carga de treino e o que o corpo sustenta hoje.</span>
-          </li>
-          <li>
-            <b>Direcionamento claro</b>
-            <span>Você sai sabendo o que ajustar em treino, força e recuperação.</span>
-          </li>
-          <li>
-            <b>2ª sessão de cortesia</b>
-            <span>Quem faz a primeira sessão ganha a segunda.</span>
-          </li>
+          {of.passos.map((p) => (
+            <li key={p.t}>
+              <b>{p.t}</b>
+              <span>{p.d}</span>
+            </li>
+          ))}
         </ol>
         <Link className="lp-btn lp-btn-pri lp-solo" to={AGENDAR} onClick={aoAgendar("passos")}>
           Escolher dia e horário
@@ -127,7 +123,7 @@ export default function LandingAds() {
 
       <section className="lp-sec lp-alt">
         <h2>Perguntas frequentes</h2>
-        {lp.faq.map((f) => (
+        {faq.map((f) => (
           <details className="lp-faq" key={f.q}>
             <summary>{f.q}</summary>
             <p>{f.a}</p>
@@ -137,9 +133,9 @@ export default function LandingAds() {
 
       <section className="lp-fim">
         <h2>Pronto para cuidar disso?</h2>
-        <p>1ª sessão R$ 230 e a 2ª sessão é cortesia.</p>
+        <p>{of.fim}</p>
         <Link className="lp-btn lp-btn-pri lp-solo" to={AGENDAR} onClick={aoAgendar("fim")}>
-          Agendar minha 1ª sessão
+          {of.botao}
         </Link>
         <a className="lp-link lp-link-claro" href={zapHref()} target="_blank" rel="noopener noreferrer" onClick={aoZap("fim")}>
           Prefere falar no WhatsApp?
@@ -156,7 +152,7 @@ export default function LandingAds() {
       {/* Barra fixa no celular: o botão acompanha a leitura inteira. */}
       <div className="lp-barra">
         <Link className="lp-btn lp-btn-pri" to={AGENDAR} onClick={aoAgendar("barra")}>
-          Agendar 1ª sessão
+          {of.botaoCurto}
         </Link>
         <a className="lp-zap-redondo" href={zapHref()} target="_blank" rel="noopener noreferrer" aria-label="Falar no WhatsApp" onClick={aoZap("barra")}>
           WhatsApp
