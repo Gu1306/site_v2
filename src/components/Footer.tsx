@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
 import CareFitLogo from "./CareFitLogo";
+import { reabrirCookies, tagAtiva } from "@/lib/tracking";
 
 const Footer = () => {
   const handleWhatsApp = () => {
@@ -199,9 +200,21 @@ const Footer = () => {
               CAREFIT <span className="text-accent">Run Base</span>
             </span>
           </div>
-          <p className="text-xs text-primary-foreground/50">
-            © {new Date().getFullYear()} CareFit Run Base. Todos os direitos reservados. Ribeirão Preto - SP
-          </p>
+          <div className="flex flex-col items-center md:items-end gap-2">
+            <p className="text-xs text-primary-foreground/50">
+              © {new Date().getFullYear()} CareFit Run Base. Todos os direitos reservados. Ribeirão Preto - SP
+            </p>
+            <p className="text-xs text-primary-foreground/60 flex gap-3">
+              <Link to="/privacidade" className="hover:text-accent transition-colors">
+                Política de privacidade
+              </Link>
+              {tagAtiva() && (
+                <button type="button" onClick={reabrirCookies} className="bg-transparent hover:text-accent transition-colors">
+                  Preferências de cookies
+                </button>
+              )}
+            </p>
+          </div>
         </div>
       </div>
     </footer>

@@ -146,7 +146,12 @@ export default function LandingAds() {
         </a>
       </section>
 
-      <footer className="lp-rodape">CareFit Run Base · {ENDERECO}</footer>
+      <footer className="lp-rodape">
+        CareFit Run Base · {ENDERECO} ·{" "}
+        <Link to="/privacidade" style={{ color: "inherit" }}>
+          Privacidade
+        </Link>
+      </footer>
 
       {/* Barra fixa no celular: o botão acompanha a leitura inteira. */}
       <div className="lp-barra">

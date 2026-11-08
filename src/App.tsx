@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 import Navigation from "./components/Navigation";
+import CookieBanner from "./components/CookieBanner";
 import { paginaVista } from "./lib/tracking";
 
 // A home é a porta de entrada: entra no bundle inicial para não custar
@@ -56,6 +57,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const PainelFortalecimento = lazy(() => import("./pages/PainelFortalecimento"));
 const PainelAvaliacaoForca = lazy(() => import("./pages/PainelAvaliacaoForca"));
 const LandingAds = lazy(() => import("./pages/LandingAds"));
+const Privacidade = lazy(() => import("./pages/Privacidade"));
 
 const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto", "/painel-fortalecimento", "/painel-avaliacao-forca", "/links", "/primeira-sessao"];
 
@@ -150,6 +152,7 @@ const App = () => (
             <Route path="/links" element={<Links />} />
             <Route path="/primeira-sessao" element={<PrimeiraSessao />} />
             <Route path="/lp/:slug" element={<LandingAds />} />
+            <Route path="/privacidade" element={<Privacidade />} />
             <Route path="/painel-fortalecimento" element={<PainelFortalecimento />} />
             <Route path="/painel-avaliacao-forca" element={<PainelAvaliacaoForca />} />
             <Route path="/blog" element={<Blog />} />
@@ -157,6 +160,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        <CookieBanner />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

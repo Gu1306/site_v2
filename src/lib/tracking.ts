@@ -27,6 +27,53 @@ declare global {
   }
 }
 
+// ---------- Consentimento de cookies (LGPD + Consent Mode do Google) ----------
+// O Google começa NEGADO. Sem "Aceitar", a tag manda só sinais sem cookie (não
+// entra em lista de remarketing). A escolha fica no navegador da pessoa.
+const CONSENT_KEY = "carefit_cookies_v1";
+export const EVENTO_ABRIR_COOKIES = "carefit:abrir-cookies";
+export type EscolhaCookies = "aceito" | "recusado";
+
+const NEGADO = {
+  ad_storage: "denied",
+  ad_user_data: "denied",
+  ad_personalization: "denied",
+  analytics_storage: "denied",
+};
+const PERMITIDO = {
+  ad_storage: "granted",
+  ad_user_data: "granted",
+  ad_personalization: "granted",
+  analytics_storage: "granted",
+};
+
+export function tagAtiva() {
+  return !!TAG;
+}
+
+export function escolhaCookies(): EscolhaCookies | null {
+  try {
+    const v = localStorage.getItem(CONSENT_KEY);
+    return v === "aceito" || v === "recusado" ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+export function registrarEscolha(escolha: EscolhaCookies) {
+  try {
+    localStorage.setItem(CONSENT_KEY, escolha);
+  } catch {
+    /* sem storage: vale só para esta visita */
+  }
+  window.gtag?.("consent", "update", escolha === "aceito" ? PERMITIDO : NEGADO);
+}
+
+/** Reabre o aviso para a pessoa mudar a escolha (rodapé e página de privacidade). */
+export function reabrirCookies() {
+  window.dispatchEvent(new Event(EVENTO_ABRIR_COOKIES));
+}
+
 const ATTR_KEY = "carefit_attr";
 const PARAMS = ["gclid", "gbraid", "wbraid", "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
 
@@ -46,6 +93,10 @@ export function initGoogleTag() {
   s.async = true;
   s.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(TAG)}`;
   document.head.appendChild(s);
+
+  // Consentimento ANTES do config: padrão negado; quem já aceitou volta liberado.
+  window.gtag("consent", "default", { ...NEGADO, wait_for_update: 500 });
+  if (escolhaCookies() === "aceito") window.gtag("consent", "update", PERMITIDO);
 
   window.gtag("js", new Date());
   // O site é SPA: a troca de página não recarrega. O page_view é enviado por
