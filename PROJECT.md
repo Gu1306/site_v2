@@ -36,12 +36,16 @@ proxima-acao: Lucas importar o primeiro Excel no painel e validar o treino aplic
 - Leitura do Excel e cálculo da avaliação: `src/lib/avaliacaoForca.ts`
 - Gravação da avaliação no CRM: `server/avaliacao-forca.mjs`
 - Protocolo e decisões técnicas do serviço: `C:\Projetos\carefit-avaliacao-forca`
+- Central de gestão (rota privada `/gestao`, cartões dos módulos): `src/pages/gestao/GestaoInicio.tsx`
+- Financeiro / fechamento semanal (rota privada `/gestao/financeiro`): `src/pages/gestao/GestaoFinanceiro.tsx`; backend `server/fechamento.mjs` (API `/api/gestao/`)
 
 ## Dados sensíveis
 
 - Credenciais de produção vivem nos serviços correspondentes e em arquivos locais ignorados pelo Git; nunca registrar valores neste arquivo.
 
 ## Decisões importantes
+
+- 2026-11-09: **Central de gestão** em `/gestao`, no desenho do portal da RF na UX Up (uma porta, um cartão por módulo), com o **Financeiro** em `/gestao/financeiro`: fechamento semanal seg→dom (fuso de Brasília) com sessões por profissional, por tipo e cruzadas, fortalecimento em turma, yoga, produção, comparação com a semana anterior, 8 semanas, bônus da Lívia no mês e a lista de pendências de baixa com link para o card. Mesmo login e cookie dos painéis; o financeiro só abre para quem está em `PORTAL_FINANCEIRO_USERS` (sem a variável, só `gustavo`; o Lucas vê os outros cartões e recebe 403 no financeiro). **Somente leitura no ClickUp.** O filtro de campo personalizado da API ignora campo de data (devolveu a lista inteira), por isso o servidor lê as três listas inteiras em páginas paralelas e recorta a data; cache de 2 min, e o botão Atualizar relê no máximo uma vez por minuto, porque o token é o mesmo das automações do n8n. Produção = valor rateado do ClickUp (não é caixa); falta na turma queima crédito e entra; cortesia = valor zero. `/gestao` está fora do rastreio do Google tag e responde com `noindex`.
 
 - 2026-09-13: o modo TV perdeu o cabeçalho inteiro. Saíram título, data, botões de horário e linha de sincronização; ficou a marca `carefit-logo-circle.png` centrada no alto e o treino ocupando o resto. O espaço liberado foi para o texto dos blocos. Como o botão de voltar morava no cabeçalho, ele virou um botão apagado no canto que acende ao passar o mouse, e `Esc` passou a sair também.
 - 2026-09-13: a medição da TV parou de usar as alturas padrão como piso. Usar `Math.max(padrão, medido)` inflava o bloco sempre que a altura real ficava abaixo do padrão chutado, e o resultado era um tri-set por página mesmo havendo espaço para dois. O padrão agora só entra quando não há elemento daquele tipo na tela para medir.

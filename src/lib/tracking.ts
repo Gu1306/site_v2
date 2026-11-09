@@ -104,8 +104,8 @@ export function initGoogleTag() {
   window.gtag("config", TAG, { send_page_view: false });
 }
 
-/** Páginas internas (TV da base) não entram nos públicos de remarketing. */
-const SEM_RASTREIO = ["/painel-"];
+/** Páginas internas (TV da base, gestão) não entram nos públicos de remarketing. */
+const SEM_RASTREIO = ["/painel-", "/gestao"];
 
 /** Registra a página vista; é o que alimenta os públicos de remarketing do Ads. */
 export function paginaVista(caminho: string) {

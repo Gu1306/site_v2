@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { clickupClient, createService, PublicError, PANEL_REVISIONS } from './fortalecimento.mjs';
 import { criarServicoAvaliacao, criarUploader } from './avaliacao-forca.mjs';
+import { criarServicoFechamento } from './fechamento.mjs';
 
 /*
  * Preview de link por rota.
@@ -83,8 +84,11 @@ function comPreview(html, preview, url) {
 
 export function passwordHash(password, salt = randomBytes(16).toString('hex')) { return `${salt}:${scryptSync(password, salt, 32).toString('hex')}`; }
 function equal(a, b) { const x = Buffer.from(a); const y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); }
-export function createServer(env = process.env, service = createService(clickupClient(env.CLICKUP_API_TOKEN)), avaliacao = criarServicoAvaliacao(clickupClient(env.CLICKUP_API_TOKEN), criarUploader(env.CLICKUP_API_TOKEN))) {
+export function createServer(env = process.env, service = createService(clickupClient(env.CLICKUP_API_TOKEN)), avaliacao = criarServicoAvaliacao(clickupClient(env.CLICKUP_API_TOKEN), criarUploader(env.CLICKUP_API_TOKEN)), fechamento = criarServicoFechamento(clickupClient(env.CLICKUP_API_TOKEN))) {
   const origin = env.PORTAL_ORIGIN || 'http://localhost:8080';
+  // Quem vê o financeiro. O login é o mesmo da equipe; o Lucas entra no fortalecimento
+  // e não enxerga produção nem bônus. Sem a variável, só o Gustavo.
+  const financeiro = new Set(String(env.PORTAL_FINANCEIRO_USERS ?? 'gustavo').split(',').map(u => u.trim().toLowerCase()).filter(Boolean));
   const secure = origin.startsWith('https://');
   const secret = env.PORTAL_SESSION_SECRET || '';
   let users = {}; try { users = JSON.parse(env.PORTAL_USERS_JSON || '{}'); } catch { /* fail closed */ }
@@ -113,7 +117,7 @@ export function createServer(env = process.env, service = createService(clickupC
         return res.end();
       }
       if (url.pathname === '/healthz') return send(200, { ok: true });
-      const prefixo = ['/api/fortalecimento/', '/api/avaliacao-forca/'].find(p => url.pathname.startsWith(p));
+      const prefixo = ['/api/fortalecimento/', '/api/avaliacao-forca/', '/api/gestao/'].find(p => url.pathname.startsWith(p));
       if (prefixo) {
         res.setHeader('X-Frame-Options', 'DENY');
         if (!ready) throw new PublicError('O painel está aguardando a configuração de acesso da equipe.', 503);
@@ -135,8 +139,13 @@ export function createServer(env = process.env, service = createService(clickupC
           res.setHeader('Set-Cookie', cookie(`${payload}.${sign(payload)}`, 12 * 3600)); return send(200, { user });
         }
         const user = session(req); if (!user) throw new PublicError('Entre com seu acesso da equipe.', 401);
-        if (route === 'session' && req.method === 'GET') return send(200, { user });
+        if (route === 'session' && req.method === 'GET') return send(200, prefixo === '/api/gestao/' ? { user, financeiro: financeiro.has(user) } : { user });
         if (route === 'logout' && req.method === 'POST') { res.setHeader('Set-Cookie', cookie('', 0)); return send(200, { ok: true }); }
+        if (prefixo === '/api/gestao/') {
+          if (!financeiro.has(user)) throw new PublicError('Seu acesso não inclui o financeiro da CareFit.', 403);
+          if (route === 'fechamento' && req.method === 'GET') return send(200, await fechamento.semana(url.searchParams.get('semana') || '', url.searchParams.get('atualizar') === '1'));
+          throw new PublicError('Página não encontrada.', 404);
+        }
         if (prefixo === '/api/avaliacao-forca/') {
           if (route === 'atletas' && req.method === 'GET') return send(200, await avaliacao.atletas());
           const historico = /^atletas\/([a-zA-Z0-9_-]+)\/historico$/.exec(route);
@@ -163,7 +172,7 @@ export function createServer(env = process.env, service = createService(clickupC
       }
       if (!['GET', 'HEAD'].includes(req.method)) return send(405, { error: 'Método não permitido.' });
       res.setHeader('X-Content-Type-Options', 'nosniff');
-      if (url.pathname === '/painel-fortalecimento' || url.pathname === '/painel-avaliacao-forca') { res.setHeader('X-Robots-Tag', 'noindex, nofollow'); res.setHeader('X-Frame-Options', 'DENY'); }
+      if (url.pathname === '/painel-fortalecimento' || url.pathname === '/painel-avaliacao-forca' || url.pathname === '/gestao' || url.pathname.startsWith('/gestao/')) { res.setHeader('X-Robots-Tag', 'noindex, nofollow'); res.setHeader('X-Frame-Options', 'DENY'); }
 
       // Rotas que circulam em mensagem devolvem o index.html com o preview
       // reescrito (ver PREVIEWS no topo). Se o dist ainda não existe, segue o

@@ -1,0 +1,170 @@
+/* Central de gestão da CareFit (/gestao). Mesmo desenho do portal da RF na UX Up,
+   nas cores da marca: verde petróleo #0E3C41, terracota #C8643D, bege #F4EDE4 e
+   dourado #D4A656. Página interna: sem menu do site, sem rastreio, noindex. */
+
+.gs-pagina, .gs-login, .gs-carregando {
+  --petroleo: #0E3C41; --terracota: #C8643D; --bege: #F4EDE4; --dourado: #D4A656;
+  --tinta: #17292b; --cinza: #5b6667; --linha: rgb(14 60 65 / 0.12);
+  --barra: #5E8F8C; /* 3,6:1 sobre branco — conferido no validador de contraste */
+  font-family: Montserrat, system-ui, sans-serif; color: var(--tinta);
+}
+.gs-pagina { min-height: 100vh; background: linear-gradient(145deg, #f7f3ee, #fbf9f6 55%, #f4ede4); padding-bottom: 48px; }
+.gs-casca { width: min(1120px, calc(100vw - 32px)); margin: 0 auto; display: grid; gap: 20px; }
+.gs-casca-estreita { max-width: 640px; padding-top: 48px; }
+
+/* ---------- topo ---------- */
+.gs-topo { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  width: min(1120px, calc(100vw - 32px)); margin: 0 auto; padding: 22px 0 18px; }
+.gs-topo-marca { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.gs-wordmark { font-family: 'Big Shoulders Display', Montserrat, sans-serif; font-size: 24px; font-weight: 800; letter-spacing: .02em; color: var(--petroleo); text-decoration: none; }
+.gs-wordmark b { color: var(--terracota); font-weight: 800; }
+.gs-contexto { display: inline-flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; letter-spacing: .14em; color: var(--cinza); }
+.gs-contexto i { width: 7px; height: 7px; border-radius: 50%; background: var(--terracota); }
+.gs-contexto a { display: inline-flex; align-items: center; gap: 4px; color: inherit; text-decoration: none; }
+.gs-contexto a:hover { color: var(--petroleo); }
+.gs-topo-acoes { display: flex; align-items: center; gap: 12px; }
+.gs-usuario { font-size: 12px; color: var(--cinza); }
+
+/* ---------- botões ---------- */
+.gs-botao { display: inline-flex; align-items: center; gap: 6px; padding: 8px 13px; border-radius: 8px; border: 1px solid var(--linha);
+  background: #fff; color: var(--petroleo); font: 600 13px/1 Montserrat, sans-serif; cursor: pointer; transition: background .15s, border-color .15s; }
+.gs-botao:hover:not(:disabled) { border-color: var(--petroleo); }
+.gs-botao:disabled { opacity: .45; cursor: not-allowed; }
+.gs-botao:focus-visible, .gs-cartao:focus-visible, .gs-coluna:focus-visible, .gs-aviso:focus-visible { outline: 3px solid var(--dourado); outline-offset: 3px; }
+.gs-botao-cheio { justify-content: center; padding: 11px; background: var(--petroleo); color: #fff; border-color: var(--petroleo); font-size: 14px; }
+.gs-botao-fantasma { background: transparent; border-color: transparent; }
+.gs-girando { animation: gs-gira 1s linear infinite; }
+@keyframes gs-gira { to { transform: rotate(360deg); } }
+
+/* ---------- login ---------- */
+.gs-login { display: grid; place-items: center; min-height: 100vh; padding: 24px; background: linear-gradient(145deg, #f7f3ee, #f4ede4); }
+.gs-login form { width: 100%; max-width: 380px; display: grid; gap: 14px; padding: 34px; background: #fff; border: 1px solid var(--linha); border-radius: 14px; box-shadow: 0 24px 60px rgb(14 60 65 / .08); }
+.gs-login h1 { font-family: 'Big Shoulders Display', Montserrat, sans-serif; font-size: 34px; font-weight: 800; color: var(--petroleo); line-height: 1; }
+.gs-login p { font-size: 13px; color: var(--cinza); margin-top: -6px; }
+.gs-login label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; }
+.gs-login input { padding: 10px 12px; border: 1px solid #d6d3cf; border-radius: 8px; font: inherit; font-weight: 400; }
+.gs-login input:focus { outline: 2px solid var(--dourado); border-color: transparent; }
+.gs-carregando { display: grid; place-items: center; min-height: 60vh; color: var(--cinza); }
+
+.gs-eyebrow { display: block; font-size: 11px; font-weight: 800; letter-spacing: .15em; color: var(--terracota); }
+.gs-erro { color: #a8322a; font-size: 14px; }
+
+/* ---------- central (cartões) ---------- */
+.gs-hero { padding: 48px 0 8px; }
+.gs-hero h1 { margin: 14px 0 16px; font-family: 'Big Shoulders Display', Montserrat, sans-serif; font-size: clamp(44px, 7vw, 78px); font-weight: 800; line-height: .95; color: var(--petroleo); letter-spacing: -.01em; }
+.gs-hero h1 em { display: block; font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-weight: 500; font-size: .62em; color: var(--terracota); letter-spacing: 0; margin-top: 6px; }
+.gs-hero p { max-width: 600px; color: var(--cinza); font-size: 15px; line-height: 1.65; }
+.gs-cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin: 28px 0 40px; }
+.gs-cartao { position: relative; display: block; min-height: 300px; padding: 32px; border-radius: 4px; background: #fff; border: 1px solid var(--linha);
+  color: var(--tinta); text-decoration: none; box-shadow: 0 24px 70px rgb(14 60 65 / .07); transition: transform .2s, box-shadow .2s; }
+.gs-cartao:hover { transform: translateY(-4px); box-shadow: 0 30px 80px rgb(14 60 65 / .13); }
+.gs-cartao-icone { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 44px; background: var(--petroleo); color: #fff; }
+.gs-cartao small { font-size: 10px; font-weight: 800; letter-spacing: .14em; color: var(--terracota); }
+.gs-cartao h2 { margin: 8px 0 10px; font-family: 'Big Shoulders Display', Montserrat, sans-serif; font-size: 36px; font-weight: 800; line-height: 1; }
+.gs-cartao p { margin: 0 0 56px; color: var(--cinza); font-size: 13px; line-height: 1.6; }
+.gs-cartao b { position: absolute; left: 32px; bottom: 28px; font-size: 11px; letter-spacing: .1em; }
+.gs-cartao b span { margin-left: 6px; color: var(--terracota); }
+.gs-cartao-destaque { background: var(--petroleo); color: #fff; border-color: var(--petroleo); }
+.gs-cartao-destaque .gs-cartao-icone { background: var(--dourado); color: var(--petroleo); }
+.gs-cartao-destaque small, .gs-cartao-destaque b span { color: var(--dourado); }
+.gs-cartao-destaque p { color: rgb(255 255 255 / .75); }
+.gs-rodape { padding: 8px 0 24px; font-size: 10px; font-weight: 700; letter-spacing: .12em; color: var(--cinza); }
+
+/* ---------- fechamento ---------- */
+.gs-cabeca { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; flex-wrap: wrap; padding-top: 18px; }
+.gs-cabeca h1 { margin: 8px 0 6px; font-family: 'Big Shoulders Display', Montserrat, sans-serif; font-size: clamp(34px, 5vw, 52px); font-weight: 800; line-height: 1; color: var(--petroleo); }
+.gs-sub { font-size: 13px; color: var(--cinza); }
+.gs-controles { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.gs-aviso { display: flex; gap: 12px; align-items: flex-start; padding: 14px 18px; border-radius: 10px; background: #fff7ec; border: 1px solid #f0d3a8;
+  border-left: 4px solid #B87A00; color: #5c3d00; font-size: 14px; line-height: 1.5; text-decoration: none; }
+.gs-aviso svg { flex-shrink: 0; margin-top: 2px; color: #B87A00; }
+.gs-carregando-bloco { padding: 40px; text-align: center; color: var(--cinza); background: #fff; border-radius: 12px; border: 1px solid var(--linha); }
+
+.gs-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.gs-kpi { display: grid; gap: 4px; align-content: start; padding: 16px 18px; background: #fff; border: 1px solid var(--linha); border-radius: 12px; }
+.gs-kpi span { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--cinza); }
+.gs-kpi strong { font-family: 'Big Shoulders Display', Montserrat, sans-serif; font-size: clamp(32px, 3vw, 40px); font-weight: 800; line-height: 1.05; color: var(--petroleo); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.gs-kpi small { font-size: 12px; color: var(--cinza); line-height: 1.4; }
+.gs-kpi-destaque { background: var(--petroleo); border-color: var(--petroleo); }
+.gs-kpi-destaque span, .gs-kpi-destaque small { color: rgb(255 255 255 / .78); }
+.gs-kpi-destaque strong { color: #fff; }
+
+.gs-duas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 20px; }
+.gs-bloco { min-width: 0; background: #fff; border: 1px solid var(--linha); border-radius: 12px; padding: 20px 22px; display: grid; gap: 12px; align-content: start; }
+.gs-bloco h2 { font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--petroleo); padding-bottom: 8px; border-bottom: 2px solid var(--dourado); }
+.gs-nota, .gs-vazio { font-size: 13px; color: var(--cinza); line-height: 1.55; }
+.gs-mudo { color: #9aa3a4; font-weight: 400; }
+.gs-link { color: var(--petroleo); font-weight: 600; }
+.gs-alerta-linha { display: flex; gap: 6px; align-items: center; font-size: 13px; color: #8a5b00; }
+
+.gs-rolagem { overflow-x: auto; }
+.gs-tabela { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.gs-tabela th, .gs-tabela td { padding: 8px 8px; text-align: left; border-bottom: 1px solid #ece8e2; white-space: nowrap; }
+/* Nome de profissional/tipo pode quebrar ("Primeira Sessão Dupla"); número nunca quebra. */
+.gs-tabela td:first-child { white-space: normal; min-width: 96px; }
+.gs-tabela th { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--cinza); background: #faf7f3; }
+.gs-tabela tfoot td { font-weight: 700; border-top: 2px solid #e2ddd5; border-bottom: 0; }
+.gs-num { text-align: right !important; }
+.gs-barra-col { width: 20%; min-width: 48px; }
+.gs-barra { display: block; height: 12px; min-width: 3px; background: var(--barra); border-radius: 0 4px 4px 0; }
+.gs-matriz td:first-child, .gs-dias td:first-child { font-weight: 600; }
+
+.gs-numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 0; }
+.gs-numeros div { padding: 10px 12px; background: var(--bege); border-radius: 8px; }
+.gs-numeros dt { font-size: 11px; color: var(--cinza); }
+.gs-numeros dd { margin: 2px 0 0; font-family: 'Big Shoulders Display', Montserrat, sans-serif; font-size: 28px; font-weight: 800; color: var(--petroleo); font-variant-numeric: tabular-nums; }
+
+/* coluna = semana; a escolhida em petróleo, as outras no tom de apoio */
+.gs-grafico { position: relative; display: grid; grid-template-columns: 34px 1fr; gap: 8px; padding-top: 18px; }
+.gs-grafico-guia { position: relative; height: 160px; border-right: 1px solid #e2ddd5; }
+.gs-grafico-guia span { position: absolute; top: -7px; right: 6px; font-size: 11px; color: var(--cinza); }
+.gs-colunas { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; border-top: 1px solid #eee9e2; }
+.gs-coluna { position: relative; display: grid; justify-items: center; gap: 6px; outline: none; cursor: default; }
+.gs-coluna-area { position: relative; display: flex; align-items: flex-end; justify-content: center; width: 100%; height: 160px; border-bottom: 1px solid #cfc8bd; }
+.gs-coluna-barra { display: block; width: min(24px, 70%); background: var(--barra); border-radius: 4px 4px 0 0; min-height: 2px; transition: opacity .15s; }
+.gs-coluna-ativa .gs-coluna-barra { background: var(--petroleo); }
+.gs-coluna-valor { position: absolute; margin-bottom: 4px; font-size: 12px; font-weight: 700; color: var(--tinta); }
+.gs-coluna-rotulo { font-size: 11px; color: var(--cinza); }
+.gs-coluna-ativa .gs-coluna-rotulo { color: var(--tinta); font-weight: 700; }
+.gs-colunas:hover .gs-coluna-barra { opacity: .55; }
+.gs-colunas .gs-coluna:hover .gs-coluna-barra, .gs-coluna:focus .gs-coluna-barra { opacity: 1; }
+/* O balão abre ao lado da coluna, para não cobrir a barra que se está lendo. */
+.gs-dica { position: absolute; top: 0; left: calc(50% + 18px); z-index: 3; display: none; min-width: 170px; padding: 10px 12px;
+  background: #fff; border: 1px solid #ddd6cc; border-radius: 8px; box-shadow: 0 10px 30px rgb(14 60 65 / .14); font-size: 12px; pointer-events: none; }
+.gs-coluna:hover .gs-dica, .gs-coluna:focus .gs-dica { display: grid; gap: 3px; }
+.gs-dica strong { color: var(--petroleo); margin-bottom: 2px; }
+.gs-dica span { display: flex; justify-content: space-between; gap: 14px; color: var(--cinza); }
+.gs-dica b { color: var(--tinta); font-variant-numeric: tabular-nums; }
+.gs-coluna:nth-child(n+5) .gs-dica { left: auto; right: calc(50% + 18px); }
+.gs-detalhes summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--petroleo); }
+.gs-detalhes[open] summary { margin-bottom: 10px; }
+
+.gs-pendencias { display: grid; gap: 6px; }
+.gs-pendencias + .gs-pendencias { margin-top: 8px; }
+.gs-pendencias h3 { font-size: 13px; font-weight: 700; color: var(--tinta); }
+.gs-pendencias h3 span { margin-left: 6px; padding: 1px 8px; border-radius: 99px; background: #fff1dc; color: #8a5b00; font-size: 12px; }
+.gs-pendencias ul { list-style: none; margin: 0; padding: 0; display: grid; }
+.gs-pendencias li { display: grid; grid-template-columns: 84px 1fr auto auto; gap: 12px; align-items: center; padding: 8px 4px; border-bottom: 1px solid #f0ece6; font-size: 13.5px; }
+.gs-pend-data { color: var(--cinza); font-variant-numeric: tabular-nums; }
+.gs-pend-nome em { font-style: normal; color: var(--cinza); font-size: 12.5px; }
+.gs-pend-status { font-size: 12px; color: #8a5b00; }
+.gs-pend-link { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 600; color: var(--petroleo); }
+.gs-rodape-nota { font-size: 12px; color: var(--cinza); line-height: 1.6; max-width: 900px; }
+
+@media (max-width: 640px) {
+  .gs-cabeca { align-items: flex-start; }
+  .gs-pendencias li { grid-template-columns: 1fr auto; }
+  .gs-pend-data, .gs-pend-status { font-size: 12px; }
+  .gs-kpi strong { font-size: 34px; }
+  .gs-usuario { display: none; }
+}
+
+@media print {
+  .gs-sem-impressao, .gs-aviso, .gs-detalhes, .gs-pend-link { display: none !important; }
+  .gs-pagina { background: #fff; padding: 0; }
+  .gs-casca { width: auto; gap: 12px; }
+  .gs-bloco, .gs-kpi { break-inside: avoid; box-shadow: none; }
+  .gs-kpi-destaque, .gs-coluna-barra, .gs-barra, .gs-numeros div, .gs-tabela th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @page { size: A4; margin: 12mm; }
+}

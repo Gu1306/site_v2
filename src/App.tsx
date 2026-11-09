@@ -56,6 +56,8 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PainelFortalecimento = lazy(() => import("./pages/PainelFortalecimento"));
 const PainelAvaliacaoForca = lazy(() => import("./pages/PainelAvaliacaoForca"));
+const GestaoInicio = lazy(() => import("./pages/gestao/GestaoInicio"));
+const GestaoFinanceiro = lazy(() => import("./pages/gestao/GestaoFinanceiro"));
 const LandingAds = lazy(() => import("./pages/LandingAds"));
 const Privacidade = lazy(() => import("./pages/Privacidade"));
 
@@ -64,7 +66,8 @@ const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto", "/pain
 const ConditionalNavigation = () => {
   const { pathname } = useLocation();
   // /lp/* são landing pages de anúncio: sem menu, para ninguém sair do funil.
-  if (HIDE_NAV_ON.includes(pathname) || pathname.startsWith("/lp/")) return null;
+  // /gestao/* é a central interna da equipe: também sem o menu do site.
+  if (HIDE_NAV_ON.includes(pathname) || pathname.startsWith("/lp/") || pathname === "/gestao" || pathname.startsWith("/gestao/")) return null;
   return <Navigation />;
 };
 
@@ -155,6 +158,8 @@ const App = () => (
             <Route path="/privacidade" element={<Privacidade />} />
             <Route path="/painel-fortalecimento" element={<PainelFortalecimento />} />
             <Route path="/painel-avaliacao-forca" element={<PainelAvaliacaoForca />} />
+            <Route path="/gestao" element={<GestaoInicio />} />
+            <Route path="/gestao/financeiro" element={<GestaoFinanceiro />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="*" element={<NotFound />} />
