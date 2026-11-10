@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CAMPOS, LISTAS, montarFechamento, opcao, reduzirAula, reduzirSessao, segundaDe, criarServicoFechamento } from './fechamento.mjs';
+import { CAMPOS, LISTAS, montarCampanha, montarFechamento, opcao, reduzirAula, reduzirSessao, segundaDe, criarServicoFechamento } from './fechamento.mjs';
 import { createServer, passwordHash } from './index.mjs';
 
 // Data como o ClickUp grava: meia-noite ou 04h de Brasília.
@@ -127,9 +127,36 @@ test('serviço lê as três listas em páginas, guarda em cache e recusa semana 
   await assert.rejects(servico.semana('ontem'), /Semana inválida/);
 });
 
+test('campanha: quem entrou pela avaliação ou pela 1ª sessão dupla e continuou', () => {
+  const s = (atleta, tipo, data, valor, status = 'realizada') => ({ id: atleta + tipo + data, url: 'https://app.clickup.com/t/' + atleta, atleta, status, data, profissional: 'X', tipo, valor });
+  const sessoes = [
+    s('Ana', 'Avaliação', '2026-09-01', 180), s('Ana', 'Reabilitação', '2026-09-08', 130), s('Ana', 'Reabilitação', null, 130, 'aguardando'), // plano vendido, sem data: conta
+    s('Bia', 'Avaliação', '2026-09-10', 180), // não continuou
+    s('Fê', 'Avaliação', '2026-09-15', 180), s('Fê', 'Mensal', '2026-09-20', 200, 'cancelada'), // cancelada não conta
+    s('Caio', 'Primeira Sessão Dupla', '2026-08-01', 115), s('Caio', 'Primeira Sessão Dupla', '2026-08-08', 115), s('Caio', 'Mensal', '2026-08-20', 210),
+    s('Caio', 'Semestral', null, 190000, 'aguardando'), // erro de digitação: fora da receita e listado
+    s('Dani', 'Primeira Sessão Dupla', '2026-10-25', 115), // entrou há menos de 30 dias: ainda decidindo
+    s('Edu', 'Semestral', '2026-09-01', 190), s('Edu', 'Avaliação', '2026-09-08', 180), // já era atleta: não é coorte de entrada
+    s('Gil', 'Avaliação', '2026-11-03', 180), // novo nesta semana
+  ];
+  const c = montarCampanha({ sessoes, fortalecimento: [], yoga: [] }, '2026-11-09');
+  assert.deepEqual(c.janela, { de: '2025-11-09', ate: '2026-10-10' });
+  assert.deepEqual([c.entradas.fisio.atletas, c.entradas.fisio.continuaram], [3, 1]);
+  assert.equal(c.entradas.fisio.receitaMediana, 260);
+  assert.ok(Math.abs(c.entradas.fisio.taxa - 1 / 3) < 1e-9);
+  assert.deepEqual([c.entradas.recovery.atletas, c.entradas.recovery.continuaram, c.entradas.recovery.receitaMediana], [1, 1, 210]);
+  assert.equal(c.foraDoNormal.quantidade, 1);
+  assert.equal(c.foraDoNormal.exemplos[0].valor, 190000);
+  assert.equal(c.novosPorSemana.length, 8);
+  assert.equal(c.novosPorSemana.at(-1).segunda, '2026-11-09');
+  assert.equal(c.novosPorSemana.at(-1).encerrada, false);
+  assert.deepEqual(c.novosPorSemana.find(w => w.segunda === '2026-10-19'), { segunda: '2026-10-19', novos: 1, fisio: 0, recovery: 1, encerrada: true });
+  assert.equal(c.novosPorSemana.find(w => w.segunda === '2026-11-02').fisio, 1);
+});
+
 test('o financeiro exige login e só abre para quem está na lista do financeiro', async () => {
   const env = { PORTAL_ORIGIN: 'https://carefit.example', PORTAL_SESSION_SECRET: 'b'.repeat(64), PORTAL_USERS_JSON: JSON.stringify({ gustavo: passwordHash('senha-g'), lucas: passwordHash('senha-l') }), CLICKUP_API_TOKEN: 'fake-test-token' };
-  const fechamento = { semana: async (s, forcar) => ({ pedido: s, forcar }) };
+  const fechamento = { semana: async (s, forcar) => ({ pedido: s, forcar }), campanha: async forcar => ({ campanha: true, forcar }) };
   const server = createServer(env, {}, {}, fechamento); await new Promise(r => server.listen(0, '127.0.0.1', r));
   const base = `http://127.0.0.1:${server.address().port}/api/gestao/`;
   try {
@@ -139,11 +166,13 @@ test('o financeiro exige login e só abre para quem está na lista do financeiro
     assert.deepEqual(await (await fetch(base + 'session', { headers: { Cookie: lucas } })).json(), { user: 'lucas', financeiro: false });
     const negado = await fetch(base + 'fechamento', { headers: { Cookie: lucas } });
     assert.equal(negado.status, 403);
+    assert.equal((await fetch(base + 'campanha', { headers: { Cookie: lucas } })).status, 403, 'a calculadora mostra receita: só financeiro');
     const gustavo = await entrar('gustavo', 'senha-g');
     assert.deepEqual(await (await fetch(base + 'session', { headers: { Cookie: gustavo } })).json(), { user: 'gustavo', financeiro: true });
     const ok = await fetch(base + 'fechamento?semana=2026-11-02&atualizar=1', { headers: { Cookie: gustavo } });
     assert.equal(ok.status, 200);
     assert.deepEqual(await ok.json(), { pedido: '2026-11-02', forcar: true });
+    assert.deepEqual(await (await fetch(base + 'campanha', { headers: { Cookie: gustavo } })).json(), { campanha: true, forcar: false });
     assert.equal((await fetch(base + 'outra-coisa', { headers: { Cookie: gustavo } })).status, 404);
     // O mesmo cookie vale para os painéis antigos: um login só para a equipe.
     assert.equal((await fetch(`http://127.0.0.1:${server.address().port}/api/fortalecimento/session`, { headers: { Cookie: gustavo } })).status, 200);

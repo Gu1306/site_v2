@@ -144,6 +144,7 @@ export function createServer(env = process.env, service = createService(clickupC
         if (prefixo === '/api/gestao/') {
           if (!financeiro.has(user)) throw new PublicError('Seu acesso não inclui o financeiro da CareFit.', 403);
           if (route === 'fechamento' && req.method === 'GET') return send(200, await fechamento.semana(url.searchParams.get('semana') || '', url.searchParams.get('atualizar') === '1'));
+          if (route === 'campanha' && req.method === 'GET') return send(200, await fechamento.campanha(url.searchParams.get('atualizar') === '1'));
           throw new PublicError('Página não encontrada.', 404);
         }
         if (prefixo === '/api/avaliacao-forca/') {

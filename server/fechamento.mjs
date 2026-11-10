@@ -189,6 +189,69 @@ export function montarFechamento(dados, segunda, hoje, atualizadoEm = null) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Calculadora de campanha (/gestao/campanha). As duas portas de entrada e o que
+// aconteceu depois com quem passou por elas: a taxa de quem continua e a receita
+// que essa pessoa deixou deixam de ser palpite e passam a vir das sessões.
+export const ENTRADAS = { fisio: 'Avaliação', recovery: 'Primeira Sessão Dupla' };
+const TIPOS_ENTRADA = new Set(Object.values(ENTRADAS));
+// Nenhuma sessão custa isso. Em 09/11/2026 havia 12 cards de Semestral com
+// 190000 (R$ 1.900,00 digitado sem vírgula?): fora da conta e listados na página.
+export const VALOR_MAXIMO_SESSAO = 1000;
+const DECISAO_DIAS = 30; // quem entrou há menos de 30 dias ainda está decidindo
+const JANELA_DIAS = 365;
+const SEMANAS_NOVOS = 8;
+
+const mediana = ordenados => {
+  if (!ordenados.length) return null;
+  const meio = Math.floor(ordenados.length / 2);
+  return ordenados.length % 2 ? ordenados[meio] : (ordenados[meio - 1] + ordenados[meio]) / 2;
+};
+
+/** Função pura: quem entrou pela avaliação ou pela 1ª sessão dupla e continuou. */
+export function montarCampanha(dados, hoje, atualizadoEm = null) {
+  const vivas = dados.sessoes.filter(s => s.status !== 'cancelada');
+  const porAtleta = new Map();
+  for (const s of vivas) { const lista = porAtleta.get(s.atleta) || []; lista.push(s); porAtleta.set(s.atleta, lista); }
+
+  const de = somarDias(hoje, -JANELA_DIAS); const ate = somarDias(hoje, -DECISAO_DIAS);
+  const coortes = { fisio: [], recovery: [] };
+  const estreias = []; // { data, porta } da 1ª sessão realizada de cada atleta
+  for (const lista of porAtleta.values()) {
+    const realizadas = lista.filter(s => s.status === 'realizada' && s.data).sort((a, b) => a.data.localeCompare(b.data));
+    if (!realizadas.length) continue;
+    const primeira = realizadas[0];
+    const porta = Object.keys(ENTRADAS).find(k => ENTRADAS[k] === primeira.tipo) || null;
+    estreias.push({ data: primeira.data, porta });
+    if (!porta || primeira.data < de || primeira.data > ate) continue;
+    // Continuou = tem sessão de outro tipo, paga, depois da entrada (inclusive plano já
+    // vendido e ainda sem data). A 2ª sessão da dupla é a própria entrada: não conta.
+    const depois = lista.filter(s => !TIPOS_ENTRADA.has(s.tipo) && s.valor > 0 && s.valor <= VALOR_MAXIMO_SESSAO && (!s.data || s.data >= primeira.data));
+    coortes[porta].push({ continuou: depois.length > 0, receita: depois.reduce((t, s) => t + s.valor, 0) });
+  }
+  const resumo = (lista, tipo) => {
+    const ficaram = lista.filter(x => x.continuou);
+    const receita = mediana(ficaram.map(x => x.receita).sort((a, b) => a - b));
+    return { tipo, atletas: lista.length, continuaram: ficaram.length, taxa: lista.length ? ficaram.length / lista.length : null, receitaMediana: receita === null ? null : centavos(receita) };
+  };
+
+  const ultima = segundaDe(hoje);
+  const novosPorSemana = Array.from({ length: SEMANAS_NOVOS }, (_, i) => {
+    const segunda = somarDias(ultima, -7 * (SEMANAS_NOVOS - 1 - i)); const fim = somarDias(segunda, 6);
+    const daSemana = estreias.filter(e => e.data >= segunda && e.data <= fim);
+    return { segunda, novos: daSemana.length, fisio: daSemana.filter(e => e.porta === 'fisio').length, recovery: daSemana.filter(e => e.porta === 'recovery').length, encerrada: fim < hoje };
+  });
+
+  const fora = vivas.filter(s => s.valor > VALOR_MAXIMO_SESSAO);
+  return {
+    atualizadoEm,
+    janela: { de, ate },
+    entradas: { fisio: resumo(coortes.fisio, ENTRADAS.fisio), recovery: resumo(coortes.recovery, ENTRADAS.recovery) },
+    novosPorSemana,
+    foraDoNormal: { quantidade: fora.length, exemplos: fora.slice(0, 3).map(s => ({ valor: s.valor, tipo: s.tipo, url: s.url })) },
+  };
+}
+
 async function lerLista(api, lista) {
   const tarefas = [];
   // Quatro páginas por vez: 12 páginas de sessões saem em ~3 s, contra ~11 s em sequência.
@@ -221,6 +284,11 @@ export function criarServicoFechamento(api, agora = () => Date.now()) {
       if (segunda > segundaDe(hoje) || segunda < PRIMEIRA_SEMANA) throw new PublicError('Escolha uma semana entre 2024 e a semana atual.');
       const d = await dados(forcar);
       return montarFechamento(d, segunda, hoje, new Date(d.lidoEm).toISOString());
+    },
+    // Mesmo cache do fechamento: abrir a calculadora não gasta a API do ClickUp.
+    async campanha(forcar = false) {
+      const d = await dados(forcar);
+      return montarCampanha(d, dayOf(agora()), new Date(d.lidoEm).toISOString());
     },
   };
 }
