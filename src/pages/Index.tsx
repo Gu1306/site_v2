@@ -11,17 +11,18 @@ const caminhos = [
   { title: "Voltar a correr", text: "Uma dor ou lesão mudou seus planos? Comece por entender o que seu corpo precisa para retomar a corrida.", link: "/fisioterapia-para-corredores-ribeirao-preto", label: "Conheça a fisioterapia" },
   { title: "Construir uma base forte", text: "Prepare seu corpo para a rotina de treinos, com fortalecimento específico e acompanhamento de perto.", link: "/fortalecimento-em-turma", label: "Conheça o fortalecimento" },
   { title: "Cuidar da recuperação", text: "Dê espaço à recuperação entre treinos e provas, com um cuidado orientado para o seu momento.", link: "/recovery-corredores-ribeirao-preto", label: "Conheça o recovery" },
+  { title: "Yoga para corredores", text: "Um momento para trabalhar mobilidade, respiração e consciência corporal, complementando sua rotina de corrida.", link: "/agendamento-yoga", label: "Reserve sua aula de yoga" },
 ];
 
 export default function Index() {
-  useSeo({ titulo: "CareFit Run Base | Cuidado para seguir correndo", descricao: "Evolua na corrida com cuidado e consistência. Fisioterapia, fortalecimento e recovery para corredores em Ribeirão Preto. Conheça sua primeira sessão.", caminho: "/" });
+  useSeo({ titulo: "CareFit Run Base | Cuidado para seguir correndo", descricao: "Evolua na corrida com cuidado e consistência. Fisioterapia, fortalecimento, recovery e yoga para corredores em Ribeirão Preto. Conheça sua primeira sessão.", caminho: "/" });
   return <>
     <main className="carefit-home">
       <section className="home-hero home-wrap">
         <div className="home-hero-copy">
           <p className="home-eyebrow">Cuidado para corredores · Ribeirão Preto</p>
           <h1>Mais cuidado hoje.<br /><span>Mais corrida<br />na sua vida.</span></h1>
-          <p className="home-lead">Evolua com consistência e confiança no seu corpo. Fisioterapia, fortalecimento e recovery conectados ao que você quer viver na corrida.</p>
+          <p className="home-lead">Evolua com consistência e confiança no seu corpo. Fisioterapia, fortalecimento, recovery e yoga conectados ao que você quer viver na corrida.</p>
           <Link className="home-button" to="/conheca-a-carefit">Conheça sua primeira sessão <ArrowRight size={18} aria-hidden="true" /></Link>
           <a className="home-text-link home-help" href={whatsapp} target="_blank" rel="noopener noreferrer">Prefere conversar? Fale com a equipe <ArrowUpRight size={15} aria-hidden="true" /></a>
         </div>
