@@ -74,7 +74,7 @@ export const OFERTA_RECOVERY: Oferta = {
   complemento: "80 min + retorno de 1h incluído",
   botao: "Agendar minha 1ª sessão",
   botaoCurto: "Agendar 1ª sessão",
-  passosTitulo: "Como é a sua primeira sessão",
+  passosTitulo: "Como funciona a Sessão Dupla",
   passos: [
     { t: "Avaliação completa", d: "A gente entende como você está: treino, cansaço, histórico e o que o corpo sustenta hoje." },
     { t: "Direcionamento claro", d: "Você sai sabendo o que ajustar em treino, força e recuperação." },

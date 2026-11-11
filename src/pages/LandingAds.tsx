@@ -77,24 +77,28 @@ export default function LandingAds() {
         </ul>
       </section>
 
-      <section className="lp-sec lp-resultados">
-        <p className="lp-eyebrow">Clareza para decidir</p>
-        <h2>{of.servico === "reabilitacao" ? "Ao final da avaliação, você terá…" : "O que está incluído nos dois encontros"}</h2>
-        <ul className="lp-lista">{of.resultados.map((item) => <li key={item}>{item}</li>)}</ul>
-        {of.servico === "reabilitacao" && <p className="lp-contexto">A avaliação custa R$ 180. Se houver indicação de tratamento, cada sessão de fisioterapia custa R$ 130. Você decide depois de conhecer a proposta.</p>}
-      </section>
+      {!lpFechamento && (
+        <>
+          <section className="lp-sec lp-resultados">
+            <p className="lp-eyebrow">Clareza para decidir</p>
+            <h2>{of.servico === "reabilitacao" ? "Ao final da avaliação, você terá…" : "O que está incluído nos dois encontros"}</h2>
+            <ul className="lp-lista">{of.resultados.map((item) => <li key={item}>{item}</li>)}</ul>
+            {of.servico === "reabilitacao" && <p className="lp-contexto">A avaliação custa R$ 180. Se houver indicação de tratamento, cada sessão de fisioterapia custa R$ 130. Você decide depois de conhecer a proposta.</p>}
+          </section>
 
-      <section className="lp-sec lp-alt">
-        <h2>{lp.cuidado.titulo}</h2>
-        <div className="lp-grade">
-          {lp.cuidado.itens.map((i) => (
-            <div className="lp-card" key={i.t}>
-              <b>{i.t}</b>
-              <span>{i.d}</span>
+          <section className="lp-sec lp-alt">
+            <h2>{lp.cuidado.titulo}</h2>
+            <div className="lp-grade">
+              {lp.cuidado.itens.map((i) => (
+                <div className="lp-card" key={i.t}>
+                  <b>{i.t}</b>
+                  <span>{i.d}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
+        </>
+      )}
 
       <section className="lp-sec">
         <h2>{of.passosTitulo}</h2>
@@ -106,6 +110,9 @@ export default function LandingAds() {
             </li>
           ))}
         </ol>
+        {lpFechamento && of.servico === "reabilitacao" && (
+          <p className="lp-contexto lp-preco-info">A avaliação custa R$ 180. Se houver indicação, cada sessão de tratamento custa R$ 130. Você decide depois de conhecer a proposta.</p>
+        )}
         <Link className="lp-btn lp-btn-pri lp-solo" to={AGENDAR} onClick={aoAgendar("passos")}>
           Escolher dia e horário
         </Link>
