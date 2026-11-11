@@ -30,7 +30,7 @@ const ICON_PATHS: Record<string, string[]> = {
   arrowDown: ["M12 5v14", "M19 12l-7 7-7-7"],
 };
 
-interface IconProps extends Omit<SVGProps<SVGSVGElement>, "name"> {
+interface IconProps extends Omit<SVGProps<SVGSVGElement>, "name" | "stroke"> {
   name: string;
   size?: number;
   stroke?: number;

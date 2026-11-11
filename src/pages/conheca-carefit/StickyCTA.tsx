@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
-import Icon from "./Icon";
+import BookingCTA from "./BookingCTA";
 
-interface Props {
-  wappUrl: string;
-}
-
-export default function StickyCTA({ wappUrl }: Props) {
+export default function StickyCTA() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -28,26 +24,10 @@ export default function StickyCTA({ wappUrl }: Props) {
           <div className="sticky-bar__price">R$230</div>
           <div className="sticky-bar__label">Primeira Sessão Dupla</div>
         </div>
-        <a
-          className="btn btn--accent sticky-bar__cta"
-          href={wappUrl}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <Icon name="whatsapp" size={14} />
-          Agendar
-        </a>
+        <BookingCTA className="btn btn--accent sticky-bar__cta" onde="barra" curto />
       </div>
 
-      <a
-        className="wapp-fab"
-        href={wappUrl}
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Falar com a CareFit pelo WhatsApp"
-      >
-        <Icon name="whatsapp" size={28} />
-      </a>
+
     </>
   );
 }

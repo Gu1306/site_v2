@@ -1,4 +1,5 @@
 import Icon from "./Icon";
+import BookingCTA from "./BookingCTA";
 import { useCountUp } from "./hooks";
 
 interface Props {
@@ -21,37 +22,28 @@ export default function Hero({ wappUrl, onScrollToPricing }: Props) {
       <div className="container hero__inner hero__inner--video">
         <div className="hero__copy">
           <div className="hero__eyebrow">
-            Mensagem do fundador · 60 segundos
+            Primeira Sessão Dupla · Ribeirão Preto
           </div>
 
           <h1 className="hero__h1">
-            Você não compra <em>uma sessão</em>.<br />
-            Você entra em <em>um método</em>.
+            Entenda o que seu corpo precisa para <em>seguir correndo</em>.
           </h1>
 
           <p className="hero__lede">
-            Antes de marcar, assista 60 segundos do convite do Gustavo.
-            Se fizer sentido, clica no WhatsApp e a gente conversa.
+            Dois encontros para avaliar sua história, realizar um cuidado personalizado
+            e orientar os próximos passos da sua corrida.
           </p>
 
           <div className="hero__price-chip">
-            <span className="hero__price-chip-label">Porta de entrada</span>
+            <span className="hero__price-chip-label">Duas sessões incluídas</span>
             <span className="hero__price-chip-value">
               <span className="hero__price-chip-prefix">R$</span>230
             </span>
-            <span className="hero__price-chip-sub">1:30 + 1h · duas sessões</span>
+            <span className="hero__price-chip-sub">80 min + retorno de 1h em até 15 dias</span>
           </div>
 
           <div className="hero__ctas">
-            <a
-              className="btn btn-xl btn--accent btn-block"
-              href={wappUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Icon name="whatsapp" size={20} />
-              Quero agendar pelo WhatsApp
-            </a>
+            <BookingCTA className="btn btn-xl btn--accent btn-block" onde="hero" />
             <button
               className="btn btn-xl btn--ghost-light btn-block"
               onClick={onScrollToPricing}
@@ -60,6 +52,8 @@ export default function Hero({ wappUrl, onScrollToPricing }: Props) {
               <Icon name="arrowDown" size={16} />
             </button>
           </div>
+
+          <a className="hero__help" href={wappUrl} target="_blank" rel="noopener noreferrer">Prefere conversar? Fale com a equipe no WhatsApp</a>
 
           <div className="hero__stats">
             <div className="hero__stat" ref={refRunners}>
@@ -92,7 +86,7 @@ export default function Hero({ wappUrl, onScrollToPricing }: Props) {
               <span className="live-dot"></span>
               Gustavo · Fundador
             </span>
-            <span className="hero__video-tag">▶ Aperta play</span>
+            <span className="hero__video-tag">Convite · 60 segundos</span>
           </div>
         </aside>
       </div>

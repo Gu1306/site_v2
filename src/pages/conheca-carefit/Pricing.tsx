@@ -1,9 +1,10 @@
 import { RefObject } from "react";
 import Icon from "./Icon";
+import BookingCTA from "./BookingCTA";
 
 const INCLUDES = [
   {
-    title: "Sessão 1 de 1:30 ",
+    title: "Sessão 1 de 80 minutos ",
     desc: "com avaliação + protocolo personalizado.",
   },
   {
@@ -11,7 +12,7 @@ const INCLUDES = [
     desc: "incluída no investimento. Você não paga de novo.",
   },
   {
-    title: "Desenho da primeira jornada ",
+    title: "Orientação dos próximos passos ",
     desc: "se fizer sentido pro seu caso. Sem amarração.",
   },
 ];
@@ -41,8 +42,8 @@ export default function Pricing({ wappUrl, innerRef }: Props) {
                 maxWidth: 460,
               }}
             >
-              Uma porta com método. Você não paga uma sessão — você entra num
-              ecossistema que olha pro seu corpo como um todo.
+              Tempo para entender sua história, cuidar de você e acompanhar a resposta
+              do seu corpo no retorno. Os dois encontros estão incluídos no valor.
             </p>
 
             <ul className="pricing-card__includes">
@@ -76,15 +77,8 @@ export default function Pricing({ wappUrl, innerRef }: Props) {
               <br />É evoluir com critério.
             </div>
 
-            <a
-              className="btn btn--accent btn-xl btn-block"
-              href={wappUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Icon name="whatsapp" size={18} />
-              Quero agendar pelo WhatsApp
-            </a>
+            <BookingCTA className="btn btn--accent btn-xl btn-block" onde="preco" />
+            <a className="hero__help" href={wappUrl} target="_blank" rel="noopener noreferrer">Tirar dúvidas pelo WhatsApp</a>
             <div
               style={{
                 marginTop: 14,
@@ -97,7 +91,7 @@ export default function Pricing({ wappUrl, innerRef }: Props) {
                 flexWrap: "wrap",
               }}
             >
-              <span>✓ Resposta em até 1h útil</span>
+              <span>✓ Retorno incluído</span>
               <span>✓ Avaliação presencial</span>
               <span>✓ Ribeirão Preto · SP</span>
             </div>

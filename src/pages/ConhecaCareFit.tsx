@@ -1,20 +1,19 @@
 import { useEffect, useRef } from "react";
+import { useSeo } from "@/hooks/useSeo";
+import { whatsappOferta } from "@/lib/ofertasCarefit";
+import { track } from "@/lib/tracking";
+import Practical from "./conheca-carefit/Practical";
 import Nav from "./conheca-carefit/Nav";
 import Hero from "./conheca-carefit/Hero";
 import Method from "./conheca-carefit/Method";
 import DualSession from "./conheca-carefit/DualSession";
-import Feelings from "./conheca-carefit/Feelings";
 import Audience from "./conheca-carefit/Audience";
 import Testimonial from "./conheca-carefit/Testimonial";
 import Pricing from "./conheca-carefit/Pricing";
 import Footer from "./conheca-carefit/Footer";
 import StickyCTA from "./conheca-carefit/StickyCTA";
 
-const WAPP_URL =
-  "https://api.whatsapp.com/send?phone=5516996008849&text=" +
-  encodeURIComponent(
-    "Olá! Quero saber mais sobre a Primeira Sessão Dupla CareFit (R$230)."
-  );
+const WAPP_URL = whatsappOferta("dupla");
 
 const CSS_FILES = [
   "/conheca-carefit/colors_and_type.css",
@@ -23,23 +22,9 @@ const CSS_FILES = [
 
 const ConhecaCareFit = () => {
   const pricingRef = useRef<HTMLElement>(null);
+  useSeo({ titulo: "Primeira Sessão Dupla — CareFit Run Base | Ribeirão Preto", descricao: "Dois encontros por R$ 230: avaliação e cuidado personalizado em 80 minutos, com retorno de 1h incluído em até 15 dias. Agende na CareFit.", caminho: "/conheca-a-carefit" });
 
   useEffect(() => {
-    document.title =
-      "Primeira Sessão Dupla — CareFit Run Base | Ribeirão Preto";
-    const meta =
-      document.querySelector('meta[name="description"]') ||
-      (() => {
-        const m = document.createElement("meta");
-        m.setAttribute("name", "description");
-        document.head.appendChild(m);
-        return m;
-      })();
-    meta.setAttribute(
-      "content",
-      "Você não compra uma sessão. Você entra em um método. Primeira Sessão Dupla CareFit — avaliação 1:30 + retorno 1h em até 15 dias. R$230."
-    );
-
     document.body.classList.add("conheca-carefit-page");
     const links: HTMLLinkElement[] = CSS_FILES.map((href) => {
       const l = document.createElement("link");
@@ -64,21 +49,24 @@ const ConhecaCareFit = () => {
   };
 
   return (
-    <>
-      <Nav wappUrl={WAPP_URL} />
+    <div onClickCapture={(event) => {
+      const link = (event.target as HTMLElement).closest("a");
+      if (link?.href.startsWith("https://api.whatsapp.com/")) track("whatsapp_click", { servico: "dupla", onde: "landing" });
+    }}>
+      <Nav />
       <main>
         <Hero wappUrl={WAPP_URL} onScrollToPricing={scrollToPricing} />
-        <Method />
         <DualSession />
-        <Feelings />
         <Audience />
+        <Method />
         <Testimonial />
         <Pricing wappUrl={WAPP_URL} innerRef={pricingRef} />
+        <Practical />
       </main>
       <Footer wappUrl={WAPP_URL} />
       <div className="spacer-bottom"></div>
-      <StickyCTA wappUrl={WAPP_URL} />
-    </>
+      <StickyCTA />
+    </div>
   );
 };
 

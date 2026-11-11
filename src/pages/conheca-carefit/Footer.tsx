@@ -1,135 +1,29 @@
-const FOOTER_COLS = [
-  {
-    title: "Para Corredores",
-    items: [
-      "Fisioterapia para Corredores",
-      "Reabilitação para Corredores",
-      "Recovery",
-      "Avaliação do Corredor",
-      "Fortalecimento",
-      "Nutrição",
-    ],
-  },
-  {
-    title: "Lesões",
-    items: [
-      "Canelite",
-      "Fascite Plantar",
-      "Dor no Joelho",
-      "Tendinite de Aquiles",
-      "Banda Iliotibial",
-      "Fraturas por Estresse",
-      "Prevenção de Lesões",
-    ],
-  },
-  {
-    title: "A CareFit",
-    items: [
-      "Nossa História",
-      "Metodologia (Ciclo Completo)",
-      "Manifesto",
-      "Time",
-      "Estrutura",
-    ],
-  },
-  {
-    title: "Comunidade",
-    items: ["Comunidade CareFit", "CareFit Cast", "Blog"],
-  },
-];
+import { Link } from "react-router-dom";
+import { MAPS } from "../Links";
 
-interface Props {
-  wappUrl: string;
-}
-
-export default function Footer({ wappUrl }: Props) {
-  return (
-    <footer className="footer" id="contato">
-      <div className="container">
-        <div className="footer__top">
-          <div className="footer__brand">
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                marginBottom: 14,
-              }}
-            >
-              <img
-                src="/conheca-carefit/assets/carefit-logo-circle.png"
-                alt=""
-                style={{ width: 44, height: 44, borderRadius: "50%" }}
-              />
-              <div className="footer__brand-wm">
-                CAREFIT <span>Run Base</span>
-              </div>
-            </div>
-            <p>
-              O HUB do Corredor. Recovery, fisioterapia, fortalecimento e
-              nutrição integrados em Ribeirão Preto.
-            </p>
-            <div style={{ display: "flex", gap: 12, marginTop: 18 }}>
-              {[
-                { label: "WhatsApp", href: wappUrl },
-                { label: "Instagram", href: "https://www.instagram.com/carefitrunbase/" },
-                { label: "YouTube", href: "#" },
-              ].map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    padding: "6px 12px",
-                    border: "1px solid color-mix(in srgb, var(--cf-off-white) 25%, transparent)",
-                    borderRadius: 9999,
-                    fontSize: 11,
-                    fontFamily: "var(--font-display)",
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    color: "color-mix(in srgb, var(--cf-off-white) 85%, transparent)",
-                    textDecoration: "none",
-                    transition: "all 200ms",
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.background = "var(--cf-laranja)";
-                    e.currentTarget.style.borderColor = "var(--cf-laranja)";
-                    e.currentTarget.style.color = "#fff";
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.background = "transparent";
-                    e.currentTarget.style.borderColor =
-                      "color-mix(in srgb, var(--cf-off-white) 25%, transparent)";
-                    e.currentTarget.style.color =
-                      "color-mix(in srgb, var(--cf-off-white) 85%, transparent)";
-                  }}
-                >
-                  {s.label}
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {FOOTER_COLS.map((col) => (
-            <div key={col.title}>
-              <div className="footer__col-head">{col.title}</div>
-              <ul className="footer__list">
-                {col.items.map((i) => (
-                  <li key={i}>
-                    <a href="#">{i}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+export default function Footer({ wappUrl }: { wappUrl: string }) {
+  return <footer className="footer" id="contato">
+    <div className="container">
+      <div className="footer__top footer__top--compact">
+        <div className="footer__brand">
+          <div className="footer__brand-wm">CAREFIT <span>Run Base</span></div>
+          <p>Fisioterapia, recuperação e fortalecimento para quem corre. Ribeirão Preto/SP.</p>
+          <p><a href={wappUrl} target="_blank" rel="noopener noreferrer">Fale com a equipe no WhatsApp</a></p>
         </div>
-
-        <div className="footer__bottom">
-          <span>© 2026 CareFit Run Base. Todos os direitos reservados.</span>
-          <span>Ribeirão Preto · SP · (16) 99600-8849</span>
-        </div>
+        <div><div className="footer__col-head">Seu atendimento</div><ul className="footer__list">
+          <li><a href="#por-que-dupla">Os dois encontros</a></li>
+          <li><a href="#antes-de-vir">Dúvidas e orientações</a></li>
+          <li><a href={MAPS} target="_blank" rel="noopener noreferrer">Como chegar</a></li>
+          <li><Link to="/lp/fisioterapia-ribeirao-preto">Avaliação de reabilitação</Link></li>
+        </ul></div>
+        <div><div className="footer__col-head">Conheça a CareFit</div><ul className="footer__list">
+          <li><Link to="/espaco">Nosso espaço</Link></li>
+          <li><a href="https://www.instagram.com/carefitrunbase/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+          <li><a href="https://www.youtube.com/@CAREFITRUNBASE" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+          <li><Link to="/privacidade">Privacidade</Link></li>
+        </ul></div>
       </div>
-    </footer>
-  );
+      <div className="footer__bottom"><span>© {new Date().getFullYear()} CareFit Run Base.</span><span>Av. Áurea A. B. Machado, 241 · (16) 99600-8849</span></div>
+    </div>
+  </footer>;
 }

@@ -1,11 +1,7 @@
-import Icon from "./Icon";
+import BookingCTA from "./BookingCTA";
 import { useScrollProgress } from "./hooks";
 
-interface Props {
-  wappUrl: string;
-}
-
-export default function Nav({ wappUrl }: Props) {
+export default function Nav() {
   const p = useScrollProgress();
   return (
     <>
@@ -21,16 +17,7 @@ export default function Nav({ wappUrl }: Props) {
               <div className="nav__tag">Centro de Transformação do Corredor.</div>
             </div>
           </a>
-          <a
-            className="btn btn--secondary nav__cta"
-            href={wappUrl}
-            target="_blank"
-            rel="noreferrer"
-            style={{ padding: "10px 18px" }}
-          >
-            <Icon name="whatsapp" size={16} />
-            Agendar
-          </a>
+          <BookingCTA className="btn btn--accent nav__cta" onde="menu" curto />
         </div>
       </header>
     </>

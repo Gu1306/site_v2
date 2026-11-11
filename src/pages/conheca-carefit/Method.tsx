@@ -15,7 +15,7 @@ const METHOD_ITEMS = [
   {
     icon: "snowflake",
     title: "Recovery como inteligência de carga",
-    desc: "Imersão, ofuro, liberação — protocolos escolhidos pelo que seu corpo pede agora.",
+    desc: "Imersão, ofurô, liberação — protocolos escolhidos pelo que seu corpo pede agora.",
   },
   {
     icon: "clipboard",

@@ -8,6 +8,10 @@ proxima-acao: Lucas importar o primeiro Excel no painel e validar o treino aplic
 
 # CareFit Site
 
+## 2026-11-11 — Páginas de entrada e agendamento
+
+Primeira Sessão Dupla e avaliação de reabilitação refinadas com oferta explícita, duração alinhada às agendas (80 minutos), retorno visível, FAQ operacional e agendamento separado por serviço. As quatro agendas e as mensagens do WhatsApp estão centralizadas em `src/lib/ofertasCarefit.ts`; `/primeira-sessao?servico=dupla` e `?servico=reabilitacao` preservam nome e preço. Detalhes, validações e limites em `docs/refino-landings-2026-11-11.md`.
+
 ## Sistemas relacionados
 
 - GitHub: `Gu1306/site_v2`

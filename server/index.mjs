@@ -35,8 +35,32 @@ const PREVIEWS = {
     alt: 'Área de fortalecimento da CareFit Run Base',
   },
   '/primeira-sessao': {
-    titulo: 'Agendar primeira sessão | CareFit Run Base',
-    descricao: 'Escolha o profissional, o dia e o horário da sua primeira sessão na CareFit Run Base, em Ribeirão Preto.',
+    titulo: 'Escolha seu atendimento | CareFit Run Base',
+    descricao: 'Primeira Sessão Dupla por R$ 230 ou avaliação de reabilitação por R$ 180. Escolha seu atendimento e veja os horários.',
+    imagem: '/og-image.jpg',
+    alt: 'CareFit Run Base',
+  },
+  '/primeira-sessao?servico=dupla': {
+    titulo: 'Agendar Primeira Sessão Dupla | CareFit Run Base',
+    descricao: 'Dois encontros por R$ 230: primeira sessão de 80 minutos e retorno de 1h incluído em até 15 dias.',
+    imagem: '/og-image.jpg',
+    alt: 'CareFit Run Base',
+  },
+  '/primeira-sessao?servico=reabilitacao': {
+    titulo: 'Agendar avaliação de reabilitação | CareFit Run Base',
+    descricao: 'Avaliação de 80 minutos com fisioterapeuta por R$ 180. Escolha entre Igor e Lais e veja os horários disponíveis.',
+    imagem: '/og-image.jpg',
+    alt: 'CareFit Run Base',
+  },
+  '/conheca-a-carefit': {
+    titulo: 'Primeira Sessão Dupla | CareFit Run Base',
+    descricao: 'Entenda o que seu corpo precisa para seguir correndo. Dois encontros por R$ 230, com retorno incluído em até 15 dias.',
+    imagem: '/og-image.jpg',
+    alt: 'CareFit Run Base',
+  },
+  '/lp/fisioterapia-ribeirao-preto': {
+    titulo: 'Avaliação de reabilitação em Ribeirão Preto | CareFit',
+    descricao: 'A dor está limitando sua corrida? Avaliação de 80 minutos com fisioterapeuta e proposta de tratamento por R$ 180.',
     imagem: '/og-image.jpg',
     alt: 'CareFit Run Base',
   },
@@ -178,11 +202,14 @@ export function createServer(env = process.env, service = createService(clickupC
       // Rotas que circulam em mensagem devolvem o index.html com o preview
       // reescrito (ver PREVIEWS no topo). Se o dist ainda não existe, segue o
       // fluxo normal em vez de derrubar a página.
-      const preview = PREVIEWS[url.pathname];
+      const servico = url.pathname === '/primeira-sessao' && ['dupla', 'reabilitacao'].includes(url.searchParams.get('servico')) ? url.searchParams.get('servico') : null;
+      const preview = PREVIEWS[servico ? `${url.pathname}?servico=${servico}` : url.pathname];
       if (preview) {
         const base = await paginaBase();
         if (base) {
           const publico = new URL(url.pathname, `https://${req.headers.host || 'www.carefitrunbase.com.br'}`);
+          if (servico) publico.searchParams.set('servico', servico);
+          if (url.pathname.startsWith('/lp/')) res.setHeader('X-Robots-Tag', 'noindex');
           const html = comPreview(base, preview, publico);
           res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff' });
           return res.end(req.method === 'HEAD' ? undefined : html);

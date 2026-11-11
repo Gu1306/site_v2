@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useSeo } from "@/hooks/useSeo";
 import { track, atribuicao } from "@/lib/tracking";
+import { agendamentoCarefit } from "@/lib/ofertasCarefit";
 import { LP_POR_SLUG, type Foto } from "./lp/landingAdsData";
 import { MAPS, WHATS } from "./Links";
 import NotFound from "./NotFound";
@@ -12,7 +13,6 @@ import espaco from "@/assets/espaco-1.jpg";
 
 const FOTOS: Record<Foto, string> = { fisio, recovery, corrida };
 
-const AGENDAR = "/primeira-sessao";
 const ENDERECO = "Av. Áurea A. B. Machado, 241 · Ribeirão Preto/SP";
 
 /** Landing de anúncio: uma oferta, uma ação (agendar). Sem menu, sem links para fora do funil. */
@@ -31,12 +31,13 @@ export default function LandingAds() {
 
   const zapHref = () => {
     const a = atribuicao();
-    const origem = `[google · ${lp.tag}${a.utm_campaign ? " · " + a.utm_campaign : ""}]`;
+    const origem = `[site · ${lp.tag}${a.utm_source ? " · " + a.utm_source : ""}${a.utm_campaign ? " · " + a.utm_campaign : ""}]`;
     return `${WHATS}&text=${encodeURIComponent(`${lp.zap} ${origem}`)}`;
   };
-  const aoAgendar = (onde: string) => () => track("agendar_click", { lp: lp.tag, onde });
-  const aoZap = (onde: string) => () => track("whatsapp_click", { lp: lp.tag, onde });
+  const aoAgendar = (onde: string) => () => track("agendar_click", { lp: lp.tag, servico: lp.oferta.servico, onde });
+  const aoZap = (onde: string) => () => track("whatsapp_click", { lp: lp.tag, servico: lp.oferta.servico, onde });
   const of = lp.oferta;
+  const AGENDAR = agendamentoCarefit(of.servico);
   const faq = [...lp.faq, ...of.faq];
 
   return (
@@ -44,14 +45,14 @@ export default function LandingAds() {
       <style>{CSS}</style>
 
       <header className="lp-hero">
-        <img className="lp-hero-img" src={FOTOS[lp.foto]} alt="" />
+        <div className="lp-hero-layout">
         <div className="lp-hero-in">
           <img className="lp-logo" src={logo} alt="CareFit Run Base" />
           <p className="lp-selo">{lp.selo}</p>
           <h1>{lp.titulo}</h1>
           <p className="lp-sub">{lp.subtitulo}</p>
           <p className="lp-oferta">
-            <b>{of.destaque}</b> · {of.complemento}
+            <b>{of.destaque}</b><span>{of.complemento}</span>
           </p>
           <div className="lp-cta">
             <Link className="lp-btn lp-btn-pri" to={AGENDAR} onClick={aoAgendar("hero")}>
@@ -62,6 +63,8 @@ export default function LandingAds() {
             </a>
           </div>
         </div>
+        <figure className="lp-hero-photo"><img src={FOTOS[lp.foto]} alt={lp.foto === "fisio" ? "Sala de fisioterapia da CareFit Run Base" : lp.foto === "recovery" ? "Espaço de recovery da CareFit Run Base" : "Corredores da CareFit Run Base"} fetchPriority="high" /><figcaption>CareFit Run Base · Ribeirão Preto</figcaption></figure>
+        </div>
       </header>
 
       <section className="lp-sec">
@@ -71,6 +74,13 @@ export default function LandingAds() {
             <li key={i}>{i}</li>
           ))}
         </ul>
+      </section>
+
+      <section className="lp-sec lp-resultados">
+        <p className="lp-eyebrow">Clareza para decidir</p>
+        <h2>{of.servico === "reabilitacao" ? "Ao final da avaliação, você terá…" : "O que está incluído nos dois encontros"}</h2>
+        <ul className="lp-lista">{of.resultados.map((item) => <li key={item}>{item}</li>)}</ul>
+        {of.servico === "reabilitacao" && <p className="lp-contexto">A avaliação custa R$ 180. Se houver indicação de tratamento, cada sessão de fisioterapia custa R$ 130. Você decide depois de conhecer a proposta.</p>}
       </section>
 
       <section className="lp-sec lp-alt">
@@ -98,12 +108,13 @@ export default function LandingAds() {
         <Link className="lp-btn lp-btn-pri lp-solo" to={AGENDAR} onClick={aoAgendar("passos")}>
           Escolher dia e horário
         </Link>
-        <p className="lp-nota">Você escolhe com quem agendar: Igor ou Lais.</p>
+        <p className="lp-nota">Igor e Lais · fisioterapeutas da equipe CareFit.<br />Escolha o profissional e veja os horários na próxima etapa.</p>
       </section>
 
       {lp.depoimentos && lp.depoimentos.length > 0 && (
         <section className="lp-sec lp-alt">
-          <h2>Quem já passou por aqui</h2>
+          <h2>Relatos de quem conhece o cuidado da CareFit</h2>
+          <p className="lp-contexto">Experiências de corredores atendidos na base.</p>
           {lp.depoimentos.map((d) => (
             <blockquote className="lp-dep" key={d.autor}>
               “{d.texto}”<cite>{d.autor}</cite>
@@ -132,7 +143,7 @@ export default function LandingAds() {
       </section>
 
       <section className="lp-fim">
-        <h2>Pronto para cuidar disso?</h2>
+        <h2>{of.servico === "reabilitacao" ? "Vamos entender o seu caso?" : "Comece pelo cuidado com você."}</h2>
         <p>{of.fim}</p>
         <Link className="lp-btn lp-btn-pri lp-solo" to={AGENDAR} onClick={aoAgendar("fim")}>
           {of.botao}
@@ -152,7 +163,7 @@ export default function LandingAds() {
       {/* Barra fixa no celular: o botão acompanha a leitura inteira. */}
       <div className="lp-barra">
         <Link className="lp-btn lp-btn-pri" to={AGENDAR} onClick={aoAgendar("barra")}>
-          {of.botaoCurto}
+          {of.botaoCurto} · {of.servico === "reabilitacao" ? "R$ 180" : "R$ 230"}
         </Link>
         <a className="lp-zap-redondo" href={zapHref()} target="_blank" rel="noopener noreferrer" aria-label="Falar no WhatsApp" onClick={aoZap("barra")}>
           WhatsApp
@@ -220,4 +231,15 @@ const CSS = `
 .lp-zap-redondo{display:grid;place-items:center;padding:0 16px;border-radius:14px;background:var(--zap);color:#073b1c;font-weight:800;font-size:14px;text-decoration:none}
 @media(min-width:720px){.lp h1{font-size:36px}.lp-cta{flex-direction:row}.lp-cta .lp-btn{flex:1}.lp-barra{display:none}.lp{padding-bottom:0}.lp-grade{grid-template-columns:1fr 1fr}}
 @media(prefers-reduced-motion:reduce){.lp *{transition:none!important;animation:none!important}}
+
+.lp{background:#f5f5f0;font-family:Poppins,system-ui,sans-serif}.lp h1,.lp h2,.lp-btn{font-family:Montserrat,system-ui,sans-serif}
+.lp-hero::after{display:none}.lp-hero-layout{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:48px;align-items:center;padding:44px 32px}
+.lp-hero-in{max-width:none;margin:0;padding:0;text-align:left}.lp-logo{width:56px;height:56px}.lp-selo{line-height:1.6;margin-top:24px}.lp h1{font-size:clamp(29px,3.5vw,44px);line-height:1.15;letter-spacing:-.02em;text-wrap:balance}.lp-sub{margin:0 0 20px;font-size:16px;line-height:1.65}
+.lp-oferta{border-radius:14px;padding:12px 18px}.lp-oferta b{display:block;font-size:20px}.lp-oferta span{display:block;font-size:13px;margin-top:4px}.lp-cta{margin:0;max-width:500px}.lp-btn{min-height:48px;display:flex;align-items:center;justify-content:center}
+.lp-hero-photo{margin:0;position:relative}.lp-hero-photo img{width:100%;height:420px;object-fit:cover;border-radius:20px;display:block}.lp-hero-photo figcaption{position:absolute;bottom:18px;left:18px;right:18px;background:#0e3c41e8;color:#f3ecdd;padding:12px;border-radius:10px;font-size:12px;text-align:center}
+.lp-sec{max-width:840px;padding:44px 24px}.lp-alt{max-width:none}.lp-alt>*{max-width:792px}.lp-eyebrow{font:700 11px Montserrat,system-ui,sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:#526a61;margin:0 0 10px}.lp h2{font-size:25px;line-height:1.3}
+.lp-contexto{font-size:14px;line-height:1.7;margin:18px 0;color:#3b4b4d}.lp-resultados{padding-top:10px}.lp-resultados .lp-lista li{border-left:3px solid var(--dourado)}.lp-espaco{height:280px}.lp-rodape{line-height:1.7}
+.lp a:focus-visible,.lp summary:focus-visible{outline:3px solid #b57932;outline-offset:4px}.lp-hero a:focus-visible,.lp-fim a:focus-visible{outline-color:#fff}
+body:has([aria-label="Aviso de cookies"]) .lp-barra{visibility:hidden}
+@media(max-width:719px){.lp-hero-layout{grid-template-columns:1fr;gap:24px;padding:28px 20px}.lp-hero-photo img{height:220px}.lp-hero-photo figcaption{bottom:12px;left:12px;right:12px;padding:8px}.lp h2{font-size:23px}.lp-sec{padding:32px 20px}.lp-resultados{padding-top:8px}.lp-espaco{height:220px}.lp-zap-redondo{padding:0 12px;font-size:12px}.lp-barra .lp-btn-pri{font-size:13px}.lp-nota{line-height:1.7}}
 `;

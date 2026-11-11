@@ -6,12 +6,17 @@
  * Duas ofertas (Gustavo, 08/11/2026):
  * - DOR que limita a corrida → avaliação completa com fisioterapeuta, R$ 180
  *   (é a "Avaliação de reabilitação" do /planos; sessão de tratamento R$ 130).
- * - RECOVERY → 1ª sessão R$ 230 e a 2ª é cortesia.
+ * - RECOVERY → Sessão Dupla R$ 230 com retorno incluído.
  */
+
+import { ORIENTACOES, type ServicoCarefit } from "@/lib/ofertasCarefit";
+import { TESTIMONIALS } from "@/lib/depoimentosCarefit";
 
 export type Foto = "fisio" | "recovery" | "corrida";
 
 export interface Oferta {
+  servico: ServicoCarefit;
+  resultados: string[];
   /** Destaque no topo, ex.: "Avaliação completa R$ 180". */
   destaque: string;
   /** Complemento do destaque, ex.: "com fisioterapeuta". */
@@ -28,21 +33,23 @@ export interface Oferta {
 
 const COMO_AGENDAR = {
   q: "Como eu agendo?",
-  a: "Escolha o fisioterapeuta e o horário no calendário, ou chame no WhatsApp. Leva poucos minutos.",
+  a: "Escolha o fisioterapeuta e o horário no calendário. Depois, siga as instruções de pagamento e confirme com a equipe pelo WhatsApp.",
 };
 
 export const OFERTA_AVALIACAO: Oferta = {
+  servico: "reabilitacao",
+  resultados: ["Uma explicação do que foi observado na avaliação.", "Orientações iniciais sobre o que ajustar na sua rotina de treino.", "Uma proposta de tratamento, com os próximos passos para o seu caso."],
   destaque: "Avaliação completa R$ 180",
-  complemento: "com fisioterapeuta",
+  complemento: "80 minutos com fisioterapeuta",
   botao: "Agendar minha avaliação",
   botaoCurto: "Agendar avaliação",
   passosTitulo: "Como é a sua avaliação",
   passos: [
     {
-      t: "Avaliação completa",
-      d: "Com fisioterapeuta: a sua dor, desde quando ela aparece, o histórico, a carga de treino e testes do que o seu corpo sustenta hoje.",
+      t: "Sua história · 30 minutos",
+      d: "Uma conversa sobre sua rotina de treino, provas, dores e histórico de lesões, organizada em um mapa mental.",
     },
-    { t: "O que está pesando", d: "Você entende o que pode estar por trás da dor e o que precisa mudar no treino." },
+    { t: "Avaliação física · 50 minutos", d: "O fisioterapeuta avalia seu caso e reúne as informações para orientar uma proposta de tratamento." },
     { t: "Proposta de tratamento", d: "Você sai com o plano do seu caso: o que fazer agora e quantas sessões fazem sentido." },
   ],
   fim: "Avaliação completa com fisioterapeuta: R$ 180.",
@@ -56,27 +63,31 @@ export const OFERTA_AVALIACAO: Oferta = {
       a: "Se fizer sentido tratar, as sessões de fisioterapia custam R$ 130 cada. Você decide depois de ver a proposta.",
     },
     COMO_AGENDAR,
+    ...ORIENTACOES.filter((item) => item.q !== "Como confirmo meu horário?"),
   ],
 };
 
 export const OFERTA_RECOVERY: Oferta = {
-  destaque: "1ª sessão R$ 230",
-  complemento: "e a 2ª sessão é cortesia",
+  servico: "dupla",
+  resultados: ["Uma avaliação que considera seu histórico e sua rotina de treino.", "Cuidado personalizado e orientação dos próximos passos.", "Retorno de 1h em até 15 dias, incluído nos R$ 230."],
+  destaque: "Sessão Dupla R$ 230",
+  complemento: "80 min + retorno de 1h incluído",
   botao: "Agendar minha 1ª sessão",
   botaoCurto: "Agendar 1ª sessão",
   passosTitulo: "Como é a sua primeira sessão",
   passos: [
     { t: "Avaliação completa", d: "A gente entende como você está: treino, cansaço, histórico e o que o corpo sustenta hoje." },
     { t: "Direcionamento claro", d: "Você sai sabendo o que ajustar em treino, força e recuperação." },
-    { t: "2ª sessão de cortesia", d: "Quem faz a primeira sessão ganha a segunda." },
+    { t: "Retorno incluído", d: "Em até 15 dias, um segundo encontro de 1h para acompanhar sua resposta e ajustar os próximos passos." },
   ],
-  fim: "1ª sessão R$ 230 e a 2ª sessão é cortesia.",
+  fim: "Dois encontros por R$ 230. Retorno de 1h incluído em até 15 dias.",
   faq: [
     {
       q: "O que acontece na primeira sessão?",
-      a: "Você faz uma avaliação completa e sai com um direcionamento claro do que fazer. Quem faz a primeira sessão ganha a segunda de cortesia.",
+      a: "A primeira sessão tem 80 minutos, com avaliação e cuidado personalizado. O retorno de 1h acontece em até 15 dias e está incluído nos R$ 230.",
     },
     COMO_AGENDAR,
+    ...ORIENTACOES.filter((item) => item.q !== "Como confirmo meu horário?"),
   ],
 };
 
@@ -111,10 +122,11 @@ export const LPS: LpConfig[] = [
     seoTitulo: "Fisioterapia esportiva em Ribeirão Preto | CareFit Run Base",
     seoDescricao: "Dor limitando a sua corrida? Avaliação completa com fisioterapeuta em Ribeirão Preto por R$ 180. Agende online.",
     selo: "Fisioterapia esportiva · Ribeirão Preto",
-    titulo: "Dor limitando a sua corrida? Fisioterapia esportiva em Ribeirão Preto",
-    subtitulo: "Uma avaliação completa com fisioterapeuta para entender a sua dor e sair com o plano do seu caso. Escolha o dia e o horário em minutos.",
+    titulo: "A dor está limitando sua corrida? Comece por uma avaliação.",
+    subtitulo: "Tempo para ouvir sua história, avaliar seu caso e orientar os próximos passos. Atendimento individual com fisioterapeuta, do primeiro relato à proposta de tratamento.",
     foto: "fisio",
     oferta: OFERTA_AVALIACAO,
+    depoimentos: TESTIMONIALS.filter((t) => t.ig === "eutalitakriunas" || t.ig === "edutorciano").map((t) => ({ texto: t.quote, autor: t.name })),
     reconhece: {
       titulo: "Isso acontece com você?",
       itens: [
@@ -149,6 +161,7 @@ export const LPS: LpConfig[] = [
     subtitulo: "A canelite costuma estar ligada a carga, força e pisada. Na avaliação com fisioterapeuta a gente entende o seu caso e monta o plano.",
     foto: "corrida",
     oferta: OFERTA_AVALIACAO,
+    depoimentos: TESTIMONIALS.filter((t) => t.ig === "eutalitakriunas" || t.ig === "edutorciano").map((t) => ({ texto: t.quote, autor: t.name })),
     reconhece: {
       titulo: "Você sente isso?",
       itens: [
@@ -188,6 +201,7 @@ export const LPS: LpConfig[] = [
     subtitulo: "Na avaliação com fisioterapeuta a gente olha pé, panturrilha e carga de treino para montar o plano do seu caso.",
     foto: "fisio",
     oferta: OFERTA_AVALIACAO,
+    depoimentos: TESTIMONIALS.filter((t) => t.ig === "eutalitakriunas" || t.ig === "edutorciano").map((t) => ({ texto: t.quote, autor: t.name })),
     reconhece: {
       titulo: "Você sente isso?",
       itens: [
@@ -227,6 +241,7 @@ export const LPS: LpConfig[] = [
     subtitulo: "Muitas vezes é sobrecarga ou desequilíbrio muscular. A avaliação com fisioterapeuta mostra o que está pesando no seu joelho e o que ajustar.",
     foto: "corrida",
     oferta: OFERTA_AVALIACAO,
+    depoimentos: TESTIMONIALS.filter((t) => t.ig === "eutalitakriunas" || t.ig === "edutorciano").map((t) => ({ texto: t.quote, autor: t.name })),
     reconhece: {
       titulo: "Você sente isso?",
       itens: [
@@ -266,6 +281,7 @@ export const LPS: LpConfig[] = [
     subtitulo: "Na avaliação com fisioterapeuta a gente olha carga, força da panturrilha e mobilidade para montar o plano do seu caso.",
     foto: "fisio",
     oferta: OFERTA_AVALIACAO,
+    depoimentos: TESTIMONIALS.filter((t) => t.ig === "eutalitakriunas" || t.ig === "edutorciano").map((t) => ({ texto: t.quote, autor: t.name })),
     reconhece: {
       titulo: "Você sente isso?",
       itens: [
@@ -299,7 +315,7 @@ export const LPS: LpConfig[] = [
     slug: "recovery",
     tag: "recovery",
     seoTitulo: "Recovery esportivo em Ribeirão Preto | CareFit Run Base",
-    seoDescricao: "Recovery para quem treina forte, em Ribeirão Preto. 1ª sessão R$ 230 e a 2ª de cortesia. Agende online.",
+    seoDescricao: "Recovery para quem treina forte, em Ribeirão Preto. Dois encontros por R$ 230, com retorno incluído. Agende online.",
     selo: "Recovery · Ribeirão Preto",
     titulo: "Recupere melhor depois do treino forte, do longão e da prova",
     subtitulo: "Recovery com protocolo, num espaço feito para isso. Na primeira sessão a gente avalia como você está e o que faz sentido para o seu ciclo.",
