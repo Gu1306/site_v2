@@ -7,7 +7,7 @@ import { MAPS, WHATS } from "./Links";
 import NotFound from "./NotFound";
 import logo from "@/assets/logocarefitclub.png";
 import fisio from "@/assets/sala-fisioterapia.jpg";
-import recovery from "@/assets/recovery_atletas.jpg";
+import recovery from "@/assets/espaco-10.jpg";
 import corrida from "@/assets/hero-runners.jpg";
 import espaco from "@/assets/espaco-1.jpg";
 
