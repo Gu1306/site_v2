@@ -1,7 +1,7 @@
 /** Ofertas e agendas públicas verificadas em 11/11/2026. */
 export const OFERTAS = {
   dupla: {
-    nome: "Primeira Sessão Dupla", valor: "R$ 230", duracao: "80 min + retorno de 1h",
+    nome: "Primeira Sessão Dupla Recovery", valor: "R$ 230", duracao: "80 min + retorno de 1h",
     resumo: "Avaliação e cuidado personalizado no primeiro encontro, com retorno incluído em até 15 dias.",
     pagina: "/conheca-a-carefit",
     agendas: { Igor: "https://calendar.app.google/ZCfVQVRJ2ixyQ6Xj6", Lais: "https://calendar.app.google/8r6VBjsgfK1WiBWY8" },
