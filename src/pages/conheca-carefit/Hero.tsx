@@ -7,7 +7,7 @@ interface Props {
   onScrollToPricing: () => void;
 }
 
-const YT_VIDEO_ID = "BlOgSub8ylM";
+const YT_VIDEO_ID = "TyaycftJmz8";
 
 export default function Hero({ wappUrl, onScrollToPricing }: Props) {
   const [refRunners, runners] = useCountUp(300);
@@ -72,10 +72,10 @@ export default function Hero({ wappUrl, onScrollToPricing }: Props) {
         </div>
 
         <aside className="hero__video-side">
-          <div className="hero__video-frame" aria-label="Vídeo do convite">
+          <div className="hero__video-frame" aria-label="Vídeo sobre as ferramentas da CareFit">
             <iframe
               src={`https://www.youtube.com/embed/${YT_VIDEO_ID}?rel=0&modestbranding=1&playsinline=1`}
-              title="Convite do Gustavo · CareFit Run Base"
+              title="Lívia apresenta as ferramentas da CareFit Run Base"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
               loading="eager"
@@ -84,9 +84,9 @@ export default function Hero({ wappUrl, onScrollToPricing }: Props) {
           <div className="hero__video-caption">
             <span className="hero__video-live">
               <span className="live-dot"></span>
-              Gustavo · Fundador
+              Lívia · Fisioterapeuta
             </span>
-            <span className="hero__video-tag">Convite · 60 segundos</span>
+            <span className="hero__video-tag">Conheça a CareFit · 1 min</span>
           </div>
         </aside>
       </div>
