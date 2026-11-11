@@ -1,3 +1,5 @@
+import { origemContato } from "./tracking";
+
 /** Ofertas e agendas públicas verificadas em 11/11/2026. */
 export const OFERTAS = {
   dupla: {
@@ -20,7 +22,7 @@ export function servicoCarefit(valor: string | null): ServicoCarefit | null {
 export const agendamentoCarefit = (servico: ServicoCarefit) => `/primeira-sessao?servico=${servico}`;
 export function whatsappOferta(servico: ServicoCarefit) {
   const oferta = OFERTAS[servico];
-  return `https://api.whatsapp.com/send?phone=5516996008849&text=${encodeURIComponent(`Oi! Quero agendar ${oferta.nome} na CareFit (${oferta.valor}). Pode me ajudar?`)}`;
+  return `https://api.whatsapp.com/send?phone=5516996008849&text=${encodeURIComponent(`Oi! Quero agendar ${oferta.nome} na CareFit (${oferta.valor}). Pode me ajudar? [${origemContato()} · ${servico}]`)}`;
 }
 export const ORIENTACOES = [
   { q: "Como confirmo meu horário?", a: "Escolha o profissional, reserve um horário no Google Agenda e siga as instruções de pagamento. A sessão só é confirmada após o pagamento e o ok da equipe pelo WhatsApp." },

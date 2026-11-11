@@ -14,6 +14,8 @@ export const LISTAS = { sessoes: '901326724078', fortalecimento: '901328170178',
 
 // Ids, nunca nomes: nome de campo é rótulo editável na interface.
 export const CAMPOS = {
+  atleta: 'cd972548-ceb9-40eb-b27c-93ff60ee070b',
+  origemMarketing: 'aeada942-1e12-4b60-ba80-0099e7822383',
   dataSessao: '073be12f-0b3e-4beb-9d86-aaf4ca3e063d',
   profissional: '903ded9e-f36a-40c3-b322-44ede2541916', // "Físio Carefit Que Atende"
   plano: 'bc2c64de-8673-4b35-ba24-05252ed0a2a5',
@@ -48,8 +50,10 @@ export function opcao(c) {
 }
 
 export function reduzirSessao(t) {
+  const relacionados = campo(t, CAMPOS.atleta)?.value;
   return {
     id: t.id, url: t.url || null, atleta: atletaDe(t), status: normalizar(t.status?.status),
+    atletaId: Array.isArray(relacionados) && relacionados.length === 1 ? relacionados[0]?.id || null : null,
     data: dataDe(campo(t, CAMPOS.dataSessao)),
     profissional: opcao(campo(t, CAMPOS.profissional)) || 'Sem profissional',
     tipo: opcao(campo(t, CAMPOS.plano)) || 'Sem plano',
@@ -212,7 +216,7 @@ const mediana = ordenados => {
 export function montarCampanha(dados, hoje, atualizadoEm = null) {
   const vivas = dados.sessoes.filter(s => s.status !== 'cancelada');
   const porAtleta = new Map();
-  for (const s of vivas) { const lista = porAtleta.get(s.atleta) || []; lista.push(s); porAtleta.set(s.atleta, lista); }
+  for (const s of vivas) { const chave = s.atletaId ? `id:${s.atletaId}` : `nome:${s.atleta}`; const lista = porAtleta.get(chave) || []; lista.push(s); porAtleta.set(chave, lista); }
 
   const de = somarDias(hoje, -JANELA_DIAS); const ate = somarDias(hoje, -DECISAO_DIAS);
   const coortes = { fisio: [], recovery: [] };
@@ -222,7 +226,7 @@ export function montarCampanha(dados, hoje, atualizadoEm = null) {
     if (!realizadas.length) continue;
     const primeira = realizadas[0];
     const porta = Object.keys(ENTRADAS).find(k => ENTRADAS[k] === primeira.tipo) || null;
-    estreias.push({ data: primeira.data, porta });
+    estreias.push({ data: primeira.data, porta, atletaId: primeira.atletaId });
     if (!porta || primeira.data < de || primeira.data > ate) continue;
     // Continuou = tem sessão de outro tipo, paga, depois da entrada (inclusive plano já
     // vendido e ainda sem data). A 2ª sessão da dupla é a própria entrada: não conta.
@@ -239,7 +243,8 @@ export function montarCampanha(dados, hoje, atualizadoEm = null) {
   const novosPorSemana = Array.from({ length: SEMANAS_NOVOS }, (_, i) => {
     const segunda = somarDias(ultima, -7 * (SEMANAS_NOVOS - 1 - i)); const fim = somarDias(segunda, 6);
     const daSemana = estreias.filter(e => e.data >= segunda && e.data <= fim);
-    return { segunda, novos: daSemana.length, fisio: daSemana.filter(e => e.porta === 'fisio').length, recovery: daSemana.filter(e => e.porta === 'recovery').length, encerrada: fim < hoje };
+    const origens = dados.origens ? daSemana.reduce((acc, e) => { const origem = (e.atletaId && dados.origens.get(e.atletaId)) || 'Não informada'; acc[origem] = (acc[origem] || 0) + 1; return acc; }, {}) : null;
+    return { segunda, novos: daSemana.length, fisio: daSemana.filter(e => e.porta === 'fisio').length, recovery: daSemana.filter(e => e.porta === 'recovery').length, origens, encerrada: fim < hoje };
   });
 
   const fora = vivas.filter(s => s.valor > VALOR_MAXIMO_SESSAO);
@@ -265,6 +270,17 @@ async function lerLista(api, lista) {
 
 export function criarServicoFechamento(api, agora = () => Date.now()) {
   let cache = null; let emCurso = null;
+  let cacheOrigens = null; let emCursoOrigens = null;
+  async function origens(forcar) {
+    const idade = cacheOrigens ? agora() - cacheOrigens.lidoEm : Infinity;
+    if (idade < CACHE_MS && !(forcar && idade >= ATUALIZAR_MIN_MS)) return cacheOrigens.valores;
+    emCursoOrigens ||= (async () => {
+      const atletas = await lerLista(api, '901326722390');
+      cacheOrigens = { lidoEm: agora(), valores: new Map(atletas.map(t => [t.id, opcao(campo(t, CAMPOS.origemMarketing))])) };
+      return cacheOrigens.valores;
+    })().finally(() => { emCursoOrigens = null; });
+    return emCursoOrigens;
+  }
   async function dados(forcar) {
     const idade = cache ? agora() - cache.lidoEm : Infinity;
     if (idade < CACHE_MS && !(forcar && idade >= ATUALIZAR_MIN_MS)) return cache;
@@ -287,8 +303,8 @@ export function criarServicoFechamento(api, agora = () => Date.now()) {
     },
     // Mesmo cache do fechamento: abrir a calculadora não gasta a API do ClickUp.
     async campanha(forcar = false) {
-      const d = await dados(forcar);
-      return montarCampanha(d, dayOf(agora()), new Date(d.lidoEm).toISOString());
+      const [d, fontes] = await Promise.all([dados(forcar), origens(forcar).catch(() => null)]);
+      return montarCampanha({ ...d, origens: fontes }, dayOf(agora()), new Date(d.lidoEm).toISOString());
     },
   };
 }

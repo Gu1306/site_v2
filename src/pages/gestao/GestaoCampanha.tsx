@@ -8,7 +8,7 @@ import { ApiError, apiGestao, Carregando, TelaLogin, Topo, useSessaoGestao } fro
 // sessão dupla e continuou, e quanto deixou) vem do ClickUp por /api/gestao/campanha.
 
 type Entrada = { tipo: string; atletas: number; continuaram: number; taxa: number | null; receitaMediana: number | null };
-type SemanaNovos = { segunda: string; novos: number; fisio: number; recovery: number; encerrada: boolean };
+type SemanaNovos = { segunda: string; novos: number; fisio: number; recovery: number; origens: Record<string, number> | null; encerrada: boolean };
 type DadosCampanha = {
   atualizadoEm: string | null;
   janela: { de: string; ate: string };
@@ -32,9 +32,9 @@ const AMOSTRA_MINIMA = 5;
 const CHAVES: Chave[] = ['dia', 'dias', 'cpc', 'custoConv', 'pClique', 'pAgenda', 'pComp', 'pCont', 'ticket', 'recCont', 'margem', 'meta'];
 const CHAVES_REAIS: ChaveReal[] = ['gasto', 'cliques', 'conversas', 'agendaram', 'compareceram', 'continuaram'];
 
-const BASE: Record<Chave, number> = { dia: 10, dias: 30, cpc: 2.5, custoConv: 12, pClique: 8, pAgenda: 80, pComp: 90, pCont: 25, ticket: 180, recCont: 780, margem: 60, meta: 10 };
+const BASE: Record<Chave, number> = { dia: 15, dias: 30, cpc: 2.5, custoConv: 12, pClique: 8, pAgenda: 80, pComp: 90, pCont: 25, ticket: 180, recCont: 780, margem: 60, meta: 10 };
 const CENARIOS: Record<CenarioPronto, { nome: string; canal: Canal; oferta: Oferta; v: Partial<Record<Chave, number>> }> = {
-  teste: { nome: 'Teste combinado · R$ 10/dia', canal: 'google', oferta: 'fisio', v: { dia: 10 } },
+  teste: { nome: 'Teste Google · R$ 15/dia', canal: 'google', oferta: 'fisio', v: { dia: 15 } },
   search: { nome: 'Pesquisa completa · R$ 50/dia', canal: 'google', oferta: 'fisio', v: { dia: 50 } },
   recovery: { nome: 'Recovery R$ 230 + cortesia', canal: 'google', oferta: 'recovery', v: { dia: 10, cpc: 2, ticket: 230 } },
   meta: { nome: 'Meta / Instagram · R$ 20/dia', canal: 'meta', oferta: 'fisio', v: { dia: 20 } },
@@ -195,6 +195,36 @@ function NovosPorSemana({ semanas }: { semanas: SemanaNovos[] }) {
       </div>
     </div>
   );
+}
+
+type RegistroSemanal = { semana: string; canal: Canal; oferta: Oferta; reais: Record<ChaveReal, string> };
+const CHAVE_SEMANAS = 'carefit_campanha_semanas_v1';
+function segundaAtual() {
+  const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function HistoricoSemanal({ estado }: { estado: Estado }) {
+  const [semana, setSemana] = useState(segundaAtual);
+  const [mensagem, setMensagem] = useState('');
+  const [registros, setRegistros] = useState<RegistroSemanal[]>(() => {
+    try { const dados = JSON.parse(localStorage.getItem(CHAVE_SEMANAS) || '[]'); return Array.isArray(dados) ? dados : []; } catch { return []; }
+  });
+  const salvar = () => {
+    if (!semana || new Date(`${semana}T12:00:00`).getDay() !== 1) { setMensagem('Escolha uma segunda-feira.'); return; }
+    if (!estado.reais.gasto.trim() && !estado.reais.cliques.trim() && !estado.reais.conversas.trim() && !estado.reais.agendaram.trim() && !estado.reais.compareceram.trim() && !estado.reais.continuaram.trim()) { setMensagem('Preencha pelo menos um número antes de salvar.'); return; }
+    if (CHAVES_REAIS.some(k => estado.reais[k].trim() && (!/^\d+(?:[.,]\d+)?$/.test(estado.reais[k].trim()) || lerNum(estado.reais[k]) < 0 || (k !== 'gasto' && !Number.isInteger(lerNum(estado.reais[k])))))) { setMensagem('Confira os valores: use números não negativos e quantidades inteiras.'); return; }
+    const registro = { semana, canal: estado.canal, oferta: estado.oferta, reais: { ...estado.reais } };
+    const atualizados = [...registros.filter(r => !(r.semana === semana && r.canal === estado.canal && r.oferta === estado.oferta)), registro].sort((a, b) => b.semana.localeCompare(a.semana));
+    try { localStorage.setItem(CHAVE_SEMANAS, JSON.stringify(atualizados)); setRegistros(atualizados); setMensagem('Semana salva neste navegador.'); } catch { setMensagem('Não foi possível salvar neste navegador.'); }
+  };
+  return <section className="gs-bloco">
+    <h2>Histórico semanal da campanha</h2>
+    <p className="gs-nota">Preencha os números acima para a semana e a oferta selecionadas e salve. O histórico fica somente neste navegador e aparelho; não é compartilhado nem é um backup. Semanas com zero devem ser preenchidas com 0. Agendamentos e comparecimentos da semana podem vir de cliques de semanas anteriores.</p>
+    <div className="gc-acoes"><label>Segunda-feira da semana <input type="date" value={semana} onChange={e => setSemana(e.target.value)} /></label><button type="button" className="gs-botao gs-botao-cheio" onClick={salvar}>Salvar semana</button><span role="status">{mensagem}</span></div>
+    <p className="gs-nota">A gravação substitui somente a mesma semana, canal e oferta. Fonte selecionada: {estado.canal === 'google' ? 'Google' : 'Meta'} · {OFERTAS[estado.oferta].rotulo}.</p>
+    {registros.length > 0 && <div className="gs-rolagem"><table className="gs-tabela"><thead><tr><th>Semana</th><th>Canal e oferta</th><th>Gasto</th><th>Cliques</th><th>Conversas</th><th>Agendaram</th><th>Compareceram</th><th>Continuaram</th></tr></thead><tbody>{registros.map(r => <tr key={`${r.semana}-${r.canal}-${r.oferta}`}><td>{ddmm(r.semana)}/{r.semana.slice(0, 4)}</td><td>{r.canal === 'google' ? 'Google' : 'Meta'} · {OFERTAS[r.oferta]?.rotulo || 'Outro'}</td><td>{r.reais.gasto ? brl(lerNum(r.reais.gasto), 2) : '—'}</td>{(['cliques', 'conversas', 'agendaram', 'compareceram', 'continuaram'] as ChaveReal[]).map(k => <td key={k}>{r.reais[k] || '—'}</td>)}</tr>)}</tbody></table></div>}
+  </section>;
 }
 
 // ---------- página ----------
@@ -370,7 +400,7 @@ export default function GestaoCampanha() {
           <section className="gc-funil" aria-label="Funil da campanha">
             <Etapa num={n[0]} titulo="Verba" valor={brl(r.verba, 0)} unidade="no mês">
               <div className="gc-campos">
-                <Campo id="gc-dia" rotulo="Por dia" pre="R$" valor={campo('dia')} onChange={mudar('dia')} fonte={<><Tag tipo="dado">dado</Tag>combinado em 08/11: R$ 10</>} />
+                <Campo id="gc-dia" rotulo="Por dia" pre="R$" valor={campo('dia')} onChange={mudar('dia')} fonte={<><Tag tipo="dado">dado</Tag>teste proposto: R$ 15/dia</>} />
                 <Campo id="gc-dias" rotulo="Dias no mês" suf="dias" modo="numeric" valor={campo('dias')} onChange={mudar('dias')} fonte="30 = mês cheio no ar" />
               </div>
             </Etapa>
@@ -486,7 +516,7 @@ export default function GestaoCampanha() {
 
         <section className="gs-bloco">
           <h2>Conferir com o real</h2>
-          <p className="gs-nota">A campanha está pausada. Depois da primeira semana no ar, preencha com o Ads (gasto e cliques) e com o WhatsApp e o ClickUp (conversas, agendados, quem compareceu, quem continuou). O botão troca as premissas pelas taxas reais.</p>
+          <p className="gs-nota">Preencha os dados do mesmo período: gasto e cliques do Ads, conversas do WhatsApp e agendamentos, comparecimentos e continuações confirmados. Os valores ficam neste navegador. O botão troca as premissas pelas taxas reais.</p>
           <div className="gc-real-campos">
             <Campo id="gc-r-gasto" rotulo="Gasto" pre="R$" placeholder="0" valor={estado.reais.gasto} onChange={mudarReal('gasto')} />
             <Campo id="gc-r-cliques" rotulo="Cliques" modo="numeric" placeholder="0" valor={estado.reais.cliques} onChange={mudarReal('cliques')} />
@@ -511,13 +541,22 @@ export default function GestaoCampanha() {
           </div>
         </section>
 
+        <HistoricoSemanal estado={estado} />
+
         {dados && (
           <section className="gs-bloco">
             <h2>Atletas novos por semana</h2>
             <p className="gs-nota">
-              Quem fez a 1ª sessão realizada na lista Sessões Carefit naquela semana, por qualquer porta. É a base de antes da campanha: quando ela ligar, a diferença para a média ({Number.isFinite(mediaNovos) ? mediaNovos.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) : '—'} por semana) é o que o anúncio trouxe a mais. Só entra sessão com baixa (“realizada”): semana com baixa atrasada aparece menor do que foi. Passe o mouse (ou toque) numa coluna para ver por qual porta entraram.
+              Quem fez a 1ª sessão realizada na lista Sessões Carefit naquela semana, por qualquer porta. A média anterior é {Number.isFinite(mediaNovos) ? mediaNovos.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) : '—'} por semana; a diferença não identifica quantos vieram dos anúncios. Só entra sessão com baixa (“realizada”): semana com baixa atrasada aparece menor do que foi. Passe o mouse (ou toque) numa coluna para ver por qual porta entraram.
             </p>
             <NovosPorSemana semanas={dados.novosPorSemana} />
+            <h3>Origem de marketing dos novos atletas</h3>
+            <p className="gs-nota">O campo “Origem de marketing” do card do atleta no CRM alimenta esta lista. Sem vínculo ou campo preenchido, a origem aparece como não informada. Google Ads só deve ser selecionado quando houver evidência; caso contrário, escolha Google busca (não identificado).</p>
+            {dados.novosPorSemana.some(s => s.origens === null) ? <p>Não foi possível carregar as origens do CRM. Tente atualizar mais tarde.</p> : (
+              <div className="gs-rolagem"><table className="gs-tabela"><thead><tr><th>Semana</th><th>Origem dos comparecimentos</th></tr></thead><tbody>
+                {dados.novosPorSemana.map(s => <tr key={s.segunda}><td>{ddmm(s.segunda)}{s.encerrada ? '' : ' · em andamento'}</td><td>{Object.entries(s.origens || {}).map(([nome, total]) => `${nome}: ${total}`).join(' · ') || 'Nenhum'}</td></tr>)}
+              </tbody></table></div>
+            )}
           </section>
         )}
 

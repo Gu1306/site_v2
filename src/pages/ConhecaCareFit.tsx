@@ -13,14 +13,13 @@ import Pricing from "./conheca-carefit/Pricing";
 import Footer from "./conheca-carefit/Footer";
 import StickyCTA from "./conheca-carefit/StickyCTA";
 
-const WAPP_URL = whatsappOferta("dupla");
-
 const CSS_FILES = [
   "/conheca-carefit/colors_and_type.css",
   "/conheca-carefit/styles.css",
 ];
 
 const ConhecaCareFit = () => {
+  const WAPP_URL = whatsappOferta("dupla");
   const pricingRef = useRef<HTMLElement>(null);
   useSeo({ titulo: "Primeira Sessão Dupla — CareFit Run Base | Ribeirão Preto", descricao: "Dois encontros por R$ 230: avaliação e cuidado personalizado em 80 minutos, com retorno de 1h incluído em até 15 dias. Agende na CareFit.", caminho: "/conheca-a-carefit" });
 

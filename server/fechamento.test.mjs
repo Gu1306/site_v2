@@ -127,6 +127,16 @@ test('serviço lê as três listas em páginas, guarda em cache e recusa semana 
   await assert.rejects(servico.semana('ontem'), /Semana inválida/);
 });
 
+test('campanha: origens são contadas pelo vínculo com CRM e sem origem ficam não informadas', () => {
+  const sessao = (id, atletaId) => ({ id, atleta: 'Mesmo nome', atletaId, status: 'realizada', data: '2026-11-03', tipo: 'Avaliação', valor: 180 });
+  const sessoes = [sessao('a', 'crm-a'), sessao('b', 'crm-b'), sessao('c', null)];
+  const origens = new Map([['crm-a', 'Google Ads'], ['crm-b', 'Indicação']]);
+  const semana = montarCampanha({ sessoes, origens }, '2026-11-09').novosPorSemana.find(s => s.segunda === '2026-11-02');
+  assert.equal(semana.novos, 3);
+  assert.deepEqual(semana.origens, { 'Google Ads': 1, 'Indicação': 1, 'Não informada': 1 });
+  assert.equal(montarCampanha({ sessoes }, '2026-11-09').novosPorSemana.find(s => s.segunda === '2026-11-02').origens, null);
+});
+
 test('campanha: quem entrou pela avaliação ou pela 1ª sessão dupla e continuou', () => {
   const s = (atleta, tipo, data, valor, status = 'realizada') => ({ id: atleta + tipo + data, url: 'https://app.clickup.com/t/' + atleta, atleta, status, data, profissional: 'X', tipo, valor });
   const sessoes = [
@@ -150,7 +160,7 @@ test('campanha: quem entrou pela avaliação ou pela 1ª sessão dupla e continu
   assert.equal(c.novosPorSemana.length, 8);
   assert.equal(c.novosPorSemana.at(-1).segunda, '2026-11-09');
   assert.equal(c.novosPorSemana.at(-1).encerrada, false);
-  assert.deepEqual(c.novosPorSemana.find(w => w.segunda === '2026-10-19'), { segunda: '2026-10-19', novos: 1, fisio: 0, recovery: 1, encerrada: true });
+  assert.deepEqual(c.novosPorSemana.find(w => w.segunda === '2026-10-19'), { segunda: '2026-10-19', novos: 1, fisio: 0, recovery: 1, origens: null, encerrada: true });
   assert.equal(c.novosPorSemana.find(w => w.segunda === '2026-11-02').fisio, 1);
 });
 

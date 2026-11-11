@@ -127,13 +127,26 @@ function guardarAtribuicao() {
       const v = q.get(p);
       if (v) novo[p] = v;
     });
-    if (Object.keys(novo).length) {
-      const atual = JSON.parse(sessionStorage.getItem(ATTR_KEY) || "{}");
-      sessionStorage.setItem(ATTR_KEY, JSON.stringify({ ...atual, ...novo }));
+    const atual = JSON.parse(sessionStorage.getItem(ATTR_KEY) || "{}");
+    if (!atual.origem_ref && document.referrer) {
+      const host = new URL(document.referrer).hostname.toLowerCase();
+      if (/(^|\.)google\./.test(host)) novo.origem_ref = "google_organico";
     }
+    if (Object.keys(novo).length) sessionStorage.setItem(ATTR_KEY, JSON.stringify({ ...atual, ...novo }));
   } catch {
     /* sessionStorage pode estar bloqueado; rastrear é conveniência, não requisito */
   }
+}
+
+/** Informação legível para a equipe; não envia identificadores de clique. */
+export function origemContato(): string {
+  const a = atribuicao();
+  const fonte = (a.utm_source || "").toLowerCase();
+  const meio = (a.utm_medium || "").toLowerCase();
+  if (a.gclid || a.gbraid || a.wbraid || (fonte === "google" && /^(cpc|ppc|paidsearch)$/.test(meio))) return "Google Ads → site";
+  if (fonte === "google" || a.origem_ref === "google_organico") return "Google busca (paga ou orgânica não identificada) → site";
+  if (/instagram|facebook|meta/.test(fonte)) return "Redes sociais → site";
+  return "Site · origem não identificada";
 }
 
 export function atribuicao(): Record<string, string> {

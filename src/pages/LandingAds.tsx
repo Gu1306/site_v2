@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useSeo } from "@/hooks/useSeo";
-import { track, atribuicao } from "@/lib/tracking";
+import { track, origemContato } from "@/lib/tracking";
 import { agendamentoCarefit } from "@/lib/ofertasCarefit";
 import { LP_POR_SLUG, type Foto } from "./lp/landingAdsData";
 import { MAPS, WHATS } from "./Links";
@@ -30,8 +30,7 @@ export default function LandingAds() {
   if (!lp) return <NotFound />;
 
   const zapHref = () => {
-    const a = atribuicao();
-    const origem = `[site · ${lp.tag}${a.utm_source ? " · " + a.utm_source : ""}${a.utm_campaign ? " · " + a.utm_campaign : ""}]`;
+    const origem = `[${origemContato()} · ${lp.tag}]`;
     return `${WHATS}&text=${encodeURIComponent(`${lp.zap} ${origem}`)}`;
   };
   const aoAgendar = (onde: string) => () => track("agendar_click", { lp: lp.tag, servico: lp.oferta.servico, onde });
