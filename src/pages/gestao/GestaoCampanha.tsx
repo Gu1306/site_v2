@@ -9,11 +9,13 @@ import { ApiError, apiGestao, Carregando, TelaLogin, Topo, useSessaoGestao } fro
 
 type Entrada = { tipo: string; atletas: number; continuaram: number; taxa: number | null; receitaMediana: number | null };
 type SemanaNovos = { segunda: string; novos: number; fisio: number; recovery: number; origens: Record<string, number> | null; encerrada: boolean };
+type PeriodoJornada = { chave: string; de: string; ate: string; novos: number; fisio: number; recovery: number; origens: Record<string, number> | null; encerrada: boolean };
 type DadosCampanha = {
   atualizadoEm: string | null;
   janela: { de: string; ate: string };
   entradas: { fisio: Entrada; recovery: Entrada };
   novosPorSemana: SemanaNovos[];
+  jornada: { inicio: string; semanas: PeriodoJornada[]; meses: PeriodoJornada[] };
   foraDoNormal: { quantidade: number; exemplos: { valor: number; tipo: string; url: string | null }[] };
 };
 
@@ -25,7 +27,7 @@ type CenarioPronto = 'teste' | 'search' | 'recovery' | 'meta';
 type Cenario = CenarioPronto | 'custom';
 type Estado = { canal: Canal; oferta: Oferta; cenario: Cenario; campos: Record<Chave, string>; reais: Record<ChaveReal, string> };
 
-const CHAVE_LOCAL = 'carefit_gestao_campanha_v1';
+const CHAVE_LOCAL = 'carefit_gestao_campanha_jornada_20261111_v1';
 const CAPACIDADE = 50; // +50 primeiras sessões por mês (Gustavo, 05/11/2026)
 const CLIQUES_CIDADE = 400; // a Pesquisa relevante de Ribeirão soma ~150–400 cliques/mês
 const AMOSTRA_MINIMA = 5;
@@ -197,33 +199,39 @@ function NovosPorSemana({ semanas }: { semanas: SemanaNovos[] }) {
   );
 }
 
-type RegistroSemanal = { semana: string; canal: Canal; oferta: Oferta; reais: Record<ChaveReal, string> };
-const CHAVE_SEMANAS = 'carefit_campanha_semanas_v1';
+type RegistroSemanal = { periodo: 'semana' | 'mes'; semana: string; canal: Canal; oferta: Oferta; reais: Record<ChaveReal, string> };
+const CHAVE_SEMANAS = 'carefit_campanha_jornada_20261111_v1';
 function segundaAtual() {
   const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function HistoricoSemanal({ estado }: { estado: Estado }) {
+  const [periodo, setPeriodo] = useState<'semana' | 'mes'>('semana');
   const [semana, setSemana] = useState(segundaAtual);
+  const [mes, setMes] = useState(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; });
   const [mensagem, setMensagem] = useState('');
   const [registros, setRegistros] = useState<RegistroSemanal[]>(() => {
     try { const dados = JSON.parse(localStorage.getItem(CHAVE_SEMANAS) || '[]'); return Array.isArray(dados) ? dados : []; } catch { return []; }
   });
   const salvar = () => {
-    if (!semana || new Date(`${semana}T12:00:00`).getDay() !== 1) { setMensagem('Escolha uma segunda-feira.'); return; }
+    if (periodo === 'semana' && (!semana || new Date(`${semana}T12:00:00`).getDay() !== 1 || semana < '2026-11-09' || semana > segundaAtual())) { setMensagem('Escolha uma semana entre o início da jornada e a semana atual.'); return; }
+    const agora = new Date(); const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}`;
+    if (periodo === 'mes' && (!/^\d{4}-\d{2}$/.test(mes) || mes < '2026-11' || mes > mesAtual)) { setMensagem('Escolha um mês entre novembro de 2026 e o mês atual.'); return; }
     if (!estado.reais.gasto.trim() && !estado.reais.cliques.trim() && !estado.reais.conversas.trim() && !estado.reais.agendaram.trim() && !estado.reais.compareceram.trim() && !estado.reais.continuaram.trim()) { setMensagem('Preencha pelo menos um número antes de salvar.'); return; }
     if (CHAVES_REAIS.some(k => estado.reais[k].trim() && (!/^\d+(?:[.,]\d+)?$/.test(estado.reais[k].trim()) || lerNum(estado.reais[k]) < 0 || (k !== 'gasto' && !Number.isInteger(lerNum(estado.reais[k])))))) { setMensagem('Confira os valores: use números não negativos e quantidades inteiras.'); return; }
-    const registro = { semana, canal: estado.canal, oferta: estado.oferta, reais: { ...estado.reais } };
-    const atualizados = [...registros.filter(r => !(r.semana === semana && r.canal === estado.canal && r.oferta === estado.oferta)), registro].sort((a, b) => b.semana.localeCompare(a.semana));
-    try { localStorage.setItem(CHAVE_SEMANAS, JSON.stringify(atualizados)); setRegistros(atualizados); setMensagem('Semana salva neste navegador.'); } catch { setMensagem('Não foi possível salvar neste navegador.'); }
+    const chave = periodo === 'semana' ? semana : mes;
+    const registro = { periodo, semana: chave, canal: estado.canal, oferta: estado.oferta, reais: { ...estado.reais } };
+    const atualizados = [...registros.filter(r => !(r.periodo === periodo && r.semana === chave && r.canal === estado.canal && r.oferta === estado.oferta)), registro].sort((a, b) => b.semana.localeCompare(a.semana));
+    try { localStorage.setItem(CHAVE_SEMANAS, JSON.stringify(atualizados)); setRegistros(atualizados); setMensagem('Período salvo neste navegador.'); } catch { setMensagem('Não foi possível salvar neste navegador.'); }
   };
   return <section className="gs-bloco">
-    <h2>Histórico semanal da campanha</h2>
-    <p className="gs-nota">Preencha os números acima para a semana e a oferta selecionadas e salve. O histórico fica somente neste navegador e aparelho; não é compartilhado nem é um backup. Semanas com zero devem ser preenchidas com 0. Agendamentos e comparecimentos da semana podem vir de cliques de semanas anteriores.</p>
-    <div className="gc-acoes"><label>Segunda-feira da semana <input type="date" value={semana} onChange={e => setSemana(e.target.value)} /></label><button type="button" className="gs-botao gs-botao-cheio" onClick={salvar}>Salvar semana</button><span role="status">{mensagem}</span></div>
-    <p className="gs-nota">A gravação substitui somente a mesma semana, canal e oferta. Fonte selecionada: {estado.canal === 'google' ? 'Google' : 'Meta'} · {OFERTAS[estado.oferta].rotulo}.</p>
-    {registros.length > 0 && <div className="gs-rolagem"><table className="gs-tabela"><thead><tr><th>Semana</th><th>Canal e oferta</th><th>Gasto</th><th>Cliques</th><th>Conversas</th><th>Agendaram</th><th>Compareceram</th><th>Continuaram</th></tr></thead><tbody>{registros.map(r => <tr key={`${r.semana}-${r.canal}-${r.oferta}`}><td>{ddmm(r.semana)}/{r.semana.slice(0, 4)}</td><td>{r.canal === 'google' ? 'Google' : 'Meta'} · {OFERTAS[r.oferta]?.rotulo || 'Outro'}</td><td>{r.reais.gasto ? brl(lerNum(r.reais.gasto), 2) : '—'}</td>{(['cliques', 'conversas', 'agendaram', 'compareceram', 'continuaram'] as ChaveReal[]).map(k => <td key={k}>{r.reais[k] || '—'}</td>)}</tr>)}</tbody></table></div>}
+    <h2>Registros semanais e mensais</h2>
+    <p className="gs-nota">Jornada iniciada em 11/11/2026. Na primeira semana, informe apenas 11 a 15/11; em novembro, informe 11 a 30/11. Preencha os valores do período acima e salve. Os totais mensais são lançados separadamente, pois semanas podem atravessar meses.</p>
+    <p className="gs-nota">Os registros ficam somente neste navegador e aparelho; não são compartilhados nem são backup. Agendamentos e comparecimentos podem vir de cliques anteriores.</p>
+    <div className="gc-acoes"><label>Período <select value={periodo} onChange={e => { setPeriodo(e.target.value as 'semana' | 'mes'); setMensagem(''); }}><option value="semana">Semana</option><option value="mes">Mês</option></select></label>{periodo === 'semana' ? <label>Segunda-feira da semana <input type="date" value={semana} onChange={e => setSemana(e.target.value)} /></label> : <label>Mês <input type="month" value={mes} min="2026-11" onChange={e => setMes(e.target.value)} /></label>}<button type="button" className="gs-botao gs-botao-cheio" onClick={salvar}>Salvar período</button><span role="status">{mensagem}</span></div>
+    <p className="gs-nota">Salvar novamente substitui o mesmo período, canal e oferta. Seleção: {estado.canal === 'google' ? 'Google' : 'Meta'} · {OFERTAS[estado.oferta].rotulo}.</p>
+    {registros.length > 0 && <div className="gs-rolagem"><table className="gs-tabela"><thead><tr><th>Período</th><th>Canal e oferta</th><th>Gasto</th><th>Cliques</th><th>Conversas</th><th>Agendaram</th><th>Compareceram</th><th>Continuaram</th></tr></thead><tbody>{registros.map(r => <tr key={`${r.periodo}-${r.semana}-${r.canal}-${r.oferta}`}><td>{r.periodo === 'mes' ? `Mês ${r.semana.slice(5, 7)}/${r.semana.slice(0, 4)}` : `Semana ${r.semana === '2026-11-09' ? '11/11' : ddmm(r.semana)}/${r.semana.slice(0, 4)}`}</td><td>{r.canal === 'google' ? 'Google' : 'Meta'} · {OFERTAS[r.oferta]?.rotulo || 'Outro'}</td><td>{r.reais.gasto ? brl(lerNum(r.reais.gasto), 2) : '—'}</td>{(['cliques', 'conversas', 'agendaram', 'compareceram', 'continuaram'] as ChaveReal[]).map(k => <td key={k}>{r.reais[k] || '—'}</td>)}</tr>)}</tbody></table></div>}
   </section>;
 }
 
@@ -235,6 +243,7 @@ export default function GestaoCampanha() {
   const [erro, setErro] = useState('');
   const [estado, setEstado] = useState<Estado>(() => lerLocal() ?? estadoDoCenario('teste', null, reaisVazios()));
   const [aviso, setAviso] = useState<{ ok: boolean; texto: string } | null>(null);
+  const [visao, setVisao] = useState<'semanas' | 'meses'>('semanas');
   const painelRef = useRef<HTMLElement>(null);
   const [painelNaTela, setPainelNaTela] = useState(true);
 
@@ -251,12 +260,6 @@ export default function GestaoCampanha() {
 
   useEffect(() => { if (sessao?.financeiro) void carregar(); }, [sessao, carregar]);
 
-  // Cenário pronto passa a usar o número do ClickUp assim que ele chega; o que foi
-  // mexido à mão (cenário "personalizado") fica como está.
-  useEffect(() => {
-    if (dados) setEstado(e => (e.cenario === 'custom' ? e : estadoDoCenario(e.cenario, dados, e.reais, e.campos.meta)));
-  }, [dados]);
-
   useEffect(() => { try { localStorage.setItem(CHAVE_LOCAL, JSON.stringify(estado)); } catch { /* sem armazenamento: só não lembra */ } }, [estado]);
 
   // No celular, uma barra no rodapé mostra o resultado enquanto o painel está fora da tela.
@@ -269,7 +272,7 @@ export default function GestaoCampanha() {
   }, [sessao]);
 
   const r = useMemo(() => calcular(estado), [estado]);
-  const ref = realDaOferta(estado.oferta, dados);
+  const ref = realDaOferta(estado.oferta, null);
 
   if (verificando) return <Carregando />;
   if (!sessao) return <TelaLogin titulo="Calculadora de campanha" onEntrar={setSessao} aviso={erroSessao} />;
@@ -283,10 +286,10 @@ export default function GestaoCampanha() {
   const campo = (k: Chave) => estado.campos[k];
   const mudar = (k: Chave) => (valor: string) => setEstado(e => ({ ...e, cenario: k === 'meta' ? e.cenario : 'custom', campos: { ...e.campos, [k]: valor } }));
   const mudarReal = (k: ChaveReal) => (valor: string) => setEstado(e => ({ ...e, reais: { ...e.reais, [k]: valor } }));
-  const escolherCenario = (c: CenarioPronto) => { setAviso(null); setEstado(e => estadoDoCenario(c, dados, e.reais, e.campos.meta)); };
+  const escolherCenario = (c: CenarioPronto) => { setAviso(null); setEstado(e => estadoDoCenario(c, null, e.reais, e.campos.meta)); };
   const escolherCanal = (canal: Canal) => setEstado(e => (e.canal === canal ? e : { ...e, canal, cenario: 'custom' }));
   const escolherOferta = (oferta: Oferta) => setEstado(e => {
-    const o = OFERTAS[oferta]; const real = realDaOferta(oferta, dados); const campos = { ...e.campos };
+    const o = OFERTAS[oferta]; const real = realDaOferta(oferta, null); const campos = { ...e.campos };
     if (o.ticket) campos.ticket = paraCampo(o.ticket);
     if (real) { campos.recCont = paraCampo(real.recCont); campos.pCont = paraCampo(real.pCont); }
     else if (o.recContPremissa) campos.recCont = paraCampo(o.recContPremissa);
@@ -341,7 +344,7 @@ export default function GestaoCampanha() {
     Math.round(positivo(campo('pCont'))) === ref.pCont
       ? <><Tag tipo="clickup">ClickUp</Tag>{ref.entrada.continuaram} de {ref.entrada.atletas} que entraram {OFERTAS[estado.oferta].porta}{ref.entrada.atletas < 20 ? ' (amostra pequena)' : ''}</>
       : <><Tag tipo="prem">editado</Tag>o ClickUp mostra {ref.pCont}% ({ref.entrada.continuaram} de {ref.entrada.atletas})</>
-  ) : <><Tag tipo="prem">premissa</Tag>{dados ? 'sem amostra no ClickUp para esta oferta' : 'lendo o ClickUp…'}</>;
+  ) : <><Tag tipo="prem">premissa</Tag>estimativa inicial; preencha os resultados da jornada</>;
   const fonteReceita = ref ? (
     Math.round(positivo(campo('recCont'))) === ref.recCont
       ? <><Tag tipo="clickup">ClickUp</Tag>mediana de quem continuou {OFERTAS[estado.oferta].porta}</>
@@ -378,7 +381,7 @@ export default function GestaoCampanha() {
           </div>
         )}
 
-        <section className="gs-kpis" aria-label="O que o ClickUp já mostra">
+        <details className="gs-bloco"><summary>Histórico geral · referência</summary><p className="gs-nota">Dados gerais do ClickUp, apresentados como referência; não são resultados da campanha iniciada em 11/11/2026.</p><section className="gs-kpis" aria-label="Histórico do ClickUp">
           <EntradaKpi rotulo="Entrou pela avaliação e continuou" e={dados?.entradas.fisio} />
           <EntradaKpi rotulo="Entrou pela 1ª sessão dupla e continuou" e={dados?.entradas.recovery} />
           <div className="gs-kpi">
@@ -386,7 +389,7 @@ export default function GestaoCampanha() {
             <strong>{Number.isFinite(mediaNovos) ? mediaNovos.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) : '—'}</strong>
             <small>{fechadas.length ? `média das ${fechadas.length} semanas fechadas` : 'lendo o ClickUp…'}</small>
           </div>
-        </section>
+        </section></details>
 
         <div className="gc-cenarios" role="group" aria-label="Cenários prontos">
           <span className="gc-cenarios-rot">Cenário</span>
@@ -463,9 +466,9 @@ export default function GestaoCampanha() {
             </div>
           </section>
 
-          <aside className="gc-painel" ref={painelRef} aria-label="Resultado do mês">
+          <aside className="gc-painel" ref={painelRef} aria-label="Resultado projetado">
             <div className="gc-res">
-              <span className="gc-olho">Resultado do mês</span>
+              <span className="gc-olho">Resultado projetado do mês</span>
               <div className={'gc-grande ' + (r.verba > 0 ? (r.resultado >= 0 ? 'gc-pos' : 'gc-neg') : '')}>{r.verba > 0 ? comSinal(r.resultado) : brl(0, 0)}</div>
               <p className="gc-sub">margem que os clientes do mês deixam, menos a verba</p>
               {r.verba > 0 && <p className="gc-sub">Contando só a entrada: <b>{comSinal(r.soEntrada)}</b></p>}
@@ -543,9 +546,16 @@ export default function GestaoCampanha() {
 
         <HistoricoSemanal estado={estado} />
 
+        {dados?.jornada && <section className="gs-bloco">
+          <h2>Nova jornada · desde 11/11/2026</h2>
+          <p className="gs-nota">Primeiras sessões realizadas desde o início da jornada, para todos os canais. A primeira semana e o primeiro mês começam em 11/11. A origem vem do CRM e é atualizada quando o campo é preenchido. O período inclui apenas sessões realizadas até a data atual.</p>
+          <div className="gc-seg" role="group" aria-label="Visualização da jornada"><button type="button" aria-pressed={visao === 'semanas'} onClick={() => setVisao('semanas')}>Por semana</button><button type="button" aria-pressed={visao === 'meses'} onClick={() => setVisao('meses')}>Por mês</button></div>
+          <div className="gs-rolagem"><table className="gs-tabela"><thead><tr><th>Período</th><th>Novos atletas</th><th>Avaliação</th><th>Recovery</th><th>Origem de marketing</th></tr></thead><tbody>{dados.jornada[visao].map(p => <tr key={p.chave}><td>{ddmm(p.de)}/{p.de.slice(0, 4)} a {ddmm(p.ate)}/{p.ate.slice(0, 4)}{p.encerrada ? '' : ' · em andamento'}</td><td>{p.novos}</td><td>{p.fisio}</td><td>{p.recovery}</td><td>{p.origens === null ? 'CRM indisponível' : Object.entries(p.origens).map(([nome, total]) => `${nome}: ${total}`).join(' · ') || 'Nenhum'}</td></tr>)}</tbody></table></div>
+          <p className="gs-nota">Para agendamentos pela Agenda, pergunte como a pessoa conheceu a CareFit e registre “Origem de marketing” no CRM. Google Ads exige identificação; se não souber se foi anúncio, escolha Google busca (não identificado).</p>
+        </section>}
+
         {dados && (
-          <section className="gs-bloco">
-            <h2>Atletas novos por semana</h2>
+          <details className="gs-bloco"><summary>Atletas de semanas anteriores · histórico</summary>
             <p className="gs-nota">
               Quem fez a 1ª sessão realizada na lista Sessões Carefit naquela semana, por qualquer porta. A média anterior é {Number.isFinite(mediaNovos) ? mediaNovos.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) : '—'} por semana; a diferença não identifica quantos vieram dos anúncios. Só entra sessão com baixa (“realizada”): semana com baixa atrasada aparece menor do que foi. Passe o mouse (ou toque) numa coluna para ver por qual porta entraram.
             </p>
@@ -557,13 +567,13 @@ export default function GestaoCampanha() {
                 {dados.novosPorSemana.map(s => <tr key={s.segunda}><td>{ddmm(s.segunda)}{s.encerrada ? '' : ' · em andamento'}</td><td>{Object.entries(s.origens || {}).map(([nome, total]) => `${nome}: ${total}`).join(' · ') || 'Nenhum'}</td></tr>)}
               </tbody></table></div>
             )}
-          </section>
+          </details>
         )}
 
         <section className="gs-bloco">
           <h2>De onde vêm os números</h2>
           <ul className="gc-fontes">
-            <li><b>Quem continua e quanto deixa</b>: ClickUp, lista Sessões Carefit. Atletas cuja 1ª sessão realizada foi “Avaliação” ou “Primeira Sessão Dupla”{dados ? ` entre ${ddmm(dados.janela.de)}/${dados.janela.de.slice(2, 4)} e ${ddmm(dados.janela.ate)}/${dados.janela.ate.slice(2, 4)}` : ''} (quem entrou nos últimos 30 dias ainda está decidindo). Continuou = tem sessão paga de outro tipo depois, inclusive plano vendido e ainda sem data. A receita é a mediana do que essas pessoas deixaram, sem as canceladas.</li>
+            <li><b>Histórico geral de continuidade</b>: ClickUp, lista Sessões Carefit. Referência de atletas cuja 1ª sessão foi “Avaliação” ou “Primeira Sessão Dupla”{dados ? ` entre ${ddmm(dados.janela.de)}/${dados.janela.de.slice(2, 4)} e ${ddmm(dados.janela.ate)}/${dados.janela.ate.slice(2, 4)}` : ''}; esse histórico não é aplicado automaticamente à nova jornada. Continuou = tem sessão paga de outro tipo depois. A receita é a mediana do que essas pessoas deixaram, sem as canceladas.</li>
             <li><b>Comparecimento de 90%</b> e capacidade para <b>+50 primeiras sessões por mês</b>: Gustavo, 05/11/2026.</li>
             <li><b>Margem de contribuição de 60,2%</b>: DRE de outubro de 2026.</li>
             <li><b>Ofertas</b> (08/11/2026): dor que limita a corrida entra pela avaliação com fisioterapeuta, R$ 180, sem cortesia. Recovery e performance entram por R$ 230 com a 2ª sessão de cortesia, que ocupa um horário a mais na agenda e não está descontada da margem.</li>

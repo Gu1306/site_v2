@@ -127,6 +127,17 @@ test('serviço lê as três listas em páginas, guarda em cache e recusa semana 
   await assert.rejects(servico.semana('ontem'), /Semana inválida/);
 });
 
+test('nova jornada começa em 11 de novembro e separa semanas de meses', () => {
+  const s = (id, data, tipo) => ({ id, atleta: id, atletaId: id, status: 'realizada', data, tipo, valor: 180 });
+  const sessoes = [s('antes', '2026-11-10', 'Avaliação'), s('inicio', '2026-11-11', 'Avaliação'), s('fim', '2026-11-30', 'Primeira Sessão Dupla'), s('dez', '2026-12-01', 'Avaliação'), s('futuro', '2026-12-03', 'Avaliação')];
+  const origens = new Map([['inicio', 'Google Ads'], ['dez', 'Indicação']]);
+  const jornada = montarCampanha({ sessoes, origens }, '2026-12-02').jornada;
+  assert.deepEqual(jornada.semanas[0], { chave: '2026-11-09', de: '2026-11-11', ate: '2026-11-15', novos: 1, fisio: 1, recovery: 0, origens: { 'Google Ads': 1 }, encerrada: true });
+  assert.equal(jornada.semanas.at(-1).novos, 2);
+  assert.deepEqual(jornada.meses.map(x => [x.chave, x.de, x.ate, x.novos]), [['2026-11', '2026-11-11', '2026-11-30', 2], ['2026-12', '2026-12-01', '2026-12-31', 1]]);
+  assert.equal(jornada.meses[1].origens['Indicação'], 1);
+});
+
 test('campanha: origens são contadas pelo vínculo com CRM e sem origem ficam não informadas', () => {
   const sessao = (id, atletaId) => ({ id, atleta: 'Mesmo nome', atletaId, status: 'realizada', data: '2026-11-03', tipo: 'Avaliação', valor: 180 });
   const sessoes = [sessao('a', 'crm-a'), sessao('b', 'crm-b'), sessao('c', null)];

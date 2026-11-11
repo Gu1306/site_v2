@@ -205,6 +205,7 @@ export const VALOR_MAXIMO_SESSAO = 1000;
 const DECISAO_DIAS = 30; // quem entrou há menos de 30 dias ainda está decidindo
 const JANELA_DIAS = 365;
 const SEMANAS_NOVOS = 8;
+export const INICIO_JORNADA = '2026-11-11';
 
 const mediana = ordenados => {
   if (!ordenados.length) return null;
@@ -247,12 +248,31 @@ export function montarCampanha(dados, hoje, atualizadoEm = null) {
     return { segunda, novos: daSemana.length, fisio: daSemana.filter(e => e.porta === 'fisio').length, recovery: daSemana.filter(e => e.porta === 'recovery').length, origens, encerrada: fim < hoje };
   });
 
+  // Períodos de calendário com início limitado ao primeiro dia da jornada.
+  const novosJornada = estreias.filter(e => e.data >= INICIO_JORNADA && e.data <= hoje);
+  const resumirPeriodo = (inicio, fim, chave) => {
+    const de = inicio < INICIO_JORNADA ? INICIO_JORNADA : inicio;
+    const daFaixa = novosJornada.filter(e => e.data >= de && e.data <= fim);
+    const origens = dados.origens ? daFaixa.reduce((acc, e) => { const origem = (e.atletaId && dados.origens.get(e.atletaId)) || 'Não informada'; acc[origem] = (acc[origem] || 0) + 1; return acc; }, {}) : null;
+    return { chave, de, ate: fim, novos: daFaixa.length, fisio: daFaixa.filter(e => e.porta === 'fisio').length, recovery: daFaixa.filter(e => e.porta === 'recovery').length, origens, encerrada: fim < hoje };
+  };
+  const semanas = [];
+  for (let dia = segundaDe(INICIO_JORNADA); dia <= hoje; dia = somarDias(dia, 7)) semanas.push(resumirPeriodo(dia, somarDias(dia, 6), dia));
+  const meses = [];
+  for (let mes = INICIO_JORNADA.slice(0, 7); mes <= hoje.slice(0, 7);) {
+    const [ano, numero] = mes.split('-').map(Number);
+    const proximo = new Date(Date.UTC(ano, numero, 1)).toISOString().slice(0, 7);
+    meses.push(resumirPeriodo(`${mes}-01`, somarDias(`${proximo}-01`, -1), mes));
+    mes = proximo;
+  }
+
   const fora = vivas.filter(s => s.valor > VALOR_MAXIMO_SESSAO);
   return {
     atualizadoEm,
     janela: { de, ate },
     entradas: { fisio: resumo(coortes.fisio, ENTRADAS.fisio), recovery: resumo(coortes.recovery, ENTRADAS.recovery) },
     novosPorSemana,
+    jornada: { inicio: INICIO_JORNADA, semanas, meses },
     foraDoNormal: { quantidade: fora.length, exemplos: fora.slice(0, 3).map(s => ({ valor: s.valor, tipo: s.tipo, url: s.url })) },
   };
 }
