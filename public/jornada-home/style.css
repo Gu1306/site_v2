@@ -2129,3 +2129,22 @@ footer nav{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 18px}
 .service-card.is-selected .card-copy strong{font-size:28px}
 @media(max-width:640px){.service-stage{height:390px}.service-card{height:340px}}
 .service-card img{object-position:var(--pos,center)}
+
+/* ---------- Relatos em vídeo (prova social, 15/11/2026) ---------- */
+.story-videos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;margin-top:40px}
+.story-video{margin:0;display:flex;flex-direction:column;min-width:0}
+.story-video video{display:block;width:100%;aspect-ratio:9/16;object-fit:cover;background:var(--deep);border:0}
+.story-video figcaption{display:flex;flex-direction:column;gap:8px;padding-top:14px}
+.story-video strong{font-family:'Barlow Condensed',Arial,sans-serif;font-size:24px;line-height:1.05;font-weight:700;text-transform:uppercase;color:var(--green)}
+.story-video q{font-family:Barlow,Arial,sans-serif;font-size:16px;line-height:1.4;color:var(--ink)}
+.story-video span{font-family:Barlow,Arial,sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--orange)}
+.story-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:22px}
+.story-nav .story-dots{margin-top:0}
+@media(max-width:900px){.story-videos{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){
+ .story-videos{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;margin-top:28px;padding-bottom:6px;scrollbar-width:none}
+ .story-videos::-webkit-scrollbar{display:none}
+ .story-video{flex:0 0 74%;scroll-snap-align:start}
+ .story-video strong{font-size:22px}
+ .story-nav{flex-wrap:wrap;gap:6px}
+}
