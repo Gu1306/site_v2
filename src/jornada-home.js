@@ -39,7 +39,7 @@ reduced.addEventListener('change', syncHeroMotion);
 document.addEventListener('visibilitychange', syncHeroMotion);
 syncHeroMotion();
 
-/* ---------- Botão fixo de WhatsApp no celular ---------- */
+/* ---------- Botão fixo de agendamento no celular ---------- */
 const waBar = document.querySelector('.wa-bar');
 const closing = document.querySelector('#conversa');
 let heroOut = false, closingIn = false;
@@ -49,11 +49,11 @@ new IntersectionObserver(e => { closingIn = e[0].isIntersecting; syncWaBar(); },
 
 /* ---------- Serviços ---------- */
 const services = [
-  { name: 'Recovery', headline: 'Faça uma sessão. Ganhe a outra.', description: 'Conheça o cuidado da CareFit: uma sessão para entender seu momento e cuidar de você, outra para acompanhar a resposta e ajustar o caminho.', short: 'Faça uma sessão. Ganhe a outra.', points: ['Crioterapia, compressão e luz', 'Primeira sessão dupla: a segunda é por nossa conta', 'Entre treinos e depois da prova'], image: '/jornada-home/assets/service-recovery.jpg', pos: 'center 78%', cta: 'Conhecer a primeira sessão dupla', url: 'https://www.carefitrunbase.com.br/conheca-a-carefit' },
-  { name: 'Reabilitação', headline: 'Aquela dor está mudando seu jeito de correr?', description: 'Ou impedindo você de treinar como gostaria? Vamos entender o que está acontecendo e construir um cuidado específico para o seu retorno à corrida.', short: 'Cuidado para voltar à sua corrida.', points: ['Avaliação que olha a sua corrida', 'Plano para voltar a treinar', 'Revisto conforme você responde'], image: '/jornada-home/assets/service-reab.jpg', cta: 'Conhecer a primeira sessão dupla', url: 'https://www.carefitrunbase.com.br/conheca-a-carefit' },
-  { name: 'Fortalecimento', headline: 'Força para o seu ciclo. Foco na sua prova.', description: 'Um trabalho específico para suas necessidades, o momento da preparação e a prova que você tem como objetivo.', short: 'Seu ciclo. Sua prova-alvo.', points: ['Em turma, conduzido por fisioterapeuta', 'Ciclo pensado na sua prova-alvo', 'Força específica para quem corre'], image: '/jornada-home/assets/service-forca.jpg', cta: 'Conhecer o fortalecimento', url: 'https://www.carefitrunbase.com.br/fortalecimento-em-turma' },
-  { name: 'Yoga para corredores', headline: 'Respirar, alongar e dar espaço à recuperação.', description: 'Um momento para meditar, trabalhar a mobilidade e prestar atenção ao corpo. Yoga como parte da sua rotina de cuidado entre os treinos.', short: 'Respiração, mobilidade e presença.', points: ['Feito para corredores', 'Mobilidade e respiração', 'Turmas no começo da manhã'], image: '/jornada-home/assets/service-yoga.jpg', caption: 'ESPAÇO CAREFIT', cta: 'Ver aulas e horários de yoga', url: 'https://www.carefitrunbase.com.br/agendamento-yoga' },
-  { name: 'Teste de força', headline: 'Conheça sua força. Entenda suas assimetrias.', description: 'Avalie as diferenças de força entre os lados e tenha uma base para um trabalho específico. Os resultados são interpretados junto da sua história e da avaliação profissional.', short: 'Uma base para cuidar de você.', points: ['Mede a diferença entre os lados', 'Base para o fortalecimento', 'Resultado explicado com você'], image: '/jornada-home/assets/service-teste.jpg', cta: 'Conhecer o teste de força', url: 'https://www.carefitrunbase.com.br/teste-de-forca-ribeirao-preto' }
+  { name: 'Sessão Dupla', headline: 'Dois encontros para conhecer o cuidado da CareFit.', description: 'Por R$ 230, você tem 80 minutos de avaliação e recovery personalizado no primeiro encontro e retorno de 1 hora em até 15 dias. São dois atendimentos para você, em dias diferentes, sem obrigação de contratar um plano depois.', short: 'Conhecer, cuidar e acompanhar.', points: ['R$ 230 pelos dois encontros', 'Primeiro atendimento de 80 minutos', 'Retorno de 1 hora em até 15 dias'], image: '/jornada-home/assets/service-recovery.jpg', pos: 'center 78%', cta: 'Agendar minha Sessão Dupla', url: '/primeira-sessao?servico=dupla' },
+  { name: 'Dor ou lesão', headline: 'A dor está limitando sua corrida?', description: 'Comece pela avaliação de reabilitação: R$ 180 por 80 minutos com fisioterapeuta para conversar sobre seu histórico, realizar a avaliação física e propor os próximos passos. O valor corresponde à avaliação inicial.', short: 'Comece pela avaliação.', points: ['Avaliação de reabilitação: R$ 180', '80 minutos com fisioterapeuta', 'Proposta de tratamento para o seu caso'], image: '/jornada-home/assets/service-reab.jpg', cta: 'Agendar minha avaliação', url: '/primeira-sessao?servico=reabilitacao' },
+  { name: 'Primeira visita', headline: 'Tempo para entender o que trouxe você até aqui.', description: 'Conte como são seus treinos, o que tem sentido e o que quer alcançar. Essa conversa faz parte da avaliação e ajuda a direcionar o atendimento que você escolheu.', short: 'Sua história entra no cuidado.', points: ['Sua história e sua rotina', 'Avaliação com fisioterapeuta', 'Explicações sobre o cuidado'], image: '/jornada-home/assets/service-forca.jpg', cta: 'Escolher meu atendimento', url: '/primeira-sessao' },
+  { name: 'Segundo encontro', headline: 'Voltar também faz parte do cuidado.', description: 'Na Sessão Dupla, o retorno de 1 hora está incluído. Em até 15 dias, a equipe acompanha sua resposta, ajusta o cuidado e conversa sobre os próximos passos.', short: 'Acompanhar sua resposta.', points: ['Incluído na Sessão Dupla', '1 hora de atendimento', 'Em até 15 dias após a primeira visita'], image: '/jornada-home/assets/service-yoga.jpg', caption: 'ESPAÇO CAREFIT', cta: 'Agendar minha Sessão Dupla', url: '/primeira-sessao?servico=dupla' },
+  { name: 'Como agendar', headline: 'Escolha seu atendimento e encontre um horário.', description: 'Selecione Sessão Dupla ou avaliação de reabilitação. Depois, escolha o profissional e veja a agenda. Seu horário fica confirmado após o pagamento e a confirmação da equipe pelo WhatsApp.', short: 'Um primeiro passo claro.', points: ['Escolha o atendimento', 'Veja profissional e horários', 'Confirme com a equipe'], image: '/jornada-home/assets/service-teste.jpg', cta: 'Ver atendimentos e horários', url: '/primeira-sessao' }
 ];
 let activeService = 0;
 const stage = document.querySelector('#service-stage');
@@ -152,12 +152,12 @@ if (numberBlock) {
 
 /* ---------- Ferramentas + cena do cuidado (sem métrica inventada) ---------- */
 const careTools = [
-  { name: 'Mapa mental', description: 'História, rotina, objetivos e o que importa para você em um mapa construído junto.' },
-  { name: 'Dashboard do atleta', description: 'Treinos e check-ins de sono, energia e percepção de esforço ajudam a equipe a acompanhar sua jornada.' },
-  { name: 'Crioterapia', description: 'Imersão em água fria quando indicada, dentro do cuidado orientado pela equipe.' },
-  { name: 'Fotobiomodulação', description: 'Um recurso que usa luz e que a equipe pode incluir conforme a avaliação e as necessidades de cada pessoa.' },
-  { name: 'Força e avaliação', description: 'Teste de força e fortalecimento específico para suas necessidades e o momento da preparação.' },
-  { name: 'Compressão pneumática', description: 'Botas de compressão como parte da sessão, conforme a avaliação profissional.' }
+  { name: 'Sua história', description: 'Rotina, histórico e objetivos organizados em um mapa construído com você.' },
+  { name: 'Seus treinos', description: 'Os registros disponíveis ajudam a equipe a conversar sobre sua semana e sua preparação.' },
+  { name: 'Crioterapia', description: 'Imersão em água fria que pode fazer parte do recovery, conforme a avaliação.' },
+  { name: 'Fotobiomodulação', description: 'Um dos recursos que a fisioterapeuta pode indicar para o seu cuidado.' },
+  { name: 'Força e avaliação', description: 'Avaliações e fortalecimento que podem fazer parte dos próximos passos do seu acompanhamento.' },
+  { name: 'Compressão', description: 'Botas de compressão que podem ser utilizadas na sessão, quando indicadas.' }
 ];
 const careSystem = document.querySelector('.care-system');
 const carePlay = document.querySelector('#care-play');
@@ -172,7 +172,7 @@ document.querySelectorAll('[data-tool]').forEach(b => b.addEventListener('click'
 const PHASE_TEXT = {
   effort: 'O treino e a rotina exigem de você.',
   adjust: 'A CareFit escuta, avalia e ajusta o cuidado.',
-  renew: 'O cuidado acompanha você entre um treino e o próximo.'
+  renew: 'O primeiro passo é conhecer você.'
 };
 function syncCarePhase(time) {
   const phase = time < 2600 ? 'effort' : time < 4500 ? 'adjust' : 'renew';
@@ -244,10 +244,11 @@ reduced.addEventListener('change', reduceCare); reduceCare();
 })();
 
 /* ---------- Semana ilustrativa ---------- */
+const weekContext = [['SEG', 'Seus treinos', ''], ['TER', 'Sua rotina', 'care'], ['QUA', 'Como você se sente', 'care'], ['QUI', 'Seu descanso', 'rest'], ['SEX', 'Seus objetivos', '']];
 const scenarios = [
-  { events: [['SEG', 'Rotina de treino', ''], ['TER', 'Fortalecimento', 'care'], ['QUA', 'Espaço para recuperar', 'rest'], ['QUI', 'Rotina de treino', ''], ['SEX', 'Conversa sobre a semana', 'care']], heading: 'Como o cuidado cabe na sua semana?', message: 'Neste exemplo, treino, fortalecimento e recuperação têm espaço na semana. Na sua rotina, a organização depende das suas necessidades e do acompanhamento escolhido.' },
-  { events: [['SEG', 'Rotina de treino', ''], ['TER', 'Compromisso de trabalho', 'rest'], ['QUA', 'Conversa sobre novo horário', 'care'], ['QUI', 'Fortalecimento • horário a combinar', 'care'], ['SEX', 'Revisão da semana', '']], heading: 'Surgiu um compromisso. Vamos reorganizar?', message: 'Neste exemplo, o fortalecimento muda de dia. Um ajuste real depende da equipe, da disponibilidade e das suas necessidades.' },
-  { events: [['SEG', 'Rotina de treino', ''], ['TER', 'Relato de cansaço', 'care'], ['QUA', 'Conversa com a equipe', 'care'], ['QUI', 'Organização a revisar', 'rest'], ['SEX', 'Acompanhamento', 'care']], heading: 'Como esse cansaço aparece na sua rotina?', message: 'O próximo passo é entender o contexto com a equipe. Esta demonstração não define descanso, tratamento ou mudança de treino.' }
+  { events: weekContext, heading: 'Abra espaço para cuidar de você.', message: 'A Sessão Dupla é uma forma de conhecer o recovery da CareFit, conversar sobre sua rotina e acompanhar sua resposta em dois encontros.' },
+  { events: weekContext, heading: 'Traga sua preparação para a conversa.', message: 'Conte sobre a prova, os treinos e como tem se sentido. Na Sessão Dupla, a avaliação orienta o cuidado para o seu momento de preparação.' },
+  { events: weekContext, heading: 'Comece pela avaliação de reabilitação.', message: 'Se uma dor ou lesão está limitando sua corrida, o primeiro passo aqui é avaliar o seu caso. A fisioterapeuta considera seu histórico e os achados da avaliação para orientar os próximos passos.' }
 ];
 function setScenario(n) {
   const s = scenarios[n];
