@@ -199,6 +199,16 @@ export function createServer(env = process.env, service = createService(clickupC
       res.setHeader('X-Content-Type-Options', 'nosniff');
       if (url.pathname === '/painel-fortalecimento' || url.pathname === '/painel-avaliacao-forca' || url.pathname === '/gestao' || url.pathname.startsWith('/gestao/')) { res.setHeader('X-Robots-Tag', 'noindex, nofollow'); res.setHeader('X-Frame-Options', 'DENY'); }
 
+      if (url.pathname === '/') {
+        const home = await readFile(path.join('dist', 'jornada-home.html'));
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
+        return res.end(req.method === 'HEAD' ? undefined : home);
+      }
+      if (url.pathname === '/jornada-home.html') {
+        res.writeHead(301, { Location: '/' + url.search });
+        return res.end();
+      }
+
       // Rotas que circulam em mensagem devolvem o index.html com o preview
       // reescrito (ver PREVIEWS no topo). Se o dist ainda não existe, segue o
       // fluxo normal em vez de derrubar a página.

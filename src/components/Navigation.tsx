@@ -104,7 +104,7 @@ const Navigation = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-[4px]">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-3">
+            <Link to="/" reloadDocument className="flex items-center space-x-3">
               <CareFitLogo size={58} />
               <div className="text-xl font-bold text-primary px-[11px]">
                 <span>CAREFIT</span>{" "}

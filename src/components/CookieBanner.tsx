@@ -13,7 +13,7 @@ import {
  * pessoa ainda não tiver escolhido. "Aceitar" e "Recusar" têm o mesmo peso:
  * recusar não pode ser mais difícil que aceitar.
  */
-const CookieBanner = () => {
+const CookieBanner = ({ reloadDocument = false }: { reloadDocument?: boolean }) => {
   const { pathname } = useLocation();
   const [aberto, setAberto] = useState(() => tagAtiva() && escolhaCookies() === null);
 
@@ -43,7 +43,7 @@ const CookieBanner = () => {
         <p className="text-sm leading-relaxed text-primary-foreground/90">
           Usamos cookies do Google para medir as visitas e mostrar anúncios da CareFit a quem já
           conheceu o site. Você escolhe.{" "}
-          <Link to="/privacidade" className="underline underline-offset-2 hover:text-accent">
+          <Link to="/privacidade" reloadDocument={reloadDocument} className="underline underline-offset-2 hover:text-accent">
             Política de privacidade
           </Link>
         </p>

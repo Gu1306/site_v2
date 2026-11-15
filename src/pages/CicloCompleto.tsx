@@ -2002,7 +2002,7 @@ const CicloCompleto = () => {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Link to="/" reloadDocument className="text-muted-foreground hover:text-primary transition-colors">
                     Home
                   </Link>
                 </BreadcrumbLink>

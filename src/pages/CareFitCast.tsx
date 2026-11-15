@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Play, Youtube, Mic, ExternalLink, Music } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
 import heroImage from "@/assets/hero-runners.jpg";
 import { episodes, CHANNEL_URL, ytThumb, ytEmbed, ytWatch } from "@/data/episodes";
@@ -18,7 +17,6 @@ const guests = [
 
 // ── Component ─────────────────────────────────────────────
 const CareFitCast = () => {
-  const navigate = useNavigate();
   const featured = episodes[0];
 
   useEffect(() => {
@@ -259,7 +257,7 @@ const CareFitCast = () => {
             variant="default"
             size="lg"
             className="text-lg px-8 py-4"
-            onClick={() => navigate("/")}
+            onClick={() => window.location.assign("/")}
           >
             <ExternalLink className="w-5 h-5 mr-2" />
             Conheça a CareFit Run Base

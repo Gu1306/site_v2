@@ -406,7 +406,7 @@ const NossaHistoria = () => {
           <ol className="flex items-center space-x-2 text-sm">
             <li>
               <Link 
-                to="/" 
+                to="/" reloadDocument
                 className="text-muted-foreground hover:text-primary transition-colors flex items-center"
               >
                 <Home className="w-4 h-4 mr-1" />

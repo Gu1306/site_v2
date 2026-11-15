@@ -10,6 +10,14 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     proxy: { '/api/fortalecimento': 'http://localhost:3000' },
   },
+  build: {
+    rollupOptions: {
+      input: {
+        site: path.resolve(__dirname, "index.html"),
+        home: path.resolve(__dirname, "jornada-home.html"),
+      },
+    },
+  },
   preview: {
     host: "::",
     port: 4173,
