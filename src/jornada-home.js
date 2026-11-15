@@ -272,6 +272,12 @@ function setScenario(n) {
 document.querySelectorAll('[data-scenario]').forEach(b => b.addEventListener('click', () => setScenario(Number(b.dataset.scenario))));
 setScenario(0);
 
+/* ---------- Relatos em vídeo: um toca por vez, nada começa sozinho ---------- */
+const storyVideos = [...document.querySelectorAll('.story-video video')];
+storyVideos.forEach((v) => v.addEventListener('play', () => {
+  storyVideos.forEach((o) => { if (o !== v && !o.paused) o.pause(); });
+}));
+
 /* ---------- Relatos ---------- */
 const stories = [
   { quote: 'Fisioterapia e recovery você encontra em vários lugares. Mas se sentir único, alguém que te olha como indivíduo, foi o que eu só encontrei aqui.', name: 'Eduardo Torciano', ig: 'edutorciano' },
