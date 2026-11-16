@@ -2148,3 +2148,25 @@ footer nav{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 18px}
  .story-video strong{font-size:22px}
  .story-nav{flex-wrap:wrap;gap:6px}
 }
+
+/* Navegação completa da home, com acesso por toque e teclado. */
+header .site-navigation{display:flex;align-items:center;gap:14px;font-size:12px}
+header .site-navigation a,header .site-navigation summary{white-space:nowrap;min-height:44px;display:flex;align-items:center}
+.site-nav-group{position:relative}
+.site-nav-group summary{cursor:pointer;list-style:none;gap:5px}
+.site-nav-group summary::-webkit-details-marker{display:none}
+.site-nav-group summary::after{content:'⌄'}
+.site-nav-submenu{position:absolute;top:100%;left:0;width:280px;max-height:70vh;overflow-y:auto;padding:8px;background:#f4ede4;color:#0e3c41;border:1px solid #c9b27c;border-radius:8px;box-shadow:0 10px 30px #0003}
+header .site-nav-submenu a{white-space:normal;padding:8px 12px;border-radius:4px}
+.site-nav-submenu a:hover{background:#0e3c4110}
+.site-menu-toggle{display:none}
+header .site-navigation :focus-visible,header .site-menu-toggle:focus-visible{outline:2px solid #c9b27c;outline-offset:4px}
+@media(min-width:1280px){header{gap:20px;padding-left:3%;padding-right:3%}header .nav-cta{white-space:nowrap}header .nav-cta span{margin-left:8px}}
+@media(max-width:1279px){
+ header{gap:14px;flex-wrap:wrap}
+ .site-menu-toggle{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 8px;color:inherit;background:transparent;border:1px solid currentColor;border-radius:4px;margin-left:auto;font:inherit;font-size:13px}
+ header .site-navigation{display:none;position:absolute;top:100%;left:0;right:0;max-height:calc(100dvh - 90px);overflow:auto;background:#f4ede4;color:#0e3c41;padding:16px 6%;border-bottom:1px solid #c9b27c;box-shadow:0 10px 20px #0002;font-size:14px}
+ header .site-navigation.is-open{display:block}
+ .site-nav-submenu{position:static;width:auto;max-height:none;box-shadow:none;border:0;border-left:2px solid #c9b27c;border-radius:0;padding:0 0 0 12px}
+}
+@media(max-width:420px){header{gap:8px;padding-left:4%;padding-right:4%}header .brand{gap:6px}header .brand img{width:36px;height:36px}header .brand span{font-size:15px}header .nav-cta{font-size:11px}header .nav-cta span{display:none}.site-menu-toggle{font-size:12px;padding:0 6px}}

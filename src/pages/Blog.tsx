@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Footer from "@/components/Footer";
 import { posts, formatarData, type Post } from "@/lib/blog";
 import { proximasProvas, provasDaSemana, diaEMes } from "@/lib/agenda";
@@ -17,6 +17,12 @@ const SECOES = ["Tudo", "Provas", "Resultados", "A cidade", "Treino", "Serviços
 
 const Blog = () => {
   const [secao, setSecao] = useState<(typeof SECOES)[number]>("Tudo");
+
+  useEffect(() => {
+    if (window.location.hash !== "#agenda-do-corredor") return;
+    const frame = requestAnimationFrame(() => document.getElementById("agenda-do-corredor")?.scrollIntoView());
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   useSeo({
     titulo: "Jornal do 016 — a corrida de Ribeirão Preto | CareFit Run Base",
@@ -124,7 +130,7 @@ const Blog = () => {
             </article>
 
             {/* Agenda fixa */}
-            <aside className="lg:border-l-2 lg:border-primary/15 lg:pl-8">
+            <aside id="agenda-do-corredor" className="scroll-mt-28 lg:border-l-2 lg:border-primary/15 lg:pl-8">
               <h2 className="font-montserrat font-extrabold text-xs tracking-[0.2em] text-primary mb-6">
                 PRÓXIMAS PROVAS
               </h2>
