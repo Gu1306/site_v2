@@ -9,3 +9,7 @@ O resumo fica separado dos lançamentos por semana/mês para evitar atribuição
 Prioridades sugeridas: medir agendamentos e comparecimentos; incluir sitelinks relevantes; revisar termos e localização; avaliar parceiros por custo por sessão. Referência: https://support.google.com/google-ads/answer/2375416?hl=pt-BR
 
 Validação: build Vite, TypeScript e ESLint do arquivo alterado passaram. Componentes e estilos existentes reutilizados. A sessão autenticada real não foi inspecionada; dados privados do ClickUp não foram alterados. Mudança gerada automaticamente no sitemap durante o build ficou fora do commit.
+
+## Complemento de Gustavo — 2026-11-16
+
+Confirmadas zero conversas e zero agendamentos. O resumo agora mostra zeros explícitos e conversão clique → conversa de 0%. Custo por conversa/agendamento fica indisponível (denominador zero), sem apresentar custo zero. Botão permite simular com CPC observado e conversão inicial zero, preservando cenários salvos e sem inferir taxas posteriores ou preencher registros de períodos desconhecidos. Comparecimentos e continuidade não foram informados separadamente.

@@ -35,7 +35,7 @@ const CHAVES: Chave[] = ['dia', 'dias', 'cpc', 'custoConv', 'pClique', 'pAgenda'
 const CHAVES_REAIS: ChaveReal[] = ['gasto', 'cliques', 'conversas', 'agendaram', 'compareceram', 'continuaram'];
 
 // Print recebido em 2026-11-16; a imagem não informa as datas da janela.
-const RESUMO_GOOGLE = { gasto: 64.05, cliques: 19, impressoes: 335, dias: 7 };
+const RESUMO_GOOGLE = { gasto: 64.05, cliques: 19, impressoes: 335, dias: 7, conversas: 0, agendaram: 0 };
 const CPC_GOOGLE = Math.round(RESUMO_GOOGLE.gasto / RESUMO_GOOGLE.cliques * 100) / 100;
 const BASE: Record<Chave, number> = { dia: 15, dias: 30, cpc: CPC_GOOGLE, custoConv: 12, pClique: 8, pAgenda: 80, pComp: 90, pCont: 25, ticket: 180, recCont: 780, margem: 60, meta: 10 };
 const CENARIOS: Record<CenarioPronto, { nome: string; canal: Canal; oferta: Oferta; v: Partial<Record<Chave, number>> }> = {
@@ -381,13 +381,19 @@ export default function GestaoCampanha() {
             <div className="gs-kpi"><span>Gasto observado</span><strong>{brl(RESUMO_GOOGLE.gasto, 2)}</strong><small>{brl(RESUMO_GOOGLE.gasto / RESUMO_GOOGLE.dias, 2)}/dia em média; não é o orçamento configurado</small></div>
             <div className="gs-kpi"><span>Cliques / impressões</span><strong>{RESUMO_GOOGLE.cliques} / {RESUMO_GOOGLE.impressoes}</strong><small>CTR de {(100 * RESUMO_GOOGLE.cliques / RESUMO_GOOGLE.impressoes).toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%</small></div>
             <div className="gs-kpi"><span>CPC observado</span><strong>{brl(CPC_GOOGLE, 2)}</strong><small>Referência de uma amostra de 19 cliques</small></div>
-            <div className="gs-kpi"><span>Custo por sessão real</span><strong>—</strong><small>Conversas, agendamentos e comparecimentos não informados no print</small></div>
+            <div className="gs-kpi"><span>Conversas / agendamentos</span><strong>{RESUMO_GOOGLE.conversas} / {RESUMO_GOOGLE.agendaram}</strong><small>Confirmado por Gustavo em 16/11/2026; clique → conversa: 0%</small></div>
+            <div className="gs-kpi"><span>Custo por conversa / agendamento</span><strong>—</strong><small>Sem conversões para calcular o custo unitário; não significa custo zero</small></div>
           </div>
+          <p className="gs-nota"><strong>Os R$ 64,05 gastos e os 19 cliques ainda não geraram conversas nem agendamentos.</strong> Comparecimentos e continuidade não foram informados separadamente. Resultados positivos na simulação dependem de taxas hipotéticas, ainda não observadas nesta campanha.</p>
           <p className="gs-nota">Projeção de gasto em 30 dias no mesmo ritmo: {brl(RESUMO_GOOGLE.gasto / RESUMO_GOOGLE.dias * 30, 2)}. É uma extrapolação, não uma previsão de cobrança. As taxas do funil continuam sendo premissas.</p>
           <button type="button" className="gs-botao" disabled={estado.canal !== 'google' || estado.oferta !== 'fisio'} onClick={() => {
             mudar('cpc')(paraCampo(CPC_GOOGLE));
             setAviso({ ok: true, texto: 'CPC do print aplicado à simulação. Orçamento, taxas e resultados preenchidos foram preservados.' });
           }}>Usar CPC de R$ 3,37 na simulação</button>
+          <button type="button" className="gs-botao" disabled={estado.canal !== 'google' || estado.oferta !== 'fisio'} onClick={() => {
+            setEstado(e => ({ ...e, cenario: 'custom', campos: { ...e.campos, cpc: paraCampo(CPC_GOOGLE), pClique: '0' } }));
+            setAviso({ ok: true, texto: 'CPC de R$ 3,37 e conversão clique → conversa de 0% aplicados. As taxas posteriores continuam hipotéticas: sem conversas, não é possível medi-las.' });
+          }}>Simular com 0% de conversas observado</button>
           <p className="gs-nota">Aplicável ao cenário Google Pesquisa + Avaliação (fisio). Cenários salvos mantêm seu CPC até você aplicar a referência.</p>
           <details><summary>Prioridades para melhorar a campanha</summary>
             <ul>
