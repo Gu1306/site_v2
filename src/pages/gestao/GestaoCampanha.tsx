@@ -34,7 +34,10 @@ const AMOSTRA_MINIMA = 5;
 const CHAVES: Chave[] = ['dia', 'dias', 'cpc', 'custoConv', 'pClique', 'pAgenda', 'pComp', 'pCont', 'ticket', 'recCont', 'margem', 'meta'];
 const CHAVES_REAIS: ChaveReal[] = ['gasto', 'cliques', 'conversas', 'agendaram', 'compareceram', 'continuaram'];
 
-const BASE: Record<Chave, number> = { dia: 15, dias: 30, cpc: 2.5, custoConv: 12, pClique: 8, pAgenda: 80, pComp: 90, pCont: 25, ticket: 180, recCont: 780, margem: 60, meta: 10 };
+// Print recebido em 2026-11-16; a imagem não informa as datas da janela.
+const RESUMO_GOOGLE = { gasto: 64.05, cliques: 19, impressoes: 335, dias: 7 };
+const CPC_GOOGLE = Math.round(RESUMO_GOOGLE.gasto / RESUMO_GOOGLE.cliques * 100) / 100;
+const BASE: Record<Chave, number> = { dia: 15, dias: 30, cpc: CPC_GOOGLE, custoConv: 12, pClique: 8, pAgenda: 80, pComp: 90, pCont: 25, ticket: 180, recCont: 780, margem: 60, meta: 10 };
 const CENARIOS: Record<CenarioPronto, { nome: string; canal: Canal; oferta: Oferta; v: Partial<Record<Chave, number>> }> = {
   teste: { nome: 'Teste Google · R$ 15/dia', canal: 'google', oferta: 'fisio', v: { dia: 15 } },
   search: { nome: 'Pesquisa completa · R$ 50/dia', canal: 'google', oferta: 'fisio', v: { dia: 50 } },
@@ -371,6 +374,31 @@ export default function GestaoCampanha() {
 
         {erro && <p className="gs-erro gs-bloco" role="alert">{erro} A calculadora funciona com as premissas enquanto isso.</p>}
 
+        <section className="gs-bloco" aria-label="Resumo informado do Google Ads">
+          <h2>Google Ads · últimos 7 dias do print</h2>
+          <p className="gs-nota">CareFit | Search | Fisio Local RP · print recebido em 16/11/2026. Datas inicial e final não aparecem na imagem. Este resumo não é somado aos registros semanais ou mensais.</p>
+          <div className="gs-kpis">
+            <div className="gs-kpi"><span>Gasto observado</span><strong>{brl(RESUMO_GOOGLE.gasto, 2)}</strong><small>{brl(RESUMO_GOOGLE.gasto / RESUMO_GOOGLE.dias, 2)}/dia em média; não é o orçamento configurado</small></div>
+            <div className="gs-kpi"><span>Cliques / impressões</span><strong>{RESUMO_GOOGLE.cliques} / {RESUMO_GOOGLE.impressoes}</strong><small>CTR de {(100 * RESUMO_GOOGLE.cliques / RESUMO_GOOGLE.impressoes).toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%</small></div>
+            <div className="gs-kpi"><span>CPC observado</span><strong>{brl(CPC_GOOGLE, 2)}</strong><small>Referência de uma amostra de 19 cliques</small></div>
+            <div className="gs-kpi"><span>Custo por sessão real</span><strong>—</strong><small>Conversas, agendamentos e comparecimentos não informados no print</small></div>
+          </div>
+          <p className="gs-nota">Projeção de gasto em 30 dias no mesmo ritmo: {brl(RESUMO_GOOGLE.gasto / RESUMO_GOOGLE.dias * 30, 2)}. É uma extrapolação, não uma previsão de cobrança. As taxas do funil continuam sendo premissas.</p>
+          <button type="button" className="gs-botao" disabled={estado.canal !== 'google' || estado.oferta !== 'fisio'} onClick={() => {
+            mudar('cpc')(paraCampo(CPC_GOOGLE));
+            setAviso({ ok: true, texto: 'CPC do print aplicado à simulação. Orçamento, taxas e resultados preenchidos foram preservados.' });
+          }}>Usar CPC de R$ 3,37 na simulação</button>
+          <p className="gs-nota">Aplicável ao cenário Google Pesquisa + Avaliação (fisio). Cenários salvos mantêm seu CPC até você aplicar a referência.</p>
+          <details><summary>Prioridades para melhorar a campanha</summary>
+            <ul>
+              <li>Conferir quantos contatos viraram agendamentos e sessões realizadas; clique em Agendar mede intenção, não reserva confirmada.</li>
+              <li>Adicionar sitelinks relevantes, com destinos existentes: avaliação, equipe, localização e como funciona.</li>
+              <li>Revisar termos de pesquisa e localização antes de aumentar a verba; a amostra de 19 cliques ainda é pequena.</li>
+              <li>Avaliar parceiros de pesquisa separadamente pelo custo por sessão; os 80,7% de otimização do print não medem retorno financeiro.</li>
+            </ul>
+          </details>
+        </section>
+
         {dados && dados.foraDoNormal.quantidade > 0 && (
           <div className="gs-aviso">
             <CircleAlert size={18} aria-hidden="true" />
@@ -415,7 +443,7 @@ export default function GestaoCampanha() {
               </div>
               <div className="gc-campos">
                 {r.g
-                  ? <Campo id="gc-cpc" rotulo="CPC médio" pre="R$" valor={campo('cpc')} onChange={mudar('cpc')} fonte={<><Tag tipo="prem">premissa</Tag>Planejador: topo R$ 1,30–4,50; teto do grupo R$ 3,50</>} />
+                  ? <Campo id="gc-cpc" rotulo="CPC médio" pre="R$" valor={campo('cpc')} onChange={mudar('cpc')} fonte={<><Tag tipo="prem">simulação</Tag>Referência da avaliação: R$ 3,37 no print recebido em 16/11 (19 cliques); valor editável</>} />
                   : <Campo id="gc-custoConv" rotulo="Custo por conversa" pre="R$" valor={campo('custoConv')} onChange={mudar('custoConv')} fonte={<><Tag tipo="prem">premissa</Tag>sem histórico no Meta ainda</>} />}
               </div>
               {r.g && r.cliques > CLIQUES_CIDADE && <p className="gc-aviso-linha">{qtd(r.cliques)} cliques passa do que a Pesquisa de Ribeirão entrega (cerca de 150 a 400 por mês). A verba vai sobrar ou o CPC vai subir.</p>}
