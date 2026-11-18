@@ -40,7 +40,7 @@ const paraQuem = [
 const faqItems = [
   {
     question: "Quanto tempo dura o teste?",
-    answer: "Cerca de 1 hora. São sete movimentos, testados nos dois lados, com três tentativas de cinco segundos em cada um e um minuto de descanso entre elas. Esse descanso não é tempo perdido: é o que impede que a fadiga da tentativa anterior reduza a força da seguinte.",
+    answer: "Cerca de 1 hora e meia. São sete movimentos, testados nos dois lados, com três tentativas de cinco segundos em cada um e um minuto de descanso entre elas. Esse descanso não é tempo perdido: é o que impede que a fadiga da tentativa anterior reduza a força da seguinte.",
   },
   {
     question: "Dói? É seguro?",
@@ -337,7 +337,7 @@ const TesteDeForca = () => {
             Descubra onde está a sua base
           </h2>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            Uma hora de teste e você passa a ter um número para cada perna. É com ele que a gente decide o que treinar nas próximas semanas.
+            Uma hora e meia de teste e você passa a ter um número para cada perna. É com ele que a gente decide o que treinar nas próximas semanas.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Button variant="hero" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
