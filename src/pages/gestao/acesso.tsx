@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronLeft, LogOut } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { BarChart3, Calculator, CalendarDays, Dumbbell, Gauge, Home, ListChecks, LogOut, Megaphone, Users } from 'lucide-react';
 import './gestao.css';
 
 // Mesmo login e mesmo cookie dos painéis de fortalecimento e avaliação de força.
@@ -67,19 +67,67 @@ export function TelaLogin({ titulo, onEntrar, aviso }: { titulo: string; onEntra
   );
 }
 
-export function Topo({ usuario, onSair, voltar, children }: { usuario: string; onSair: () => void; voltar?: boolean; children?: ReactNode }) {
+// Menu lateral da central: uma linha por área. Área nova = linha nova aqui (e cartão em GestaoInicio).
+// `breve` = ainda não existe; aparece apagada para mostrar o rumo da central.
+export type AreaMenu = { chave: string; para: string; titulo: string; icone: typeof Home; soFinanceiro?: boolean; breve?: boolean; externa?: boolean };
+export const AREAS: AreaMenu[] = [
+  { chave: 'inicio', para: '/gestao', titulo: 'Início', icone: Home },
+  { chave: 'financeiro', para: '/gestao/financeiro', titulo: 'Financeiro', icone: BarChart3, soFinanceiro: true },
+  { chave: 'campanha', para: '/gestao/campanha', titulo: 'Campanha', icone: Calculator, soFinanceiro: true },
+  { chave: 'fortalecimento', para: '/painel-fortalecimento', titulo: 'Fortalecimento', icone: Dumbbell, externa: true },
+  { chave: 'forca', para: '/painel-avaliacao-forca', titulo: 'Avaliação de força', icone: Gauge, externa: true },
+  { chave: 'tarefas', para: '#', titulo: 'Tarefas', icone: ListChecks, breve: true },
+  { chave: 'agenda', para: '#', titulo: 'Agenda', icone: CalendarDays, breve: true },
+  { chave: 'conteudo', para: '#', titulo: 'Conteúdo', icone: Megaphone, breve: true },
+  { chave: 'atletas', para: '#', titulo: 'Atletas', icone: Users, breve: true },
+];
+
+const primeiroNome = (u: string) => u.charAt(0).toUpperCase() + u.slice(1).split(/[.\s_-]/)[0];
+
+/** Barra lateral da central. As páginas continuam chamando `Topo` (nome antigo); o `voltar` não é mais usado. */
+export function Topo({ usuario, financeiro, onSair, children }: { usuario: string; financeiro?: boolean; onSair: () => void; voltar?: boolean; children?: ReactNode }) {
+  const { pathname } = useLocation();
+  const [aberto, setAberto] = useState(false);
+  useEffect(() => { setAberto(false); }, [pathname]);
   return (
-    <header className="gs-topo gs-sem-impressao">
-      <div className="gs-topo-marca">
-        <Link to="/gestao" className="gs-wordmark">CAREFIT <b>RUN BASE</b></Link>
-        <span className="gs-contexto">{voltar ? <Link to="/gestao"><ChevronLeft size={13} aria-hidden="true" /> CENTRAL DE GESTÃO</Link> : <><i aria-hidden="true" /> CENTRAL DE GESTÃO</>}</span>
-      </div>
-      <div className="gs-topo-acoes">
+    <>
+      <button type="button" className="gs-menu-botao gs-sem-impressao" aria-expanded={aberto} aria-controls="gs-lateral" onClick={() => setAberto(a => !a)}>Menu</button>
+      <aside id="gs-lateral" className={'gs-lateral gs-sem-impressao' + (aberto ? ' gs-lateral-aberta' : '')}>
+        <Link to="/gestao" className="gs-marca" aria-label="CareFit Run Base, central de gestão">
+          <span className="gs-marca-selo" aria-hidden="true">C</span>
+          <span>CareFit <em>run base</em></span>
+        </Link>
+        <div className="gs-pessoa">
+          <span className="gs-avatar" aria-hidden="true">{usuario.charAt(0).toUpperCase()}</span>
+          <span><strong>{primeiroNome(usuario)}</strong><small>equipe CareFit</small></span>
+        </div>
+        <span className="gs-lateral-rotulo">SUA CENTRAL</span>
+        <nav className="gs-nav" aria-label="Áreas da central">
+          {AREAS.filter(a => financeiro || !a.soFinanceiro).map(a => {
+            const ativa = a.para !== '#' && (a.para === '/gestao' ? pathname === '/gestao' : pathname.startsWith(a.para));
+            if (a.breve) return <span key={a.chave} className="gs-nav-item gs-nav-breve" title="Em breve"><a.icone size={16} aria-hidden="true" />{a.titulo}<i>em breve</i></span>;
+            if (a.externa) return <a key={a.chave} href={a.para} className="gs-nav-item"><a.icone size={16} aria-hidden="true" />{a.titulo}</a>;
+            return <Link key={a.chave} to={a.para} className={'gs-nav-item' + (ativa ? ' gs-nav-ativa' : '')} aria-current={ativa ? 'page' : undefined}><a.icone size={16} aria-hidden="true" />{a.titulo}</Link>;
+          })}
+        </nav>
         {children}
-        <span className="gs-usuario">{usuario}</span>
-        <button type="button" className="gs-botao gs-botao-fantasma" onClick={onSair}><LogOut size={15} aria-hidden="true" /> Sair</button>
+        <button type="button" className="gs-nav-item gs-sair" onClick={onSair}><LogOut size={16} aria-hidden="true" /> Sair</button>
+      </aside>
+      {aberto && <div className="gs-lateral-fundo" onClick={() => setAberto(false)} aria-hidden="true" />}
+    </>
+  );
+}
+
+/** Trilha + título serifado + subtítulo em itálico, como no cabeçalho de cada área. */
+export function Titulo({ trilha, titulo, sub, children }: { trilha: string; titulo: string; sub: string; children?: ReactNode }) {
+  return (
+    <section className="gs-cabeca">
+      <div>
+        <span className="gs-trilha">CAREFIT <b>/</b> {trilha}</span>
+        <h1>{titulo} <em>{sub}</em></h1>
       </div>
-    </header>
+      {children}
+    </section>
   );
 }
 

@@ -281,7 +281,7 @@ export default function GestaoCampanha() {
   if (!sessao) return <TelaLogin titulo="Calculadora de campanha" onEntrar={setSessao} aviso={erroSessao} />;
   if (!sessao.financeiro) return (
     <div className="gs-pagina">
-      <Topo usuario={sessao.user} onSair={() => void sair()} voltar />
+      <Topo usuario={sessao.user} financeiro={sessao.financeiro} onSair={() => void sair()} />
       <main className="gs-casca gs-casca-estreita"><section className="gs-bloco"><h2>Sem acesso</h2><p>A calculadora mostra receita e margem, por isso fica com o financeiro. Fale com o Gustavo se precisar.</p><p><Link to="/gestao" className="gs-link">← Voltar à central</Link></p></section></main>
     </div>
   );
@@ -356,7 +356,7 @@ export default function GestaoCampanha() {
 
   return (
     <div className="gs-pagina gc-pagina">
-      <Topo usuario={sessao.user} onSair={() => void sair()} voltar />
+      <Topo usuario={sessao.user} financeiro={sessao.financeiro} onSair={() => void sair()} />
       <main className="gs-casca">
         <section className="gs-cabeca">
           <div>
