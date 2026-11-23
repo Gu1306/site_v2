@@ -146,6 +146,12 @@ export function montarFechamento(dados, segunda, hoje, atualizadoEm = null) {
     sessoes: realizadas.filter(s => s.data === dia).length,
     fortalecimento: dados.fortalecimento.filter(a => a.data === dia && a.status === 'realizada').length,
     yoga: dados.yoga.filter(a => a.data === dia && a.status === 'realizada').length,
+    // Quem veio no dia (nome + profissional), para conferir com a agenda de reservas.
+    atletas: [
+      ...realizadas.filter(s => s.data === dia).map(s => ({ nome: s.atleta, onde: s.profissional })),
+      ...dados.fortalecimento.filter(a => a.data === dia && a.status === 'realizada').map(a => ({ nome: a.atleta, onde: 'Fortalecimento' })),
+      ...dados.yoga.filter(a => a.data === dia && a.status === 'realizada').map(a => ({ nome: a.atleta, onde: 'Yoga' })),
+    ].sort((a, b) => a.nome.localeCompare(b.nome)),
   }));
 
   const historico = Array.from({ length: SEMANAS_HISTORICO }, (_, i) => totaisDaSemana(dados, somarDias(segunda, -7 * (SEMANAS_HISTORICO - 1 - i))));

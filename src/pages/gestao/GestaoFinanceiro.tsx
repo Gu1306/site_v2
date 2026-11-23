@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, RefreshCw, Copy, Check, Printer, CircleAlert, ExternalLink } from 'lucide-react';
-import { ApiError, apiGestao, Carregando, TelaLogin, Topo, useSessaoGestao } from './acesso';
+import { ApiError, apiGestao, Carregando, TelaLogin, Titulo, Topo, useSessaoGestao } from './acesso';
 
 type Grupo = { nome: string; quantidade: number; producao: number; cortesias: number };
 type Pendencia = { data: string; atleta: string; status: string; url: string | null; profissional?: string; tipo?: string; lista?: string };
@@ -19,7 +19,7 @@ type Fechamento = {
   };
   fortalecimento: Aulas;
   yoga: Aulas;
-  porDia: { data: string; sessoes: number; fortalecimento: number; yoga: number }[];
+  porDia: { data: string; sessoes: number; fortalecimento: number; yoga: number; atletas: { nome: string; onde: string }[] }[];
   historico: SemanaResumo[];
   mes: { referencia: string; ate: string; sessoes: number; bonusLivia: number; faltamParaBonus: number };
   semData: Pendencia[];
@@ -64,9 +64,9 @@ function resumoTexto(f: Fechamento) {
   return linhas.filter(l => l !== null).join('\n');
 }
 
-function Kpi({ rotulo, valor, detalhe, destaque }: { rotulo: string; valor: string; detalhe?: string; destaque?: boolean }) {
+function Kpi({ rotulo, valor, detalhe, destaque, verde }: { rotulo: string; valor: string; detalhe?: string; destaque?: boolean; verde?: boolean }) {
   return (
-    <div className={'gs-kpi' + (destaque ? ' gs-kpi-destaque' : '')}>
+    <div className={'gs-kpi' + (destaque ? ' gs-kpi-destaque' : '') + (verde ? ' gs-kpi-verde' : '')}>
       <span>{rotulo}</span>
       <strong>{valor}</strong>
       {detalhe && <small>{detalhe}</small>}
@@ -117,6 +117,28 @@ function BlocoAulas({ titulo, aulas, unidade }: { titulo: string; aulas: Aulas; 
       {aulas.pendentes.length > 0 && <p className="gs-alerta-linha"><CircleAlert size={15} aria-hidden="true" /> {aulas.pendentes.length} aula(s) com data na semana ainda sem baixa — veja as pendências abaixo.</p>}
       {aulas.porVir > 0 && <p className="gs-nota">{aulas.porVir} aula(s) ainda por acontecer nesta semana.</p>}
     </section>
+  );
+}
+
+function DiaADia({ porDia, hoje }: { porDia: Fechamento['porDia']; hoje: string }) {
+  const teto = Math.max(1, ...porDia.map(d => d.sessoes + d.fortalecimento + d.yoga));
+  const alt = (n: number) => `${(n / teto) * 100}%`;
+  return (
+    <>
+      <div className="gs-dias-grafico" role="img" aria-label={`Atendimentos por dia: ${porDia.map((d, i) => `${DIAS[i]} ${d.sessoes + d.fortalecimento + d.yoga}`).join('; ')}`}>
+        {porDia.map((d, i) => (
+          <div key={d.data} className={'gs-dia' + (d.data === hoje ? ' gs-dia-hoje' : '')}>
+            <div className="gs-dia-pilha">
+              {d.sessoes > 0 && <i className="gs-c-sessoes" style={{ height: alt(d.sessoes) }} />}
+              {d.fortalecimento > 0 && <i className="gs-c-fort" style={{ height: alt(d.fortalecimento) }} />}
+              {d.yoga > 0 && <i className="gs-c-yoga" style={{ height: alt(d.yoga) }} />}
+            </div>
+            <span className="gs-dia-rotulo"><b>{d.sessoes + d.fortalecimento + d.yoga || '·'}</b>{DIAS[i]} {ddmm(d.data).slice(0, 2)}</span>
+          </div>
+        ))}
+      </div>
+      <div className="gs-legenda"><span><i style={{ background: 'var(--terracota)' }} />Sessões</span><span><i style={{ background: 'var(--petroleo)' }} />Fortalecimento</span><span><i style={{ background: 'var(--dourado)' }} />Yoga</span></div>
+    </>
   );
 }
 
@@ -215,7 +237,7 @@ export default function GestaoFinanceiro() {
   if (!sessao) return <TelaLogin titulo="Financeiro" onEntrar={setSessao} aviso={erroSessao} />;
   if (!sessao.financeiro) return (
     <div className="gs-pagina">
-      <Topo usuario={sessao.user} onSair={() => void sair()} voltar />
+      <Topo usuario={sessao.user} financeiro={sessao.financeiro} onSair={() => void sair()} />
       <main className="gs-casca gs-casca-estreita"><section className="gs-bloco"><h2>Sem acesso ao financeiro</h2><p>Seu usuário entra nos painéis da equipe, mas não no financeiro. Fale com o Gustavo se precisar.</p><p><Link to="/gestao" className="gs-link">← Voltar à central</Link></p></section></main>
     </div>
   );
@@ -224,24 +246,25 @@ export default function GestaoFinanceiro() {
 
   return (
     <div className="gs-pagina">
-      <Topo usuario={sessao.user} onSair={() => void sair()} voltar />
+      <Topo usuario={sessao.user} financeiro={sessao.financeiro} onSair={() => void sair()} />
       <main className="gs-casca">
-        <section className="gs-cabeca">
-          <div>
-            <span className="gs-eyebrow">FINANCEIRO · FECHAMENTO SEMANAL</span>
-            <h1>Semana de {ddmm(semana)} a {ddmm(somarDias(semana, 6))}</h1>
-            <p className="gs-sub">
-              {f ? (f.semana.encerrada ? 'Semana encerrada.' : `Semana em andamento — fecha no domingo, ${ddmm(f.semana.fim)}.`) : 'Lendo o ClickUp…'}
-              {f?.atualizadoEm && <> Dados do ClickUp lidos às {hora(f.atualizadoEm)}.</>}
-            </p>
-          </div>
+        <Titulo trilha="FINANCEIRO" titulo="Financeiro" sub="Fechamento semanal">
           <div className="gs-controles gs-sem-impressao">
-            <button type="button" className="gs-botao" onClick={() => irPara(somarDias(semana, -7))} disabled={carregando}><ChevronLeft size={16} aria-hidden="true" /> Anterior</button>
-            <button type="button" className="gs-botao" onClick={() => irPara(somarDias(semana, 7))} disabled={carregando || semana >= semanaAtual}>Próxima <ChevronRight size={16} aria-hidden="true" /></button>
             <button type="button" className="gs-botao" onClick={() => void carregar(true)} disabled={carregando} title="Relê o ClickUp (no máximo uma vez por minuto)"><RefreshCw size={15} aria-hidden="true" className={carregando ? 'gs-girando' : ''} /> Atualizar</button>
             <button type="button" className="gs-botao" disabled={!f} onClick={async () => { if (!f) return; try { await navigator.clipboard.writeText(resumoTexto(f)); setCopiado(true); } catch { setErro('Não consegui copiar. Selecione o texto manualmente.'); } }}>{copiado ? <><Check size={15} aria-hidden="true" /> Copiado</> : <><Copy size={15} aria-hidden="true" /> Copiar resumo</>}</button>
             <button type="button" className="gs-botao" disabled={!f} onClick={() => window.print()}><Printer size={15} aria-hidden="true" /> Imprimir / PDF</button>
           </div>
+        </Titulo>
+        <section className="gs-semana">
+          <div className="gs-semana-nav gs-sem-impressao">
+            <button type="button" className="gs-botao gs-botao-redondo" onClick={() => irPara(somarDias(semana, -7))} disabled={carregando} aria-label="Semana anterior"><ChevronLeft size={16} aria-hidden="true" /></button>
+            <strong>{ddmm(semana)} a {ddmm(somarDias(semana, 6))}</strong>
+            <button type="button" className="gs-botao gs-botao-redondo" onClick={() => irPara(somarDias(semana, 7))} disabled={carregando || semana >= semanaAtual} aria-label="Próxima semana"><ChevronRight size={16} aria-hidden="true" /></button>
+          </div>
+          <p className="gs-sub">
+            {f ? (f.semana.encerrada ? 'Semana encerrada.' : `Semana em andamento — fecha no domingo, ${ddmm(f.semana.fim)}.`) : 'Lendo o ClickUp…'}
+            {f?.atualizadoEm && <> Dados do ClickUp lidos às {hora(f.atualizadoEm)}.</>}
+          </p>
         </section>
 
         {erro && <p className="gs-erro gs-bloco" role="alert">{erro}</p>}
@@ -257,11 +280,11 @@ export default function GestaoFinanceiro() {
             )}
 
             <section className="gs-kpis" aria-label="Resumo da semana">
-              <Kpi destaque rotulo="Atendimentos" valor={String(f.total.atendimentos)} detalhe={variacao(f.total.atendimentos, f.anterior.atendimentos)} />
+              <Kpi destaque rotulo="Produção da semana" valor={brlRedondo(f.total.producao)} detalhe={variacao(f.total.producao, f.anterior.producao, true)} />
+              <Kpi verde rotulo="Atendimentos" valor={String(f.total.atendimentos)} detalhe={variacao(f.total.atendimentos, f.anterior.atendimentos)} />
               <Kpi rotulo="Sessões" valor={String(f.sessoes.realizadas)} detalhe={`${f.sessoes.atletas} atletas · ${f.sessoes.cortesias} cortesia(s)`} />
-              <Kpi rotulo="Fortalecimento (turma)" valor={String(f.fortalecimento.realizadas)} detalhe={f.fortalecimento.pendentes.length ? `${f.fortalecimento.pendentes.length} sem baixa` : `${f.fortalecimento.faltas} falta(s)`} />
+              <Kpi rotulo="Fortalecimento" valor={String(f.fortalecimento.realizadas)} detalhe={f.fortalecimento.pendentes.length ? `${f.fortalecimento.pendentes.length} sem baixa` : `${f.fortalecimento.faltas} falta(s)`} />
               <Kpi rotulo="Yoga" valor={String(f.yoga.realizadas)} detalhe={f.yoga.pendentes.length ? `${f.yoga.pendentes.length} sem baixa` : `${f.yoga.faltas} falta(s)`} />
-              <Kpi rotulo="Produção" valor={brlRedondo(f.total.producao)} detalhe={variacao(f.total.producao, f.anterior.producao, true)} />
               <Kpi rotulo="Ticket médio" valor={f.sessoes.ticketMedio === null ? '—' : brlRedondo(f.sessoes.ticketMedio)} detalhe="por sessão, sem cortesias" />
             </section>
 
@@ -291,6 +314,8 @@ export default function GestaoFinanceiro() {
 
             <section className="gs-bloco">
               <h2>Dia a dia</h2>
+              <DiaADia porDia={f.porDia} hoje={f.semana.hoje} />
+              <details className="gs-detalhes"><summary>Ver em tabela</summary>
               <div className="gs-rolagem">
                 <table className="gs-tabela gs-dias">
                   <thead><tr><th />{f.porDia.map((d, i) => <th key={d.data} className="gs-num">{DIAS[i]}<br /><span className="gs-mudo">{ddmm(d.data)}</span></th>)}<th className="gs-num">Semana</th></tr></thead>
@@ -301,6 +326,13 @@ export default function GestaoFinanceiro() {
                   </tbody>
                 </table>
               </div>
+              </details>
+              <h3>Quem veio em cada dia</h3>
+              <ul className="gs-quem">
+                {f.porDia.filter(d => d.atletas.length).map((d, i) => (
+                  <li key={d.data}><strong>{DIAS[f.porDia.indexOf(d)]} {ddmm(d.data)}</strong> ({d.atletas.length}): {d.atletas.map(a => `${a.nome} (${a.onde})`).join(' · ')}</li>
+                ))}
+              </ul>
             </section>
 
             <Tendencia historico={f.historico} selecionada={f.semana.inicio} />
