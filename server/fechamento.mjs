@@ -283,6 +283,67 @@ export function montarCampanha(dados, hoje, atualizadoEm = null) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Observações da semana: (1) descasamento entre a agenda (Google) e o ClickUp e
+// (2) quem fez a 2ª sessão da Primeira Sessão Dupla e se continuou.
+const nomeChave = n => normalizar(n).split(' ').filter(t => t.length > 1 && !['de', 'da', 'do', 'dos', 'das'].includes(t));
+/** Mesmo atleta? Primeiro nome igual e (último nome igual ou um nome contido no outro). */
+export function mesmoNome(a, b) {
+  const x = nomeChave(a), y = nomeChave(b);
+  if (!x.length || !y.length || x[0] !== y[0]) return false;
+  if (x.length === 1 || y.length === 1) return true;
+  if (x.at(-1) === y.at(-1)) return true;
+  const [curto, longo] = x.length <= y.length ? [x, y] : [y, x];
+  return curto.every(t => longo.includes(t));
+}
+const DUPLA_SEMANAS = 4;
+
+export function montarObservacoes(dados, reservas, segunda, hoje) {
+  const fim = somarDias(segunda, 6);
+  const dentro = d => Boolean(d) && d >= segunda && d <= fim;
+  const cards = [
+    ...dados.sessoes.filter(s => dentro(s.data) && s.status !== 'cancelada').map(s => ({ ...s, lista: 'Sessões', onde: s.profissional })),
+    ...dados.fortalecimento.filter(a => dentro(a.data) && a.status !== 'cancelada').map(a => ({ ...a, lista: 'Fortalecimento', onde: 'Fortalecimento' })),
+    ...dados.yoga.filter(a => dentro(a.data) && a.status !== 'cancelada').map(a => ({ ...a, lista: 'Yoga', onde: 'Yoga' })),
+  ];
+  const resumoCard = c => ({ data: c.data, atleta: c.atleta, lista: c.lista, onde: c.onde, tipo: c.tipo || null, status: c.status, url: c.url });
+  const resumoReserva = r => ({ data: r.data, hora: r.hora, atleta: r.atleta, tipo: r.tipo, fisio: r.fisio });
+
+  let agenda = null;
+  if (reservas) {
+    const daSemana = reservas.filter(r => dentro(r.data) && r.data <= hoje);
+    const usados = new Set();
+    const semCard = []; const dataDiferente = [];
+    for (const r of daSemana) {
+      const mesmoDia = cards.find(c => !usados.has(c) && c.data === r.data && mesmoNome(c.atleta, r.atleta));
+      if (mesmoDia) { usados.add(mesmoDia); continue; }
+      const outroDia = cards.find(c => !usados.has(c) && mesmoNome(c.atleta, r.atleta));
+      if (outroDia) { usados.add(outroDia); dataDiferente.push({ reserva: resumoReserva(r), card: resumoCard(outroDia) }); continue; }
+      semCard.push(resumoReserva(r));
+    }
+    // Card de sessão (lista Sessões) já passado e sem reserva na agenda. Turma e yoga não
+    // passam pela agenda de reservas, então não entram aqui.
+    const semReserva = cards.filter(c => c.lista === 'Sessões' && c.data <= hoje && !usados.has(c) && !daSemana.some(r => r.data === c.data && mesmoNome(c.atleta, r.atleta))).map(resumoCard);
+    agenda = { reservas: daSemana.length, casadas: usados.size, semCard, dataDiferente, semReserva };
+  }
+
+  // 2ª sessão da dupla: por atleta, as sessões "Primeira Sessão Dupla" realizadas em ordem.
+  const porAtleta = new Map();
+  for (const s of dados.sessoes) { const chave = s.atletaId ? `id:${s.atletaId}` : `nome:${s.atleta}`; (porAtleta.get(chave) || porAtleta.set(chave, []).get(chave)).push(s); }
+  const de = somarDias(segunda, -7 * (DUPLA_SEMANAS - 1));
+  const duplas = [];
+  for (const lista of porAtleta.values()) {
+    const entradas = lista.filter(s => s.tipo === ENTRADAS.recovery && s.status === 'realizada' && s.data).sort((a, b) => a.data.localeCompare(b.data));
+    if (entradas.length < 2) continue;
+    const segundaSessao = entradas[1];
+    if (segundaSessao.data < de || segundaSessao.data > fim) continue;
+    const depois = lista.filter(s => !TIPOS_ENTRADA.has(s.tipo) && s.status !== 'cancelada' && s.valor > 0 && s.valor <= VALOR_MAXIMO_SESSAO && (!s.data || s.data >= segundaSessao.data));
+    duplas.push({ atleta: segundaSessao.atleta, profissional: segundaSessao.profissional, primeira: entradas[0].data, segunda: segundaSessao.data, naSemana: dentro(segundaSessao.data), continuou: depois.length > 0, plano: depois[0]?.tipo || null, url: segundaSessao.url });
+  }
+  duplas.sort((a, b) => b.segunda.localeCompare(a.segunda) || a.atleta.localeCompare(b.atleta));
+  return { agenda, duplas: { semanas: DUPLA_SEMANAS, de, lista: duplas } };
+}
+
 async function lerLista(api, lista) {
   const tarefas = [];
   // Quatro páginas por vez: 12 páginas de sessões saem em ~3 s, contra ~11 s em sequência.
@@ -294,7 +355,7 @@ async function lerLista(api, lista) {
   throw new PublicError('A lista excedeu o limite de consulta. Contate o suporte.', 503);
 }
 
-export function criarServicoFechamento(api, agora = () => Date.now()) {
+export function criarServicoFechamento(api, agora = () => Date.now(), leitorAgenda = null) {
   let cache = null; let emCurso = null;
   let cacheOrigens = null; let emCursoOrigens = null;
   async function origens(forcar) {
@@ -325,7 +386,13 @@ export function criarServicoFechamento(api, agora = () => Date.now()) {
       const segunda = segundaDe(pedida);
       if (segunda > segundaDe(hoje) || segunda < PRIMEIRA_SEMANA) throw new PublicError('Escolha uma semana entre 2024 e a semana atual.');
       const d = await dados(forcar);
-      return montarFechamento(d, segunda, hoje, new Date(d.lidoEm).toISOString());
+      const fechamento = montarFechamento(d, segunda, hoje, new Date(d.lidoEm).toISOString());
+      // A agenda é opcional: sem configuração ou fora do ar, o fechamento sai do mesmo jeito.
+      let reservas = null; let agendaErro = leitorAgenda ? null : 'Agenda não configurada no servidor (GOOGLE_CALENDAR_SA_JSON).';
+      if (leitorAgenda) { try { reservas = await leitorAgenda.reservas(segunda, somarDias(segunda, 7)); } catch (e) { agendaErro = e instanceof PublicError ? e.message : 'A agenda não respondeu.'; } }
+      const observacoes = montarObservacoes(d, reservas, segunda, hoje);
+      if (agendaErro) observacoes.agendaErro = agendaErro;
+      return { ...fechamento, observacoes };
     },
     // Mesmo cache do fechamento: abrir a calculadora não gasta a API do ClickUp.
     async campanha(forcar = false) {

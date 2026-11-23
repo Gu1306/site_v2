@@ -5,6 +5,7 @@ import serveHandler from 'serve-handler';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { clickupClient, createService, PublicError, PANEL_REVISIONS } from './fortalecimento.mjs';
+import { criarLeitorAgenda } from './agenda.mjs';
 import { criarServicoAvaliacao, criarUploader } from './avaliacao-forca.mjs';
 import { criarServicoFechamento } from './fechamento.mjs';
 
@@ -108,7 +109,7 @@ function comPreview(html, preview, url) {
 
 export function passwordHash(password, salt = randomBytes(16).toString('hex')) { return `${salt}:${scryptSync(password, salt, 32).toString('hex')}`; }
 function equal(a, b) { const x = Buffer.from(a); const y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); }
-export function createServer(env = process.env, service = createService(clickupClient(env.CLICKUP_API_TOKEN)), avaliacao = criarServicoAvaliacao(clickupClient(env.CLICKUP_API_TOKEN), criarUploader(env.CLICKUP_API_TOKEN)), fechamento = criarServicoFechamento(clickupClient(env.CLICKUP_API_TOKEN))) {
+export function createServer(env = process.env, service = createService(clickupClient(env.CLICKUP_API_TOKEN)), avaliacao = criarServicoAvaliacao(clickupClient(env.CLICKUP_API_TOKEN), criarUploader(env.CLICKUP_API_TOKEN)), fechamento = criarServicoFechamento(clickupClient(env.CLICKUP_API_TOKEN), () => Date.now(), criarLeitorAgenda(env))) {
   const origin = env.PORTAL_ORIGIN || 'http://localhost:8080';
   // Quem vê o financeiro. O login é o mesmo da equipe; o Lucas entra no fortalecimento
   // e não enxerga produção nem bônus. Sem a variável, só o Gustavo.

@@ -23,6 +23,14 @@ type Fechamento = {
   historico: SemanaResumo[];
   mes: { referencia: string; ate: string; sessoes: number; bonusLivia: number; faltamParaBonus: number };
   semData: Pendencia[];
+  observacoes: Observacoes;
+};
+type Reserva = { data: string; hora: string; atleta: string; tipo: string; fisio: string | null };
+type CardObs = { data: string; atleta: string; lista: string; onde: string; tipo: string | null; status: string; url: string | null };
+type Observacoes = {
+  agenda: { reservas: number; casadas: number; semCard: Reserva[]; dataDiferente: { reserva: Reserva; card: CardObs }[]; semReserva: CardObs[] } | null;
+  agendaErro?: string;
+  duplas: { semanas: number; de: string; lista: { atleta: string; profissional: string; primeira: string; segunda: string; naSemana: boolean; continuou: boolean; plano: string | null; url: string | null }[] };
 };
 
 const TZ = 'America/Sao_Paulo';
@@ -62,6 +70,43 @@ function resumoTexto(f: Fechamento) {
   const pend = f.sessoes.pendentes.length + f.fortalecimento.pendentes.length + f.yoga.pendentes.length;
   if (pend) linhas.push('', `Atenção: ${pend} atendimento(s) da semana ainda sem baixa no ClickUp.`);
   return linhas.filter(l => l !== null).join('\n');
+}
+
+const diaSemana = (iso: string) => DIAS[(new Date(iso + 'T12:00:00Z').getUTCDay() + 6) % 7];
+
+function Observacoes({ o }: { o: Observacoes }) {
+  const a = o.agenda;
+  const problemas = a ? a.semCard.length + a.dataDiferente.length + a.semReserva.length : 0;
+  const naSemana = o.duplas.lista.filter(d => d.naSemana);
+  const anteriores = o.duplas.lista.filter(d => !d.naSemana);
+  return (
+    <section className="gs-bloco gs-obs" id="observacoes">
+      <h2>Observações</h2>
+      <div className="gs-obs-grade">
+        <div>
+          <h3>Agenda × ClickUp</h3>
+          {!a ? <p className="gs-nota">{o.agendaErro || 'Agenda não lida.'}</p> : (
+            <>
+              <p className="gs-nota">{a.reservas} reserva(s) na agenda até hoje, {a.casadas} com card no ClickUp. {problemas === 0 ? 'Tudo casado.' : `${problemas} descasamento(s):`}</p>
+              {a.semCard.length > 0 && <ul className="gs-obs-lista"><li className="gs-obs-tit">Reserva sem card no ClickUp</li>{a.semCard.map((r, i) => <li key={'sc' + i}><span>{diaSemana(r.data)} {ddmm(r.data)} {r.hora}</span><strong>{r.atleta}</strong><em>{r.tipo}{r.fisio ? ` · ${r.fisio}` : ''}</em></li>)}</ul>}
+              {a.dataDiferente.length > 0 && <ul className="gs-obs-lista"><li className="gs-obs-tit">Data diferente entre agenda e card</li>{a.dataDiferente.map((d, i) => <li key={'dd' + i}><span>{diaSemana(d.reserva.data)} {ddmm(d.reserva.data)} {d.reserva.hora}</span><strong>{d.reserva.atleta}</strong><em>card em {ddmm(d.card.data)} · {d.card.onde} · {d.card.status}{d.card.url && <> · <a href={d.card.url} target="_blank" rel="noopener noreferrer" className="gs-link">ClickUp</a></>}</em></li>)}</ul>}
+              {a.semReserva.length > 0 && <ul className="gs-obs-lista"><li className="gs-obs-tit">Card de sessão sem reserva na agenda</li>{a.semReserva.map((c, i) => <li key={'sr' + i}><span>{diaSemana(c.data)} {ddmm(c.data)}</span><strong>{c.atleta}</strong><em>{c.tipo} · {c.onde} · {c.status}{c.url && <> · <a href={c.url} target="_blank" rel="noopener noreferrer" className="gs-link">ClickUp</a></>}</em></li>)}</ul>}
+            </>
+          )}
+        </div>
+        <div>
+          <h3>2ª sessão da Primeira Sessão Dupla</h3>
+          {o.duplas.lista.length === 0 ? <p className="gs-nota">Ninguém fez a 2ª sessão da dupla nas últimas {o.duplas.semanas} semanas (desde {ddmm(o.duplas.de)}).</p> : (
+            <>
+              {naSemana.length > 0 && <ul className="gs-obs-lista"><li className="gs-obs-tit">Nesta semana</li>{naSemana.map((d, i) => <li key={'ns' + i}><span>{diaSemana(d.segunda)} {ddmm(d.segunda)}</span><strong>{d.atleta}</strong><em>{d.profissional} · 1ª em {ddmm(d.primeira)} · {d.continuou ? <b className="gs-ok">continuou{d.plano ? ` (${d.plano})` : ''}</b> : <b className="gs-pendente">ainda sem plano</b>}{d.url && <> · <a href={d.url} target="_blank" rel="noopener noreferrer" className="gs-link">ClickUp</a></>}</em></li>)}</ul>}
+              {anteriores.length > 0 && <ul className="gs-obs-lista"><li className="gs-obs-tit">Semanas anteriores (desde {ddmm(o.duplas.de)})</li>{anteriores.map((d, i) => <li key={'an' + i}><span>{diaSemana(d.segunda)} {ddmm(d.segunda)}</span><strong>{d.atleta}</strong><em>{d.profissional} · {d.continuou ? <b className="gs-ok">continuou{d.plano ? ` (${d.plano})` : ''}</b> : <b className="gs-pendente">ainda sem plano</b>}</em></li>)}</ul>}
+              <p className="gs-nota">Continuou = tem sessão paga de outro tipo depois da 2ª sessão (plano vendido conta mesmo sem data).</p>
+            </>
+          )}
+        </div>
+      </div>
+    </section>
+  );
 }
 
 function Kpi({ rotulo, valor, detalhe, destaque, verde }: { rotulo: string; valor: string; detalhe?: string; destaque?: boolean; verde?: boolean }) {
@@ -278,6 +323,8 @@ export default function GestaoFinanceiro() {
                 <span><strong>Antes de fechar: {pendentes} atendimento(s) com data nesta semana ainda sem baixa no ClickUp.</strong> Eles só entram nos números quando o card vira “realizada” (ou “faltou”, na turma). Ver a lista →</span>
               </a>
             )}
+
+            <Observacoes o={f.observacoes} />
 
             <section className="gs-kpis" aria-label="Resumo da semana">
               <Kpi destaque rotulo="Produção da semana" valor={brlRedondo(f.total.producao)} detalhe={variacao(f.total.producao, f.anterior.producao, true)} />
