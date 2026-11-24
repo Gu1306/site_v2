@@ -36,8 +36,10 @@ export const REGRAS = {
     tipo: 'percentual', desconto: 0.18, divisor: 2, vinculo: 'Fisioterapeuta comissionado',
     descricao: 'Produção menos 18%, dividido por 2.',
   },
+  // Lucas é PROFISSIONAL DE EDUCAÇÃO FÍSICA, não fisioterapeuta: o rótulo do campo
+  // "Físio Carefit Que Atende" é interno e não serve de vínculo aqui.
   'Lucas Pereira': {
-    tipo: 'percentual', desconto: 0.18, divisor: 2, vinculo: 'Fisioterapeuta comissionado',
+    tipo: 'percentual', desconto: 0.18, divisor: 2, vinculo: 'Profissional de educação física · comissionado',
     descricao: 'Produção menos 18%, dividido por 2.',
     nota: 'As aulas de fortalecimento em turma não têm profissional no card do ClickUp, então não entram nesta conta — só as sessões individuais.',
   },
