@@ -61,6 +61,7 @@ const GestaoFinanceiro = lazy(() => import("./pages/gestao/GestaoFinanceiro"));
 const GestaoCampanha = lazy(() => import("./pages/gestao/GestaoCampanha"));
 const GestaoEquipe = lazy(() => import("./pages/gestao/GestaoEquipe"));
 const GestaoOperacao = lazy(() => import("./pages/gestao/GestaoOperacao"));
+const GestaoConteudo = lazy(() => import("./pages/gestao/GestaoConteudo"));
 const LandingAds = lazy(() => import("./pages/LandingAds"));
 const Privacidade = lazy(() => import("./pages/Privacidade"));
 
@@ -166,6 +167,7 @@ const App = () => (
             <Route path="/gestao/campanha" element={<GestaoCampanha />} />
             <Route path="/gestao/equipe" element={<GestaoEquipe />} />
             <Route path="/gestao/operacao" element={<GestaoOperacao />} />
+            <Route path="/gestao/conteudo" element={<GestaoConteudo />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="*" element={<NotFound />} />

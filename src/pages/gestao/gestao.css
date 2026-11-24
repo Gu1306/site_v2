@@ -438,6 +438,46 @@ a.gs-cartao:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgb(60 
   .gc-painel { padding: 20px; }
 }
 
+/* ---------- Conteúdo: agenda de postagens (uma linha por dia, chips por rede) ---------- */
+.gs-ct-fonte { margin: 14px 0 0; font-size: 12.5px; color: var(--cinza); }
+.gs-ct-semana { display: flex; gap: 10px; align-items: baseline; margin: 26px 0 6px;
+  font: 700 12px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--dourado); }
+.gs-ct-semana:first-child { margin-top: 0; }
+.gs-ct-semana span { font-family: Montserrat, system-ui, sans-serif; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--cinza); }
+.gs-ct-dia { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 14px; padding: 12px 0; border-top: 1px solid var(--linha); }
+.gs-ct-dia.gs-ct-livre { padding: 6px 0; }
+.gs-ct-data { display: grid; justify-items: center; align-content: start; line-height: 1.05; color: var(--cinza); }
+.gs-ct-sem { font: 700 10px var(--mono); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+.gs-ct-num { font: 800 24px var(--serif); color: var(--tinta); font-variant-numeric: tabular-nums; }
+.gs-ct-mes { font-size: 10.5px; }
+.gs-ct-hoje .gs-ct-num, .gs-ct-hoje .gs-ct-sem { color: var(--petroleo); }
+.gs-ct-livre .gs-ct-num { font-size: 17px; color: var(--cinza); }
+.gs-ct-posts { display: grid; gap: 10px; min-width: 0; }
+.gs-ct-vazio { margin: 0; align-self: center; font-size: 12.5px; color: var(--cinza); }
+.gs-ct-post { display: grid; gap: 6px; min-width: 0; padding: 12px 14px; background: var(--cartao-2); border: 1px solid var(--linha); border-radius: 12px; }
+.gs-ct-post.gs-ct-passado { opacity: .78; }
+/* o h3 do tema é um rótulo em versalete; aqui ele é a legenda do post e precisa ler como texto */
+.gs-ct-post h3 { margin: 0; font: 600 14.5px/1.35 Montserrat, system-ui, sans-serif; letter-spacing: 0;
+  text-transform: none; color: var(--tinta); overflow-wrap: anywhere; }
+.gs-ct-meta { margin: 0; font-size: 12.5px; color: var(--cinza); font-variant-numeric: tabular-nums; }
+.gs-ct-meta time { font-weight: 600; color: var(--tinta); }
+.gs-ct-meta a { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; color: var(--petroleo); text-decoration: none; }
+.gs-ct-meta a:hover, .gs-ct-meta a:focus-visible { text-decoration: underline; }
+.gs-ct-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 0; padding: 0; list-style: none; }
+.gs-ct-chip { display: inline-flex; gap: 6px; align-items: baseline; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; }
+.gs-ct-chip b { font-weight: 600; }
+.gs-ct-ok { background: #E2F2EA; color: #1D6B47; }
+.gs-ct-prog { background: #E3EEF0; color: var(--petroleo); }
+.gs-ct-atencao { background: #FBF0D6; color: #85621A; }
+.gs-ct-falta { background: #FBE6DF; color: #A3401F; }
+.gs-ct-neutro { background: #ECEFF0; color: var(--cinza); }
+
+@media (max-width: 640px) {
+  .gs-ct-dia { grid-template-columns: 42px minmax(0, 1fr); gap: 10px; }
+  .gs-ct-num { font-size: 20px; }
+  .gs-ct-post { padding: 10px 12px; }
+}
+
 /* Até 900px a barra lateral vira gaveta: botão "Menu" no canto, painel por cima. */
 @media (max-width: 900px) {
   .gs-pagina { grid-template-columns: minmax(0, 1fr); padding: 10px; }

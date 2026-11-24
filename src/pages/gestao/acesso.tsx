@@ -80,7 +80,7 @@ export const AREAS: AreaMenu[] = [
   { chave: 'forca', para: '/painel-avaliacao-forca', titulo: 'Avaliação de força', icone: Gauge, externa: true },
   { chave: 'tarefas', para: '#', titulo: 'Tarefas', icone: ListChecks, breve: true },
   { chave: 'agenda', para: '#', titulo: 'Agenda', icone: CalendarDays, breve: true },
-  { chave: 'conteudo', para: '#', titulo: 'Conteúdo', icone: Megaphone, breve: true },
+  { chave: 'conteudo', para: '/gestao/conteudo', titulo: 'Conteúdo', icone: Megaphone, soFinanceiro: true },
   { chave: 'atletas', para: '#', titulo: 'Atletas', icone: Users, breve: true },
 ];
 

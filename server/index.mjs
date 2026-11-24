@@ -12,6 +12,7 @@ import { montarTexto } from './resumo.mjs';
 import { criarLeitorAgenda } from './agenda.mjs';
 import { criarServicoAvaliacao, criarUploader } from './avaliacao-forca.mjs';
 import { criarServicoFechamento } from './fechamento.mjs';
+import { criarLeitorConteudo, criarServicoConteudo } from './conteudo.mjs';
 
 /*
  * Preview de link por rota.
@@ -113,7 +114,7 @@ function comPreview(html, preview, url) {
 
 export function passwordHash(password, salt = randomBytes(16).toString('hex')) { return `${salt}:${scryptSync(password, salt, 32).toString('hex')}`; }
 function equal(a, b) { const x = Buffer.from(a); const y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); }
-export function createServer(env = process.env, service = createService(clickupClient(env.CLICKUP_API_TOKEN)), avaliacao = criarServicoAvaliacao(clickupClient(env.CLICKUP_API_TOKEN), criarUploader(env.CLICKUP_API_TOKEN)), fechamento = criarServicoFechamento(clickupClient(env.CLICKUP_API_TOKEN), () => Date.now(), criarLeitorAgenda(env)), conversas = criarServicoConversas(criarLeitorConversas(env))) {
+export function createServer(env = process.env, service = createService(clickupClient(env.CLICKUP_API_TOKEN)), avaliacao = criarServicoAvaliacao(clickupClient(env.CLICKUP_API_TOKEN), criarUploader(env.CLICKUP_API_TOKEN)), fechamento = criarServicoFechamento(clickupClient(env.CLICKUP_API_TOKEN), () => Date.now(), criarLeitorAgenda(env)), conversas = criarServicoConversas(criarLeitorConversas(env)), conteudo = criarServicoConteudo(criarLeitorConteudo(env))) {
   const origin = env.PORTAL_ORIGIN || 'http://localhost:8080';
   // Quem vê o financeiro. O login é o mesmo da equipe; o Lucas entra no fortalecimento
   // e não enxerga produção nem bônus. Sem a variável, só o Gustavo.
@@ -210,6 +211,7 @@ export function createServer(env = process.env, service = createService(clickupC
             catch (e) { whatsappErro = e instanceof PublicError ? e.message : 'O WhatsApp não respondeu agora.'; }
             return send(200, { hoje, atualizadoEm: new Date(lidoEm).toISOString(), carteira: montarCarteira(atletas, hoje), whatsapp, whatsappErro });
           }
+          if (route === 'conteudo' && req.method === 'GET') return send(200, await conteudo.painel(url.searchParams.get('atualizar') === '1'));
           if (route === 'equipe' && req.method === 'GET') {
             const hoje = dayOf(Date.now());
             const mes = validarMes(url.searchParams.get('mes') || '', hoje);

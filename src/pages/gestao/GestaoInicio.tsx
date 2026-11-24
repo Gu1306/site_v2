@@ -15,7 +15,7 @@ const MODULOS = [
   { chave: 'forca', para: '/painel-avaliacao-forca', icone: Gauge, rotulo: 'ATLETAS', titulo: 'Avaliação de força', texto: 'Excel do dinamômetro vira relatório e fica salvo no card do atleta.', acao: 'ABRIR AVALIAÇÃO', externa: true },
   { chave: 'tarefas', icone: ListChecks, rotulo: 'EM BREVE', titulo: 'Tarefas', texto: 'A semana da equipe em colunas, lida do ClickUp.', breve: true },
   { chave: 'agenda', icone: CalendarDays, rotulo: 'EM BREVE', titulo: 'Agenda', texto: 'As agendas dos fisios, da turma e da yoga num calendário só.', breve: true },
-  { chave: 'conteudo', icone: Megaphone, rotulo: 'EM BREVE', titulo: 'Conteúdo', texto: 'Próximos posts, alcance e seguidores do Instagram.', breve: true },
+  { chave: 'conteudo', para: '/gestao/conteudo', icone: Megaphone, rotulo: 'MARKETING', titulo: 'Conteúdo', texto: 'As duas próximas semanas de posts: o que está agendado no Instagram, no Facebook e no TikTok, e o que já saiu.', acao: 'ABRIR CONTEÚDO', soFinanceiro: true },
   { chave: 'atletas', icone: Users, rotulo: 'EM BREVE', titulo: 'Atletas', texto: 'Quem treinou na semana, pelo Strava, e quem esfriou.', breve: true },
 ];
 
