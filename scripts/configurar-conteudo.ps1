@@ -42,5 +42,11 @@ Set-Var 'N8N_BASE_URL'   $envN8n['N8N_BASE_URL']
 Set-Var 'N8N_API_KEY'    $envN8n['N8N_API_KEY']
 
 Write-Host ''
-Write-Host 'Pronto. As variaveis entram no proximo deploy (um push na main basta).' -ForegroundColor Cyan
-Write-Host 'Para aplicar agora sem esperar: railway redeploy' -ForegroundColor Cyan
+Write-Host 'Aplicando: as variaveis so valem depois de um deploy...' -ForegroundColor Cyan
+& railway redeploy --yes --from-source
+if ($LASTEXITCODE -eq 0) {
+  Write-Host ''
+  Write-Host 'Pronto. Em uns minutos o painel abre em www.carefitrunbase.com.br/gestao/conteudo' -ForegroundColor Green
+} else {
+  Write-Host 'As variaveis ficaram gravadas, mas o deploy nao saiu. Rode: railway redeploy' -ForegroundColor Yellow
+}
