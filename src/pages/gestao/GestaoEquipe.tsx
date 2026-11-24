@@ -274,19 +274,6 @@ export default function GestaoEquipe() {
                   </tbody>
                 </table>
                 <p className="gs-nota">Falta em turma queima crédito do pacote, então entra na produção. As aulas não têm profissional no card: por isso não entram na comissão de ninguém.</p>
-              </div>
-              <div>
-                <h2>Como o dinheiro entrou</h2>
-                {e.recebimento.formas.length === 0 ? <p className="gs-vazio">Nenhuma sessão no mês.</p> : (
-                  <table className="gs-tabela">
-                    <thead><tr><th>Forma</th><th className="gs-num">Sessões</th><th className="gs-num">Valor</th></tr></thead>
-                    <tbody>
-                      {e.recebimento.formas.map(f => (
-                        <tr key={f.forma}><td>{f.forma}</td><td className="gs-num">{f.quantidade}</td><td className="gs-num">{brl(f.valor)}</td></tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
                 {e.recebimento.aReceber.length > 0 && (
                   <div className="gs-pendencias">
                     <h3>A receber (“À Pagar (exceção)”) <span>{brl(e.recebimento.total)}</span></h3>
@@ -303,12 +290,25 @@ export default function GestaoEquipe() {
                   </div>
                 )}
               </div>
+              <div>
+                <h2>Como o dinheiro entrou</h2>
+                {e.recebimento.formas.length === 0 ? <p className="gs-vazio">Nenhuma sessão no mês.</p> : (
+                  <table className="gs-tabela">
+                    <thead><tr><th>Forma</th><th className="gs-num">Sessões</th><th className="gs-num">Valor</th></tr></thead>
+                    <tbody>
+                      {e.recebimento.formas.map(f => (
+                        <tr key={f.forma}><td>{f.forma}</td><td className="gs-num">{f.quantidade}</td><td className="gs-num">{brl(f.valor)}</td></tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
             </section>
 
             <section className="gs-bloco">
               <h2>Seis meses</h2>
-              <div className="gs-grafico">
-                <div className="gs-colunas">
+              <div className="gs-grafico gs-grafico-simples">
+                <div className="gs-colunas gs-colunas-meses">
                   {e.historico.map(h => {
                     const ativa = h.mes === mes;
                     const altura = `${(h.producao / tetoHistorico) * 100}%`;

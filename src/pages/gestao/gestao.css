@@ -250,6 +250,10 @@ a.gs-cartao:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgb(60 
 .gs-equipe-trilho i { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--dourado); }
 .gs-equipe-meta p { font-size: 13px; color: var(--cinza); }
 .gs-equipe-meta strong { color: var(--tinta); font-variant-numeric: tabular-nums; }
+/* Gráfico sem a régua lateral: ocupa a largura toda em vez da coluna de 34px. */
+.gs-grafico-simples { grid-template-columns: minmax(0, 1fr); }
+.gs-colunas-meses { grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.gs-colunas-meses .gs-coluna-barra { width: min(56px, 72%); }
 .gs-tabela tfoot th { font: 700 13px Montserrat, sans-serif; letter-spacing: 0; text-transform: none; color: var(--tinta); border-top: 2px solid #e2d9cc; border-bottom: 0; }
 
 /* ---------- calculadora de campanha ---------- */
