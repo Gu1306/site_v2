@@ -112,7 +112,7 @@ test('chaveHorario e titulo', () => {
 
 test('uma fonte fora do ar não derruba o painel: vira aviso', async () => {
   const leitor = {
-    configurado: true,
+    configurado: true, temPostiz: true, temBuffer: true, temFeed: true,
     postiz: async () => [pz('2026-11-24T21:30:00.000Z', 'Black Friday')],
     buffer: async () => { throw new Error('caiu'); },
     feed: async () => null,
@@ -122,6 +122,17 @@ test('uma fonte fora do ar não derruba o painel: vira aviso', async () => {
   assert.equal(dados.fontes.buffer, false);
   assert.equal(dados.avisos.length, 1);
   assert.match(dados.avisos[0], /Buffer/);
+});
+
+test('fonte sem chave avisa, em vez de sumir calada com a rede inteira', async () => {
+  const leitor = {
+    configurado: true, temPostiz: false, temBuffer: true, temFeed: false,
+    postiz: async () => null, buffer: async () => [], feed: async () => null,
+  };
+  const dados = await criarServicoConteudo(leitor, () => Date.parse(AGORA)).painel();
+  assert.equal(dados.avisos.length, 2);
+  assert.match(dados.avisos.join(' '), /Postiz.*não está configurada/s);
+  assert.match(dados.avisos.join(' '), /Feed do Instagram/);
 });
 
 test('sem chave nenhuma, a página recebe 503 com explicação', async () => {

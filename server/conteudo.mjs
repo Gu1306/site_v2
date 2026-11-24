@@ -189,7 +189,13 @@ export function criarServicoConteudo(leitor = criarLeitorConteudo(), agora = () 
       const inicio = new Date(inicioBrt.getTime() - TZ_MIN * 60000).toISOString();
       const fim = new Date(inicioBrt.getTime() - TZ_MIN * 60000 + (DIAS + 1) * 86400000 - 60000).toISOString();
 
+      // Uma fonte sem chave devolve null sem erro; sem este aviso o painel simplesmente não
+      // mostraria aquela rede, e quem olha acharia que não há nada agendado.
       const falhas = [];
+      if (!leitor.temPostiz) falhas.push('Instagram (Postiz): a chave não está configurada, então nenhum post do Instagram aparece aqui.');
+      if (!leitor.temBuffer) falhas.push('Facebook e TikTok (Buffer): a chave não está configurada, então as duas redes aparecem sempre como "não vai".');
+      if (!leitor.temFeed) falhas.push('Feed do Instagram: o n8n não está configurado, então um post feito pelo celular aparece como "não saiu".');
+
       const tentar = async (qual, fn) => {
         try { return await fn(); }
         catch (e) { falhas.push(`${qual}: ${e instanceof PublicError ? e.message : 'não respondeu agora.'}`); return null; }

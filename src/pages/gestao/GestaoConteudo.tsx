@@ -140,12 +140,9 @@ export default function GestaoConteudo() {
               </p>
             </section>
 
-            {(dados.avisos.length > 0 || !dados.fontes.feed) && (
+            {dados.avisos.length > 0 && (
               <section className="gs-bloco">
                 {dados.avisos.map(a => <p key={a} className="gs-aviso"><CircleAlert size={16} aria-hidden="true" /> {a}</p>)}
-                {!dados.fontes.feed && dados.avisos.length === 0 && (
-                  <p className="gs-aviso"><CircleAlert size={16} aria-hidden="true" /> O feed do Instagram não está ligado: um post feito pelo celular aparece aqui como "não saiu".</p>
-                )}
               </section>
             )}
 
