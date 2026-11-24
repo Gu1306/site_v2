@@ -42,10 +42,24 @@ test('comissão fixa soma o bônus por volume só acima do limite', () => {
   assert.equal(calcularComissao(REGRAS['Lívia Dias'], 0, 105).bonus, 75);
 });
 
-test('regra não confirmada não inventa número', () => {
-  const c = calcularComissao(REGRAS['Lucas Pereira'], 5000, 200);
+test('quem não tem regra registrada não ganha número inventado', () => {
+  const c = calcularComissao(undefined, 5000, 200);
   assert.equal(c.valor, null);
   assert.equal(c.confirmada, false);
+});
+
+test('Lucas recebe pela mesma regra dos outros comissionados', () => {
+  assert.equal(calcularComissao(REGRAS['Lucas Pereira'], 1000, 0).valor, 410);
+});
+
+test('quem saiu da equipe só aparece nos meses em que atendeu', () => {
+  assert.ok(REGRAS['Lilian Vidal'].foraDaEquipe);
+  assert.equal(mes().profissionais.some(p => p.nome === 'Lilian Vidal'), false);
+  const comLilian = { ...DADOS, sessoes: [...DADOS.sessoes, s('Nina', '2026-11-04', 'Lilian Vidal', 'Mensal', 200)] };
+  const p = mes(comLilian).profissionais.find(x => x.nome === 'Lilian Vidal');
+  assert.equal(p.atendimentos, 1);
+  assert.equal(p.comissao.valor, 82); // (200 − 18%) / 2
+  assert.equal(p.foraDaEquipe, true);
 });
 
 test('mês em curso conta só até hoje e projeta o fechamento', () => {
@@ -77,9 +91,11 @@ test('por profissional: atendimentos, produção, recebimento por atendimento e 
   assert.equal(lais.custoPorAtendimento, 33.83);
   assert.equal(lais.lista.length, 4);
 
+  const semFisio = r.profissionais.find(p => p.nome === 'Sem profissional');
+  assert.equal(semFisio, undefined, 'o exemplo não tem card sem fisio');
   const lucas = r.profissionais.find(p => p.nome === 'Lucas Pereira');
-  assert.equal(lucas.comissao.valor, null);
-  assert.equal(lucas.regra.tipo, 'aConfirmar');
+  assert.equal(lucas.atendimentos, 0);
+  assert.equal(lucas.comissao.valor, 0, 'sem produção, sem comissão');
 });
 
 test('valor absurdo fica fora da produção e é listado para conferir', () => {

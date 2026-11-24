@@ -84,9 +84,11 @@ function CartaoPessoa({ p, mes, teto }: { p: Profissional; mes: string; teto: nu
           <h3>{p.nome}</h3>
           <small>{p.vinculo}</small>
         </div>
-        {p.comissao.valor !== null
-          ? <b className="gs-equipe-valor">{brl(p.comissao.valor)}<i>a pagar no mês</i></b>
-          : <b className="gs-equipe-valor gs-equipe-aberto">regra a confirmar<i>sem cálculo de comissão</i></b>}
+        {semMovimento
+          ? <b className="gs-equipe-valor gs-equipe-aberto">—<i>sem atendimento no mês</i></b>
+          : p.comissao.valor !== null
+            ? <b className="gs-equipe-valor">{brl(p.comissao.valor)}<i>a pagar no mês</i></b>
+            : <b className="gs-equipe-valor gs-equipe-aberto">regra a confirmar<i>sem cálculo de comissão</i></b>}
       </header>
 
       {semMovimento ? <p className="gs-nota">Nenhum atendimento registrado em {nomeMes(mes)}.</p> : (

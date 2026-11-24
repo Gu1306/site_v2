@@ -37,13 +37,15 @@ export const REGRAS = {
     descricao: 'Produção menos 18%, dividido por 2.',
   },
   'Lucas Pereira': {
-    tipo: 'aConfirmar', vinculo: 'Fortalecimento',
-    descricao: 'Regra de pagamento ainda não registrada aqui.',
-    nota: 'Em out/2026 foi lançado R$ 884 em bloco. Diga como se calcula e eu ligo a conta.',
+    tipo: 'percentual', desconto: 0.18, divisor: 2, vinculo: 'Fisioterapeuta comissionado',
+    descricao: 'Produção menos 18%, dividido por 2.',
+    nota: 'As aulas de fortalecimento em turma não têm profissional no card do ClickUp, então não entram nesta conta — só as sessões individuais.',
   },
   'Lilian Vidal': {
-    tipo: 'aConfirmar', vinculo: 'Fisioterapeuta',
-    descricao: 'Regra de pagamento ainda não registrada aqui.',
+    tipo: 'percentual', desconto: 0.18, divisor: 2, vinculo: 'Não faz mais parte da equipe',
+    foraDaEquipe: true,
+    descricao: 'Produção menos 18%, dividido por 2.',
+    nota: 'Saiu da equipe: só aparece nos meses em que atendeu.',
   },
 };
 
@@ -128,7 +130,10 @@ export function montarEquipe(dados, mes, hoje, atualizadoEm = null) {
   // O bônus da Lívia conta as sessões de todos os profissionais no mês.
   const bonusSessoes = realizadas.length;
 
-  const nomes = [...new Set([...Object.keys(REGRAS), ...realizadas.map(s => s.profissional)])];
+  // Quem saiu da equipe só aparece nos meses em que atendeu.
+  const atenderam = new Set(realizadas.map(s => s.profissional));
+  const nomes = [...new Set([...Object.keys(REGRAS), ...atenderam])]
+    .filter(nome => !REGRAS[nome]?.foraDaEquipe || atenderam.has(nome));
   const profissionais = nomes.map(nome => {
     const minhas = realizadas.filter(s => s.profissional === nome);
     const pagas = minhas.filter(s => valorValido(s) > 0);
@@ -137,6 +142,7 @@ export function montarEquipe(dados, mes, hoje, atualizadoEm = null) {
     const comissao = calcularComissao(regra, producao, bonusSessoes);
     return {
       nome, vinculo: regra?.vinculo || (nome === 'Sem profissional' ? 'Card sem fisio preenchido no ClickUp' : 'Não cadastrado aqui'),
+      foraDaEquipe: Boolean(regra?.foraDaEquipe),
       atendimentos: minhas.length,
       atletas: new Set(minhas.map(s => s.atleta)).size,
       producao,
