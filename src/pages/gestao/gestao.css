@@ -256,6 +256,42 @@ a.gs-cartao:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgb(60 
 .gs-colunas-meses .gs-coluna-barra { width: min(56px, 72%); }
 .gs-tabela tfoot th { font: 700 13px Montserrat, sans-serif; letter-spacing: 0; text-transform: none; color: var(--tinta); border-top: 2px solid #e2d9cc; border-bottom: 0; }
 
+/* ---------- operação do dia ---------- */
+.gs-abas { display: flex; gap: 6px; }
+.gs-abas button { display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--linha); background: transparent; color: var(--cinza); font: 600 12.5px/1 Montserrat, sans-serif; cursor: pointer; }
+.gs-abas button span { font: 600 11px var(--mono); background: var(--cartao-2); border-radius: 99px; padding: 2px 7px; }
+.gs-abas .gs-aba-ativa { background: #fff; color: var(--petroleo); border-color: var(--petroleo); }
+.gs-abas .gs-aba-ativa span { background: var(--petroleo); color: #fff; }
+
+.gs-conversas { display: grid; gap: 8px; }
+.gs-conversas li { display: grid; gap: 6px; padding: 12px 14px; background: #fff; border: 1px solid var(--linha); border-radius: 12px; }
+.gs-conversa-topo { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; gap: 8px; }
+.gs-conversa-topo strong { font-size: 14px; }
+.gs-conversa-topo small { font-size: 11.5px; color: var(--cinza); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gs-conversa-topo b { font: 600 11px var(--mono); color: var(--cinza); white-space: nowrap; }
+.gs-conversa-previa { font-size: 13px; color: var(--tinta); line-height: 1.5; }
+.gs-conversa-previa span { font: 600 9.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--terracota); margin-right: 4px; }
+.gs-conversa-pe { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.gs-conversa-pe small { font-size: 11.5px; color: var(--cinza); }
+
+.gs-fila-grupo { min-width: 0; display: grid; gap: 8px; align-content: start; }
+.gs-fila-grupo h3 { display: flex; align-items: center; gap: 8px; }
+.gs-fila-grupo h3 span { font: 600 11px var(--mono); background: var(--cartao-2); border-radius: 99px; padding: 2px 8px; color: var(--tinta); letter-spacing: 0; }
+.gs-fila { display: grid; gap: 2px; }
+.gs-fila li { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.4fr) auto auto; align-items: baseline; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgb(60 40 20 / .07); font-size: 13px; }
+.gs-fila-nome { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gs-fila-nome em { font-weight: 400; font-style: normal; color: var(--cinza); }
+.gs-fila-detalhe { font-size: 12px; color: var(--cinza); }
+.gs-fila-valor { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.gs-ver-mais { justify-self: start; padding: 6px 0; color: var(--petroleo); font: 600 12.5px Montserrat, sans-serif; text-decoration: underline; cursor: pointer; }
+
+@media (max-width: 760px) {
+  .gs-fila li { grid-template-columns: minmax(0, 1fr) auto; }
+  .gs-fila-detalhe { grid-column: 1 / -1; }
+  .gs-conversa-topo { grid-template-columns: minmax(0, 1fr) auto; }
+  .gs-conversa-topo small { grid-column: 1 / -1; white-space: normal; }
+}
+
 /* ---------- calculadora de campanha ---------- */
 /* O funil é o formulário: etapas em ordem, cada uma mostra quantas pessoas sobram
    (as barras centradas desenham o funil). O resultado fica fixo à direita. */

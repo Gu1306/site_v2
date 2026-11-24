@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BarChart3, Calculator, CalendarDays, Dumbbell, Gauge, HandCoins, Home, ListChecks, LogOut, Megaphone, Users } from 'lucide-react';
+import { BarChart3, Calculator, CalendarDays, Dumbbell, Gauge, HandCoins, Home, Inbox, ListChecks, LogOut, Megaphone, Users } from 'lucide-react';
 import './gestao.css';
 
 // Mesmo login e mesmo cookie dos painéis de fortalecimento e avaliação de força.
@@ -72,6 +72,7 @@ export function TelaLogin({ titulo, onEntrar, aviso }: { titulo: string; onEntra
 export type AreaMenu = { chave: string; para: string; titulo: string; icone: typeof Home; soFinanceiro?: boolean; breve?: boolean; externa?: boolean };
 export const AREAS: AreaMenu[] = [
   { chave: 'inicio', para: '/gestao', titulo: 'Início', icone: Home },
+  { chave: 'operacao', para: '/gestao/operacao', titulo: 'Operação', icone: Inbox, soFinanceiro: true },
   { chave: 'financeiro', para: '/gestao/financeiro', titulo: 'Financeiro', icone: BarChart3, soFinanceiro: true },
   { chave: 'equipe', para: '/gestao/equipe', titulo: 'Equipe', icone: HandCoins, soFinanceiro: true },
   { chave: 'campanha', para: '/gestao/campanha', titulo: 'Campanha', icone: Calculator, soFinanceiro: true },

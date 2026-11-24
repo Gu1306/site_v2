@@ -10,7 +10,7 @@
 // em páginas paralelas, e o recorte por data é feito aqui.
 import { PublicError, dayOf } from './fortalecimento.mjs';
 
-export const LISTAS = { sessoes: '901326724078', fortalecimento: '901328170178', yoga: '1400420000010694' };
+export const LISTAS = { sessoes: '901326724078', fortalecimento: '901328170178', yoga: '1400420000010694', crm: '901326722390' };
 
 // Ids, nunca nomes: nome de campo é rótulo editável na interface.
 export const CAMPOS = {
@@ -28,6 +28,24 @@ export const CAMPOS = {
   fimPlano: 'b0519a77-8347-41be-84e2-3f67d5b5c3d4',
   numeroSessao: '72994cb9-7687-4476-994c-1c7e89616dce',
   totalPlano: '2cf5b213-c034-43a3-a2dc-2285d8354ffb',
+};
+
+// Campos da lista CRM ATLETAS (901326722390), usados pela carteira e pelas conversas.
+export const CAMPOS_CRM = {
+  telefone: '59ed9201-7a00-4bbc-a138-2561a4d6637a',
+  origemMarketing: 'aeada942-1e12-4b60-ba80-0099e7822383',
+  origemLead: '4f2c2832-268b-4798-9ca7-a448437000ea',
+  profissional: '9ccf870b-dbd7-4784-8f78-ca32991b2bb0',
+  plano: '501c67e8-5630-4e9d-9e1d-df8483670c06',
+  statusPagamento: '4efb95a1-29ea-4688-917f-59125ba01971',
+  valorPlano: 'd8bc7425-496c-4132-9679-92f047eb7d94',
+  feitasDoPlano: '7e5cdc8c-6f0d-46bd-be35-0c0443c6db3b',
+  faltamDoPlano: '3ddf0a37-9592-442d-a933-389fe441541f',
+  fimDoPlano: '58e267c2-eb53-4741-83a2-370e1009dc33',
+  ultimaSessao: '5b445b7c-a461-498d-b72e-53b895b2565a',
+  primeiraSessao: '90511117-f22d-4b61-bffc-1c2190fce652',
+  provaNome: '58a65e2e-7783-479d-9ec5-811e0fb99ffb',
+  provaData: '9d31d957-b245-4ad0-bc98-25c1ea58a0bc',
 };
 
 // Bônus da Lívia (custos-fixos.md, regra confirmada em 08/11/2026):
@@ -77,6 +95,32 @@ export function reduzirAula(t) {
     data: dataDe(campo(t, CAMPOS.dataAula)),
     valor: numero(campo(t, CAMPOS.valorAula)),
     plano: opcao(campo(t, CAMPOS.planoFortalecimento)),
+  };
+}
+
+/**
+ * Atleta do CRM, reduzido ao que a carteira e as conversas usam. Telefone fica
+ * aqui porque é a chave para casar com o WhatsApp; nada clínico é lido.
+ */
+export function reduzirAtleta(t) {
+  const numeroOuNulo = id => { const n = Number(campo(t, id)?.value); return Number.isFinite(n) ? n : null; };
+  return {
+    id: t.id, url: t.url || null, nome: String(t.name || '').trim() || 'Sem nome',
+    status: normalizar(t.status?.status),
+    statusOriginal: t.status?.status || '',
+    telefone: String(campo(t, CAMPOS_CRM.telefone)?.value || ''),
+    fisio: opcao(campo(t, CAMPOS_CRM.profissional)),
+    plano: opcao(campo(t, CAMPOS_CRM.plano)),
+    origem: opcao(campo(t, CAMPOS_CRM.origemMarketing)) || opcao(campo(t, CAMPOS_CRM.origemLead)),
+    pagamento: opcao(campo(t, CAMPOS_CRM.statusPagamento)),
+    valorPlano: numeroOuNulo(CAMPOS_CRM.valorPlano),
+    feitasDoPlano: numeroOuNulo(CAMPOS_CRM.feitasDoPlano),
+    faltamDoPlano: numeroOuNulo(CAMPOS_CRM.faltamDoPlano),
+    fimDoPlano: dataDe(campo(t, CAMPOS_CRM.fimDoPlano)),
+    ultimaSessao: dataDe(campo(t, CAMPOS_CRM.ultimaSessao)),
+    primeiraSessao: dataDe(campo(t, CAMPOS_CRM.primeiraSessao)),
+    prova: { nome: String(campo(t, CAMPOS_CRM.provaNome)?.value || '').trim() || null, data: dataDe(campo(t, CAMPOS_CRM.provaData)) },
+    sessoes: [],
   };
 }
 
@@ -367,17 +411,20 @@ async function lerLista(api, lista) {
 
 export function criarServicoFechamento(api, agora = () => Date.now(), leitorAgenda = null) {
   let cache = null; let emCurso = null;
-  let cacheOrigens = null; let emCursoOrigens = null;
-  async function origens(forcar) {
-    const idade = cacheOrigens ? agora() - cacheOrigens.lidoEm : Infinity;
-    if (idade < CACHE_MS && !(forcar && idade >= ATUALIZAR_MIN_MS)) return cacheOrigens.valores;
-    emCursoOrigens ||= (async () => {
-      const atletas = await lerLista(api, '901326722390');
-      cacheOrigens = { lidoEm: agora(), valores: new Map(atletas.map(t => [t.id, opcao(campo(t, CAMPOS.origemMarketing))])) };
-      return cacheOrigens.valores;
-    })().finally(() => { emCursoOrigens = null; });
-    return emCursoOrigens;
+  // Uma leitura só do CRM serve a calculadora (origens), a carteira e as conversas.
+  let cacheCrm = null; let emCursoCrm = null;
+  async function crm(forcar) {
+    const idade = cacheCrm ? agora() - cacheCrm.lidoEm : Infinity;
+    if (idade < CACHE_MS && !(forcar && idade >= ATUALIZAR_MIN_MS)) return cacheCrm;
+    emCursoCrm ||= (async () => {
+      const tarefas = await lerLista(api, LISTAS.crm);
+      const atletas = tarefas.map(reduzirAtleta);
+      cacheCrm = { lidoEm: agora(), atletas, origens: new Map(tarefas.map(t => [t.id, opcao(campo(t, CAMPOS.origemMarketing))])) };
+      return cacheCrm;
+    })().finally(() => { emCursoCrm = null; });
+    return emCursoCrm;
   }
+  const origens = async forcar => (await crm(forcar)).origens;
   async function dados(forcar) {
     const idade = cache ? agora() - cache.lidoEm : Infinity;
     if (idade < CACHE_MS && !(forcar && idade >= ATUALIZAR_MIN_MS)) return cache;
@@ -409,6 +456,16 @@ export function criarServicoFechamento(api, agora = () => Date.now(), leitorAgen
      * ele (equipe/comissões) sem gastar a API do ClickUp de novo.
      */
     async listas(forcar = false) { return dados(forcar); },
+    /** Atletas do CRM com as sessões de cada um coladas (carteira e conversas). */
+    async atletas(forcar = false) {
+      const [registro, d] = await Promise.all([crm(forcar), dados(forcar)]);
+      const porId = new Map(registro.atletas.map(a => [a.id, { ...a, sessoes: [] }]));
+      for (const s of d.sessoes) {
+        const alvo = s.atletaId && porId.get(s.atletaId);
+        if (alvo) alvo.sessoes.push({ data: s.data, status: s.status, tipo: s.tipo, valor: s.valor });
+      }
+      return { lidoEm: Math.min(registro.lidoEm, d.lidoEm), atletas: [...porId.values()] };
+    },
     // Mesmo cache do fechamento: abrir a calculadora não gasta a API do ClickUp.
     async campanha(forcar = false) {
       const [d, fontes] = await Promise.all([dados(forcar), origens(forcar).catch(() => null)]);
