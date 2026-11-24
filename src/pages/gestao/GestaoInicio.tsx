@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BarChart3, Calculator, CalendarDays, Dumbbell, Gauge, ListChecks, Megaphone, Users } from 'lucide-react';
+import { BarChart3, Calculator, CalendarDays, Dumbbell, Gauge, HandCoins, ListChecks, Megaphone, Users } from 'lucide-react';
 import { Carregando, TelaLogin, Topo, useSessaoGestao } from './acesso';
 import fotoEspaco from '@/assets/espaco-1.jpg';
 
@@ -8,6 +8,7 @@ import fotoEspaco from '@/assets/espaco-1.jpg';
 // e linha nova em AREAS (acesso.tsx). `breve` = ainda não existe; aparece tracejado.
 const MODULOS = [
   { chave: 'financeiro', para: '/gestao/financeiro', icone: BarChart3, rotulo: 'GESTÃO', titulo: 'Financeiro', texto: 'Fechamento semanal: sessões por profissional e por tipo, fortalecimento, yoga e produção da semana.', acao: 'ABRIR FECHAMENTO', cor: 'destaque', soFinanceiro: true },
+  { chave: 'equipe', para: '/gestao/equipe', icone: HandCoins, rotulo: 'PESSOAS', titulo: 'Equipe', texto: 'Quanto cada profissional produziu no mês, quanto a CareFit recebe por atendimento e a comissão de cada um, pela regra combinada.', acao: 'ABRIR EQUIPE', cor: 'verde', soFinanceiro: true },
   { chave: 'campanha', para: '/gestao/campanha', icone: Calculator, rotulo: 'MARKETING', titulo: 'Campanha', texto: 'Calculadora de tráfego pago: quanto custa cada sessão comparecida e se a verba volta, com quem continuou de verdade no ClickUp.', acao: 'ABRIR CALCULADORA', cor: 'verde', soFinanceiro: true },
   { chave: 'fortalecimento', para: '/painel-fortalecimento', icone: Dumbbell, rotulo: 'OPERAÇÃO', titulo: 'Fortalecimento', texto: 'Aulas do dia, treino de cada atleta e registro da evolução, direto no ClickUp.', acao: 'ABRIR PAINEL', externa: true },
   { chave: 'forca', para: '/painel-avaliacao-forca', icone: Gauge, rotulo: 'ATLETAS', titulo: 'Avaliação de força', texto: 'Excel do dinamômetro vira relatório e fica salvo no card do atleta.', acao: 'ABRIR AVALIAÇÃO', externa: true },
@@ -45,6 +46,7 @@ export default function GestaoInicio() {
             <div className="gs-atalhos">
               {sessao.financeiro && <Link to="/gestao/financeiro">+ Fechamento da semana</Link>}
               <a href="/painel-fortalecimento">+ Aula de hoje</a>
+              {sessao.financeiro && <Link to="/gestao/equipe">+ Comissão do mês</Link>}
               {sessao.financeiro && <Link to="/gestao/campanha">+ Simular campanha</Link>}
             </div>
           </div>

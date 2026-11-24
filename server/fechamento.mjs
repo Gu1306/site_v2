@@ -23,6 +23,11 @@ export const CAMPOS = {
   dataAula: '55b91b8a-b0b3-458c-af17-d49aaf71fa15', // mesmo id no fortalecimento e na yoga
   valorAula: 'e5acfaf5-f7b1-4165-b5e6-4c6ca82502cc',
   planoFortalecimento: '6c591b5d-c6af-4888-ad30-d561a396fe0f',
+  pagamento: 'a8b91e00-d9ed-44d7-9758-58d48d944254', // "Forma de pagamento": PIX, cartão, À Pagar (exceção), Cortesia
+  statusPlano: '675f74e9-c4ee-47f1-92ff-01f1c2b56158', // Ativo / Plano Finalizado
+  fimPlano: 'b0519a77-8347-41be-84e2-3f67d5b5c3d4',
+  numeroSessao: '72994cb9-7687-4476-994c-1c7e89616dce',
+  totalPlano: '2cf5b213-c034-43a3-a2dc-2285d8354ffb',
 };
 
 // Bônus da Lívia (custos-fixos.md, regra confirmada em 08/11/2026):
@@ -58,6 +63,11 @@ export function reduzirSessao(t) {
     profissional: opcao(campo(t, CAMPOS.profissional)) || 'Sem profissional',
     tipo: opcao(campo(t, CAMPOS.plano)) || 'Sem plano',
     valor: numero(campo(t, CAMPOS.valorSessao)),
+    pagamento: opcao(campo(t, CAMPOS.pagamento)),
+    statusPlano: opcao(campo(t, CAMPOS.statusPlano)),
+    fimPlano: dataDe(campo(t, CAMPOS.fimPlano)),
+    numeroSessao: numero(campo(t, CAMPOS.numeroSessao)) || null,
+    totalPlano: numero(campo(t, CAMPOS.totalPlano)) || null,
   };
 }
 
@@ -394,6 +404,11 @@ export function criarServicoFechamento(api, agora = () => Date.now(), leitorAgen
       if (agendaErro) observacoes.agendaErro = agendaErro;
       return { ...fechamento, observacoes };
     },
+    /**
+     * Cache cru das três listas já reduzidas, para outras visões montarem sobre
+     * ele (equipe/comissões) sem gastar a API do ClickUp de novo.
+     */
+    async listas(forcar = false) { return dados(forcar); },
     // Mesmo cache do fechamento: abrir a calculadora não gasta a API do ClickUp.
     async campanha(forcar = false) {
       const [d, fontes] = await Promise.all([dados(forcar), origens(forcar).catch(() => null)]);

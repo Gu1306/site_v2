@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BarChart3, Calculator, CalendarDays, Dumbbell, Gauge, Home, ListChecks, LogOut, Megaphone, Users } from 'lucide-react';
+import { BarChart3, Calculator, CalendarDays, Dumbbell, Gauge, HandCoins, Home, ListChecks, LogOut, Megaphone, Users } from 'lucide-react';
 import './gestao.css';
 
 // Mesmo login e mesmo cookie dos painéis de fortalecimento e avaliação de força.
@@ -73,6 +73,7 @@ export type AreaMenu = { chave: string; para: string; titulo: string; icone: typ
 export const AREAS: AreaMenu[] = [
   { chave: 'inicio', para: '/gestao', titulo: 'Início', icone: Home },
   { chave: 'financeiro', para: '/gestao/financeiro', titulo: 'Financeiro', icone: BarChart3, soFinanceiro: true },
+  { chave: 'equipe', para: '/gestao/equipe', titulo: 'Equipe', icone: HandCoins, soFinanceiro: true },
   { chave: 'campanha', para: '/gestao/campanha', titulo: 'Campanha', icone: Calculator, soFinanceiro: true },
   { chave: 'fortalecimento', para: '/painel-fortalecimento', titulo: 'Fortalecimento', icone: Dumbbell, externa: true },
   { chave: 'forca', para: '/painel-avaliacao-forca', titulo: 'Avaliação de força', icone: Gauge, externa: true },

@@ -59,6 +59,7 @@ const PainelAvaliacaoForca = lazy(() => import("./pages/PainelAvaliacaoForca"));
 const GestaoInicio = lazy(() => import("./pages/gestao/GestaoInicio"));
 const GestaoFinanceiro = lazy(() => import("./pages/gestao/GestaoFinanceiro"));
 const GestaoCampanha = lazy(() => import("./pages/gestao/GestaoCampanha"));
+const GestaoEquipe = lazy(() => import("./pages/gestao/GestaoEquipe"));
 const LandingAds = lazy(() => import("./pages/LandingAds"));
 const Privacidade = lazy(() => import("./pages/Privacidade"));
 
@@ -162,6 +163,7 @@ const App = () => (
             <Route path="/gestao" element={<GestaoInicio />} />
             <Route path="/gestao/financeiro" element={<GestaoFinanceiro />} />
             <Route path="/gestao/campanha" element={<GestaoCampanha />} />
+            <Route path="/gestao/equipe" element={<GestaoEquipe />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="*" element={<NotFound />} />

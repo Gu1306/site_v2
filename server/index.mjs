@@ -4,7 +4,8 @@ import { readFile } from 'node:fs/promises';
 import serveHandler from 'serve-handler';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { clickupClient, createService, PublicError, PANEL_REVISIONS } from './fortalecimento.mjs';
+import { clickupClient, createService, dayOf, PublicError, PANEL_REVISIONS } from './fortalecimento.mjs';
+import { montarEquipe, validarMes } from './equipe.mjs';
 import { criarLeitorAgenda } from './agenda.mjs';
 import { criarServicoAvaliacao, criarUploader } from './avaliacao-forca.mjs';
 import { criarServicoFechamento } from './fechamento.mjs';
@@ -170,6 +171,12 @@ export function createServer(env = process.env, service = createService(clickupC
           if (!financeiro.has(user)) throw new PublicError('Seu acesso não inclui o financeiro da CareFit.', 403);
           if (route === 'fechamento' && req.method === 'GET') return send(200, await fechamento.semana(url.searchParams.get('semana') || '', url.searchParams.get('atualizar') === '1'));
           if (route === 'campanha' && req.method === 'GET') return send(200, await fechamento.campanha(url.searchParams.get('atualizar') === '1'));
+          if (route === 'equipe' && req.method === 'GET') {
+            const hoje = dayOf(Date.now());
+            const mes = validarMes(url.searchParams.get('mes') || '', hoje);
+            const listas = await fechamento.listas(url.searchParams.get('atualizar') === '1');
+            return send(200, montarEquipe(listas, mes, hoje, new Date(listas.lidoEm).toISOString()));
+          }
           throw new PublicError('Página não encontrada.', 404);
         }
         if (prefixo === '/api/avaliacao-forca/') {
