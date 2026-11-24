@@ -16,13 +16,13 @@ type Carteira = {
   valoresSuspeitos: { quantidade: number; exemplos: { nome: string; valor: number; plano: string | null; url: string | null }[] };
 };
 type Conversa = {
-  motivo: 'sem_resposta' | 'esfriou'; nome: string; final: string; link: string | null; noCrm: boolean;
+  motivo: 'sem_resposta' | 'esfriou'; assunto: 'aberta' | 'midia' | 'encerrada'; nome: string; final: string; link: string | null; noCrm: boolean;
   status: string | null; fisio: string | null; ultimaSessao: string | null; proximaSessao: string | null;
   horas: number; dias: number; quem: 'contato' | 'carefit'; previa: string; em: string;
 };
 type WhatsApp = {
   regras: { janelaDias: number; semRespostaHoras: number; esfriouDias: number };
-  resumo: { conversas: number; emDia: number; semEntradaRecente: number; semResposta: number; esfriou: number; comSessaoMarcada: number };
+  resumo: { conversas: number; emDia: number; semEntradaRecente: number; semResposta: number; esfriou: number; comSessaoMarcada: number; encerradas: number; midia: number };
   fila: Conversa[]; atualizadoEm: string;
 };
 type Operacao = { hoje: string; atualizadoEm: string; carteira: Carteira; whatsapp: WhatsApp | null; whatsappErro: string | null };
@@ -39,6 +39,24 @@ const prazo = (dias: number | null | undefined) => {
   if (dias < 0) return ` · plano terminou há ${Math.abs(dias)} dias`;
   if (dias === 0) return ' · plano termina hoje';
   return ` · termina em ${dias} dias`;
+};
+
+type Aba = 'pedem' | 'arquivo' | 'esfriou';
+const ABAS: Record<Aba, string> = {
+  pedem: 'Pedem resposta',
+  arquivo: 'Mandaram arquivo',
+  esfriou: 'Esfriou',
+};
+// Agradecimento não entra em aba nenhuma: vira só o contador na nota acima.
+const DE_QUAL_ABA: Record<Aba, (c: Conversa) => boolean> = {
+  pedem: c => c.motivo === 'sem_resposta' && c.assunto === 'aberta',
+  arquivo: c => c.motivo === 'sem_resposta' && c.assunto === 'midia',
+  esfriou: c => c.motivo === 'esfriou',
+};
+const VAZIO: Record<Aba, string> = {
+  pedem: 'Ninguém esperando resposta. Caixa limpa.',
+  arquivo: 'Nenhum áudio, foto ou documento sem abrir.',
+  esfriou: 'Ninguém parou de responder nos últimos dias.',
 };
 
 const MOTIVOS: Record<string, string> = {
@@ -95,7 +113,7 @@ function Lista({ titulo, nota, pessoas, detalhe, vazio }: { titulo: string; nota
 }
 
 function FilaWhatsApp({ w, erro }: { w: WhatsApp | null; erro: string | null }) {
-  const [aba, setAba] = useState<'sem_resposta' | 'esfriou'>('sem_resposta');
+  const [aba, setAba] = useState<Aba>('pedem');
   const [tudo, setTudo] = useState(false);
   if (!w) return (
     <section className="gs-bloco">
@@ -103,9 +121,8 @@ function FilaWhatsApp({ w, erro }: { w: WhatsApp | null; erro: string | null }) 
       <p className="gs-nota">{erro || 'WhatsApp não lido.'}</p>
     </section>
   );
-  const todas = w.fila.filter(c => c.motivo === aba);
+  const todas = w.fila.filter(c => DE_QUAL_ABA[aba](c));
   const lista = tudo ? todas : todas.slice(0, MOSTRAR);
-  const quantos = (m: string) => w.fila.filter(c => c.motivo === m).length;
   return (
     <section className="gs-bloco">
       <h2>WhatsApp</h2>
@@ -113,17 +130,19 @@ function FilaWhatsApp({ w, erro }: { w: WhatsApp | null; erro: string | null }) 
         Leitura do número oficial da CareFit, só leitura — nada é respondido automaticamente.
         {' '}{w.resumo.conversas} conversa(s) nos últimos {w.regras.janelaDias} dias, {w.resumo.emDia} em dia
         {w.resumo.comSessaoMarcada > 0 && <> e {w.resumo.comSessaoMarcada} já com sessão marcada</>}.
+        {w.resumo.encerradas > 0 && <> {w.resumo.encerradas} conversa(s) terminaram em agradecimento e ficaram de fora.</>}
       </p>
       <div className="gs-abas gs-sem-impressao" role="tablist">
-        <button type="button" role="tab" aria-selected={aba === 'sem_resposta'} className={aba === 'sem_resposta' ? 'gs-aba-ativa' : ''} onClick={() => { setAba('sem_resposta'); setTudo(false); }}>
-          Esperando resposta <span>{quantos('sem_resposta')}</span>
-        </button>
-        <button type="button" role="tab" aria-selected={aba === 'esfriou'} className={aba === 'esfriou' ? 'gs-aba-ativa' : ''} onClick={() => { setAba('esfriou'); setTudo(false); }}>
-          Esfriou <span>{quantos('esfriou')}</span>
-        </button>
+        {(Object.keys(ABAS) as Aba[]).map(chave => (
+          <button key={chave} type="button" role="tab" aria-selected={aba === chave}
+            className={aba === chave ? 'gs-aba-ativa' : ''}
+            onClick={() => { setAba(chave); setTudo(false); }}>
+            {ABAS[chave]} <span>{w.fila.filter(DE_QUAL_ABA[chave]).length}</span>
+          </button>
+        ))}
       </div>
       {lista.length === 0 ? (
-        <p className="gs-vazio">{aba === 'sem_resposta' ? 'Ninguém esperando resposta há mais de ' + w.regras.semRespostaHoras + ' h. Caixa limpa.' : 'Ninguém parou de responder nos últimos dias.'}</p>
+        <p className="gs-vazio">{VAZIO[aba]}</p>
       ) : (
         <ul className="gs-conversas">
           {lista.map((c, i) => (
@@ -186,7 +205,7 @@ export default function GestaoOperacao() {
 
   const o = dados;
   const c = o?.carteira;
-  const esperando = o?.whatsapp?.fila.filter(f => f.motivo === 'sem_resposta').length ?? 0;
+  const esperando = o?.whatsapp?.fila.filter(f => f.motivo === 'sem_resposta' && f.assunto === 'aberta').length ?? 0;
 
   return (
     <div className="gs-pagina">
@@ -208,7 +227,7 @@ export default function GestaoOperacao() {
           <>
             <section className="gs-kpis">
               <Kpi destaque rotulo="ESPERANDO RESPOSTA" valor={o.whatsapp ? String(esperando) : '—'}
-                detalhe={o.whatsapp ? `${o.whatsapp.resumo.esfriou} conversa(s) esfriaram` : (o.whatsappErro || 'WhatsApp não lido')} />
+                detalhe={o.whatsapp ? `${o.whatsapp.resumo.midia} mandaram arquivo · ${o.whatsapp.resumo.esfriou} esfriaram` : (o.whatsappErro || 'WhatsApp não lido')} />
               <Kpi verde rotulo="PARA RENOVAR" valor={String(c.renovacao.length)}
                 detalhe={`${c.resumo.ativos} atletas ativos na carteira`} />
               <Kpi rotulo="SUMIRAM" valor={String(c.sumidos.length)}

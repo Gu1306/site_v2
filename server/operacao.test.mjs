@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ATIVO, FINALIZADO, montarCarteira, VALOR_MAXIMO_PLANO } from './carteira.mjs';
-import { chaveTelefone, montarConversas, reduzirMensagem, REGRAS } from './conversas.mjs';
+import { chaveTelefone, classificarMensagem, montarConversas, reduzirMensagem, REGRAS } from './conversas.mjs';
 import { somarDias } from './fechamento.mjs';
 
 const HOJE = '2026-11-23';
@@ -160,10 +160,51 @@ test('áudio e imagem viram rótulo legível na prévia', () => {
 
 test('fila vem com quem espera resposta primeiro e há mais tempo', () => {
   const r = montarConversas([
-    msg('5516900000001', 'contato', 4, 'a'),
-    msg('5516900000002', 'contato', 30, 'b'),
-    msg('5516900000003', 'contato', 24 * 9, 'c'), msg('5516900000003', 'carefit', 24 * 5, 'd'),
+    msg('5516900000001', 'contato', 4, 'consigo remarcar?'),
+    msg('5516900000002', 'contato', 30, 'queria entender o valor do semestral'),
+    msg('5516900000003', 'contato', 24 * 9, 'quero marcar'), msg('5516900000003', 'carefit', 24 * 5, 'tenho terça 7h'),
   ], [], AGORA);
   assert.deepEqual(r.fila.map(f => f.motivo), ['sem_resposta', 'sem_resposta', 'esfriou']);
   assert.equal(r.fila[0].horas, 30);
+});
+
+// ------------------------------------------------- assunto da última mensagem
+
+test('agradecimento curto e emoji sozinho são conversa encerrada', () => {
+  for (const t of ['Obrigada!', 'obrigado 🙏', 'Okkkk', 'Tmj', '❤', 'Valeu Gu', 'Tudo ótimo, obrigado.', 'Estou beem', 'Zero dor', 'Vamos que vamos Obrigadooo', 'Confirmado', 'Imagina Tmj']) {
+    assert.equal(classificarMensagem(t, t), 'encerrada', `deveria encerrar: ${t}`);
+  }
+});
+
+test('qualquer sinal de pergunta ou assunto em aberto mantém na fila', () => {
+  for (const t of ['Consigo quinta?', 'qual o valor do plano', 'preciso remarcar', 'Obrigada, mas qual horário?', 'mas preciso', 'quanto fica', 'Boa tarde, queria agendar']) {
+    assert.equal(classificarMensagem(t, t), 'aberta', `deveria ficar aberta: ${t}`);
+  }
+});
+
+test('texto longo nunca é escondido, mesmo começando com obrigada', () => {
+  const longo = 'Obrigada! Voltei a correr recente porque estava afastada porque fiz uma cirurgia e queria entender como retomar com segurança';
+  assert.equal(classificarMensagem(longo, longo), 'aberta');
+});
+
+test('arquivo sem texto vira categoria própria', () => {
+  assert.equal(classificarMensagem('', '[áudio]'), 'midia');
+  assert.equal(classificarMensagem('', '[documento]'), 'midia');
+  // Foto com legenda que pergunta algo continua sendo pergunta.
+  assert.equal(classificarMensagem('é esse horário?', 'é esse horário?'), 'aberta');
+});
+
+test('a fila separa quem pede atenção de quem só agradeceu', () => {
+  const r = montarConversas([
+    msg('5516900000011', 'contato', 6, 'Obrigada!! 🙏'),
+    msg('5516900000012', 'contato', 10, 'consigo marcar quinta?'),
+    msg('5516900000013', 'contato', 8, '', { tipo: 'audioMessage' }),
+    msg('5516900000014', 'contato', 24 * 9, 'oi'), msg('5516900000014', 'carefit', 24 * 5, 'tenho terça'),
+  ], [], AGORA);
+  assert.deepEqual(r.fila.map(f => f.assunto), ['aberta', 'midia', 'aberta', 'encerrada']);
+  assert.deepEqual(r.fila.map(f => f.motivo), ['sem_resposta', 'sem_resposta', 'esfriou', 'sem_resposta']);
+  assert.equal(r.resumo.semResposta, 1, 'só a que pede horário conta como esperando');
+  assert.equal(r.resumo.midia, 1);
+  assert.equal(r.resumo.encerradas, 1);
+  assert.equal(r.resumo.esfriou, 1);
 });

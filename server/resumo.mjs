@@ -20,11 +20,13 @@ export function montarTexto({ hoje, carteira, whatsapp, equipe }) {
   if (!whatsapp) {
     linhas.push('• não consegui ler as conversas agora');
   } else {
-    const esperando = whatsapp.fila.filter(c => c.motivo === 'sem_resposta');
+    // Só quem pede alguma coisa. Agradecimento não é fila.
+    const esperando = whatsapp.fila.filter(c => c.motivo === 'sem_resposta' && c.assunto === 'aberta');
     const antigos = esperando.filter(c => c.horas >= 24);
     linhas.push(esperando.length
       ? `• ${plural(esperando.length, 'pessoa esperando resposta', 'pessoas esperando resposta')}${antigos.length ? `, ${antigos.length} há mais de um dia` : ''}`
       : '• ninguém esperando resposta');
+    if (whatsapp.resumo.midia) linhas.push(`• ${plural(whatsapp.resumo.midia, 'mandou arquivo', 'mandaram arquivo')} e ninguém abriu`);
     if (whatsapp.resumo.esfriou) linhas.push(`• ${plural(whatsapp.resumo.esfriou, 'conversa esfriou', 'conversas esfriaram')}`);
     for (const c of esperando.slice(0, MAIS_ANTIGOS)) {
       linhas.push(`   ↳ ${c.nome} (${c.horas < 24 ? `${c.horas}h` : `${Math.round(c.horas / 24)}d`})`);

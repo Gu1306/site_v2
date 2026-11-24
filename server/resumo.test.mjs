@@ -17,11 +17,13 @@ const EQUIPE = {
   foraDoNormal: { quantidade: 0, exemplos: [] },
 };
 const WHATSAPP = {
-  resumo: { esfriou: 2 },
+  resumo: { esfriou: 2, encerradas: 5, midia: 3 },
   fila: [
-    { motivo: 'sem_resposta', nome: 'Rafael', horas: 30 },
-    { motivo: 'sem_resposta', nome: 'Angela', horas: 5 },
-    { motivo: 'esfriou', nome: 'João', horas: 96 },
+    { motivo: 'sem_resposta', assunto: 'aberta', nome: 'Rafael', horas: 30 },
+    { motivo: 'sem_resposta', assunto: 'aberta', nome: 'Angela', horas: 5 },
+    { motivo: 'sem_resposta', assunto: 'encerrada', nome: 'Bia', horas: 40 },
+    { motivo: 'sem_resposta', assunto: 'midia', nome: 'Caio', horas: 12 },
+    { motivo: 'esfriou', assunto: 'aberta', nome: 'João', horas: 96 },
   ],
 };
 const texto = (extra = {}) => montarTexto({ hoje: '2026-11-24', carteira: CARTEIRA, whatsapp: WHATSAPP, equipe: EQUIPE, ...extra });
@@ -38,7 +40,10 @@ test('o resumo abre com o dia e traz os três blocos', () => {
 test('conta quem espera resposta e destaca quem espera há mais de um dia', () => {
   const t = texto();
   assert.match(t, /2 pessoas esperando resposta, 1 há mais de um dia/);
+  assert.match(t, /3 mandaram arquivo e ninguém abriu/);
   assert.match(t, /2 conversas esfriaram/);
+  assert.ok(!t.includes('Bia'), 'quem só agradeceu não aparece');
+  assert.ok(!t.includes('Caio'), 'quem mandou arquivo não entra na lista de espera');
   assert.match(t, /↳ Rafael \(1d\)/);
   assert.match(t, /↳ Angela \(5h\)/);
   assert.ok(!t.includes('João'), 'quem esfriou não entra na lista de espera');
@@ -48,10 +53,11 @@ test('singular e plural saem certos', () => {
   const um = montarTexto({
     hoje: '2026-11-24',
     carteira: { ...CARTEIRA, renovacao: [{ nome: 'Ana', entrada: false }], sumidos: [], pagamento: [], finalizados: [{ nome: 'Edu' }] },
-    whatsapp: { resumo: { esfriou: 1 }, fila: [{ motivo: 'sem_resposta', nome: 'Rafael', horas: 4 }] },
+    whatsapp: { resumo: { esfriou: 1, encerradas: 0, midia: 1 }, fila: [{ motivo: 'sem_resposta', assunto: 'aberta', nome: 'Rafael', horas: 4 }] },
     equipe: EQUIPE,
   });
   assert.match(um, /1 pessoa esperando resposta\n/);
+  assert.match(um, /1 mandou arquivo e ninguém abriu/);
   assert.match(um, /1 conversa esfriou/);
   assert.match(um, /1 atleta para renovar/);
   assert.match(um, /1 atleta terminou o plano e não voltou/);
@@ -59,7 +65,7 @@ test('singular e plural saem certos', () => {
 });
 
 test('caixa limpa é dita com todas as letras', () => {
-  const t = montarTexto({ hoje: '2026-11-24', carteira: CARTEIRA, equipe: EQUIPE, whatsapp: { resumo: { esfriou: 0 }, fila: [] } });
+  const t = montarTexto({ hoje: '2026-11-24', carteira: CARTEIRA, equipe: EQUIPE, whatsapp: { resumo: { esfriou: 0, encerradas: 0, midia: 0 }, fila: [] } });
   assert.match(t, /ninguém esperando resposta/);
   assert.ok(!t.includes('esfriou'));
 });

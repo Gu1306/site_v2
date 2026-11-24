@@ -36,6 +36,44 @@ export function chaveTelefone(tel) {
 const texto = m => (m.texto ? m.texto.replace(/\s+/g, ' ').trim() : RÓTULOS[m.tipo] || '');
 const cortar = (s, n) => (Array.from(s).length > n ? Array.from(s).slice(0, n).join('') + '…' : s);
 
+/*
+ * Nem toda mensagem do contato pede resposta. O check-in pós-sessão termina em
+ * "obrigada 🙏", e contar isso como gente esperando enche a fila de barulho —
+ * em 24/11/2026, de 41 "esperando resposta" só 3 queriam alguma coisa.
+ *
+ * A regra é de propósito tímida: só vira "encerrada" a mensagem CURTA, feita só
+ * de palavras de agradecimento ou confirmação. Qualquer sinal de pergunta ou de
+ * assunto em aberto mantém a conversa na fila, porque o erro caro é esconder
+ * quem espera, não mostrar um "valeu" a mais.
+ */
+const PEDE_RESPOSTA = /\?|marcar|agend|hor[áa]rio|quando|consigo|dispon|valor|pre[çc]o|quanto|d[úu]vida|vaga|remarcar|desmarcar|qual|quais|como|onde|preciso|poderia|consegue/i;
+// "okkkk" e "obrigadooo" são a mesma palavra alongada: letra repetida vira uma só,
+// dos dois lados da comparação, para não precisar listar cada variação.
+const semRepetir = p => p.replace(/(.)\1+/g, '$1');
+const ENCERRAMENTO = new Set(`obrigado obrigada obrigadao obrigadaa obrigadoo obrigadinha brigado brigada agradecida agradecido
+vlw valeu tmj tamo tamos junto juntos ok okay okey oki okk blz beleza show perfeito perfeita otimo otima excelente
+maravilha maravilhosa maravilhoso top demais isso legal combinado confirmado confirmo confirmada certo certeza
+sim nao bom boa dia tarde noite bem beem muito tudo td to estou eu nos sem zero dor nada imagina imagine
+abraco abracos bjs beijos bj gu gustavo livia lais igor lucas vamos vamo que la ai logo mais ja ta tah entao
+de do da e a o no na pra pro com por ate foi era esta mesmo tbm tambem feito oie oi ola opa boanoite bomdia`
+  .split(/\s+/).filter(Boolean).map(semRepetir));
+
+/** Tira acentos, emoji e pontuação: sobra só a palavra, para comparar. */
+const soPalavras = t => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+
+/** 'midia' = só arquivo, 'encerrada' = agradecimento, 'aberta' = pede atenção. */
+export function classificarMensagem(bruto, rotulo) {
+  if (!bruto && rotulo) return 'midia'; // chegou áudio/imagem/documento, sem texto
+  if (PEDE_RESPOSTA.test(rotulo)) return 'aberta';
+  const limpo = soPalavras(rotulo);
+  if (!limpo) return 'encerrada'; // só emoji
+  if (limpo.length > 60) return 'aberta';
+  const palavras = limpo.split(' ');
+  if (palavras.length > 8) return 'aberta';
+  return palavras.every(p => ENCERRAMENTO.has(semRepetir(p))) ? 'encerrada' : 'aberta';
+}
+
 /** Converte um registro cru da Evolution no mínimo que esta tela usa. */
 export function reduzirMensagem(x) {
   const jid = x.key?.remoteJid || '';
@@ -85,7 +123,7 @@ export function montarConversas(mensagens, atletas, agora) {
   }
 
   const fila = [];
-  const resumo = { conversas: conversas.size, emDia: 0, semEntradaRecente: 0, semResposta: 0, esfriou: 0, comSessaoMarcada: 0 };
+  const resumo = { conversas: conversas.size, emDia: 0, semEntradaRecente: 0, semResposta: 0, esfriou: 0, comSessaoMarcada: 0, encerradas: 0, midia: 0 };
   for (const [k, todas] of conversas) {
     const uteis = todas.filter(m => !IGNORAR.has(m.tipo) && texto(m)).sort((a, b) => a.ts - b.ts);
     const ultimaDoContato = [...uteis].reverse().find(m => m.de === 'contato');
@@ -102,11 +140,15 @@ export function montarConversas(mensagens, atletas, agora) {
       if (proxima) { resumo.comSessaoMarcada++; continue; } // já tem sessão marcada: não está frio
       motivo = 'esfriou';
     } else { resumo.emDia++; continue; }
-    resumo[motivo === 'sem_resposta' ? 'semResposta' : 'esfriou']++;
+    const assunto = motivo === 'sem_resposta' ? classificarMensagem(ultima.texto, texto(ultima)) : 'aberta';
+    if (motivo === 'esfriou') resumo.esfriou++;
+    else if (assunto === 'encerrada') resumo.encerradas++;
+    else if (assunto === 'midia') resumo.midia++;
+    else resumo.semResposta++;
 
     const telefone = ultimaDoContato.tel || ultima.tel || '';
     fila.push({
-      motivo,
+      motivo, assunto,
       nome: atleta?.nome || ultimaDoContato.nome || '(sem nome)',
       final: telefone.slice(-4),
       // Só este link carrega o número completo, e serve para abrir a conversa.
@@ -123,8 +165,10 @@ export function montarConversas(mensagens, atletas, agora) {
       em: new Date(ultima.ts * 1000).toISOString(),
     });
   }
-  // Primeiro quem está esperando resposta, e dentro de cada grupo quem espera há mais tempo.
-  fila.sort((a, b) => (a.motivo === b.motivo ? b.horas - a.horas : a.motivo === 'sem_resposta' ? -1 : 1));
+  // Quem pede alguma coisa primeiro, depois quem mandou arquivo, depois quem
+  // esfriou, e por último os agradecimentos. Dentro de cada grupo, o mais antigo.
+  const peso = c => (c.motivo === 'esfriou' ? 3 : c.assunto === 'aberta' ? 0 : c.assunto === 'midia' ? 1 : 4);
+  fila.sort((a, b) => peso(a) - peso(b) || b.horas - a.horas);
   return { regras: REGRAS, resumo, fila };
 }
 
