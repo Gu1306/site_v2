@@ -32,7 +32,18 @@ Write-Host 'Lendo a chave do Postiz na VPS...'
 # um executavel nativo, e sem elas o Postgres procura "organization" em minusculas e falha.
 $sql = 'sudo -n docker exec postiz-db psql -U postiz -d postiz -At -c "select \"apiKey\" from \"Organization\" limit 1"'
 $b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($sql))
-$postiz = & ssh -o BatchMode=yes carefit-vps "echo $b64 | base64 -d | bash" 2>&1
+# Nada de `2>&1` aqui: no 5.1 isso transforma cada linha de stderr do ssh num ErrorRecord e,
+# com ErrorActionPreference = Stop, mata o script antes de gravar a chave. Deixar o stderr ir
+# para a tela e baixar a guarda so nesta chamada.
+$postiz = ''
+try {
+  $ErrorActionPreference = 'Continue'
+  $postiz = (& ssh -o BatchMode=yes carefit-vps "echo $b64 | base64 -d | bash" | Out-String)
+} catch {
+  Write-Host "ssh falhou: $_" -ForegroundColor Red
+} finally {
+  $ErrorActionPreference = 'Stop'
+}
 
 Write-Host 'Lendo a chave do Buffer nas variaveis do Windows...'
 $buffer = [Environment]::GetEnvironmentVariable('BUFFER_API_KEY', 'User')
