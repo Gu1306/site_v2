@@ -1,5 +1,5 @@
 import http from 'node:http';
-import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import serveHandler from 'serve-handler';
 import path from 'node:path';
@@ -8,6 +8,7 @@ import { clickupClient, createService, dayOf, PublicError, PANEL_REVISIONS } fro
 import { montarEquipe, validarMes } from './equipe.mjs';
 import { montarCarteira } from './carteira.mjs';
 import { criarLeitorConversas, criarServicoConversas } from './conversas.mjs';
+import { montarTexto } from './resumo.mjs';
 import { criarLeitorAgenda } from './agenda.mjs';
 import { criarServicoAvaliacao, criarUploader } from './avaliacao-forca.mjs';
 import { criarServicoFechamento } from './fechamento.mjs';
@@ -145,6 +146,32 @@ export function createServer(env = process.env, service = createService(clickupC
         return res.end();
       }
       if (url.pathname === '/healthz') return send(200, { ok: true });
+
+      /*
+       * Resumo da operação em texto, para o n8n buscar e mandar no WhatsApp do
+       * dono. Fica FORA de /api/gestao/ de propósito: não usa a sessão da
+       * equipe, e sim um token próprio no cabeçalho `Authorization: Bearer`.
+       *
+       * Só devolve o texto que já vai para o WhatsApp — contagens, primeiros
+       * nomes da fila e os avisos. Sem telefone, sem conversa, sem nada
+       * clínico. Sem RESUMO_TOKEN configurado, a porta fica fechada (503).
+       */
+      if (url.pathname === '/api/resumo') {
+        res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+        if (req.method !== 'GET') return send(405, { error: 'Método não permitido.' });
+        const esperado = String(env.RESUMO_TOKEN || '');
+        if (esperado.length < 32) throw new PublicError('O resumo ainda não foi configurado.', 503);
+        // Hash dos dois lados: compara em tempo constante sem vazar o tamanho.
+        const recebido = /^Bearer\s+(.+)$/i.exec(req.headers.authorization || '')?.[1]?.trim() || '';
+        const digerir = texto => createHash('sha256').update(texto).digest();
+        if (!recebido || !timingSafeEqual(digerir(recebido), digerir(esperado))) throw new PublicError('Não autorizado.', 401);
+        const hoje = dayOf(Date.now());
+        const [{ atletas }, listas] = await Promise.all([fechamento.atletas(), fechamento.listas()]);
+        let whatsapp = null;
+        try { whatsapp = await conversas.fila(atletas); } catch { whatsapp = null; }
+        const texto = montarTexto({ hoje, carteira: montarCarteira(atletas, hoje), whatsapp, equipe: montarEquipe(listas, hoje.slice(0, 7), hoje) });
+        return send(200, { hoje, texto, whatsapp: Boolean(whatsapp) });
+      }
       const prefixo = ['/api/fortalecimento/', '/api/avaliacao-forca/', '/api/gestao/'].find(p => url.pathname.startsWith(p));
       if (prefixo) {
         res.setHeader('X-Frame-Options', 'DENY');
