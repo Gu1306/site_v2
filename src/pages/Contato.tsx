@@ -222,7 +222,7 @@ const Contato = () => {
               <MessageCircle className="w-5 h-5" />
               WhatsApp agora
             </Button>
-            <Button variant="outline" size="lg" className="bg-white/10 border-white text-white hover:bg-white hover:text-primary">
+            <Button variant="outline" size="lg" className="bg-black/15 border-white text-white hover:bg-white hover:text-primary">
               <Phone className="w-5 h-5" />
               Ligar diretamente
             </Button>

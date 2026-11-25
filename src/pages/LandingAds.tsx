@@ -232,7 +232,7 @@ const CSS = `
 .lp-fim h2{color:#fff;margin-bottom:6px}
 .lp-fim p{margin:0 0 18px;color:#e6dfcc}
 .lp-link-claro{display:inline-block;margin-top:14px;color:var(--dourado)}
-.lp-rodape{text-align:center;font-size:12px;color:#6a7a7c;padding:16px 20px}
+.lp-rodape{text-align:center;font-size:12px;color:#536760;padding:16px 20px}
 .lp-barra{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(14,60,65,.97);box-shadow:0 -6px 18px rgba(0,0,0,.25)}
 .lp-barra .lp-btn-pri{flex:1;padding:13px 12px;font-size:15px;box-shadow:none}
 .lp-zap-redondo{display:grid;place-items:center;padding:0 16px;border-radius:14px;background:var(--zap);color:#073b1c;font-weight:800;font-size:14px;text-decoration:none}

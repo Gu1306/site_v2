@@ -195,7 +195,7 @@ const FortalecimentoTurma = () => {
 
           <div className="mt-10 overflow-x-auto">
             <table className="w-full min-w-[26rem] border-separate border-spacing-2 tabular-nums">
-              <caption className="caption-bottom pt-4 text-left text-sm text-white/55">
+              <caption className="caption-bottom pt-4 text-left text-sm text-white/70">
                 Turmas de uma hora. A disponibilidade de cada dia aparece em tempo real na
                 página de agendamento.
               </caption>

@@ -24,30 +24,32 @@ type Plano = {
 // Os degradês metálicos do topo de cada card não cabem no sistema de tokens
 // (token é cor sólida), então vivem aqui, num lugar só. O texto de cada tom já
 // vem escolhido para passar contraste sobre o próprio degradê — em especial o
-// ouro, que leva petróleo e nunca branco.
+// ouro, que leva petróleo e nunca branco. Em 25/11/2026 os degradês foram
+// ajustados para o texto passar em TODO o degradê (4,5:1 no rótulo de 9px), não
+// só no meio: prata e ouro ficaram claros, petróleo e cobre ficaram escuros.
 const METAL: Record<Tom, { fundo: string; nome: string; label: string; brilho: string }> = {
   petrol: {
-    fundo: "linear-gradient(135deg,#0B2F34 0%,#1A5A5E 42%,#2E7076 62%,#10393E 100%)",
+    fundo: "linear-gradient(135deg,#0B2F34 0%,#164E52 42%,#1F5F64 62%,#10393E 100%)",
     nome: "#DFEEEC",
-    label: "#A9CAC8",
+    label: "#C9E0DE",
     brilho: "rgba(255,255,255,.18)",
   },
   cobre: {
-    fundo: "linear-gradient(135deg,#47200F 0%,#9E4E2A 40%,#E2825C 62%,#6F3419 100%)",
+    fundo: "linear-gradient(135deg,#47200F 0%,#7E3D20 40%,#9A4C2A 62%,#6F3419 100%)",
     nome: "#FFE0CE",
-    label: "#F7D2BF",
+    label: "#FFE7DA",
     brilho: "rgba(255,255,255,.20)",
   },
   prata: {
-    fundo: "linear-gradient(135deg,#1F353A 0%,#5B787B 36%,#CFE0DF 60%,#3F5F63 100%)",
+    fundo: "linear-gradient(135deg,#B7C9CA 0%,#E3EEED 45%,#C2D3D4 70%,#9DB2B4 100%)",
     nome: "#12282C",
     label: "#223E42",
     brilho: "rgba(255,255,255,.22)",
   },
   ouro: {
-    fundo: "linear-gradient(135deg,#46320F 0%,#AF8330 30%,#F0CE85 55%,#A87C2C 76%,#55400F 100%)",
+    fundo: "linear-gradient(135deg,#C99A45 0%,#E2B865 30%,#F3D896 55%,#D9AE5C 76%,#BF8F3D 100%)",
     nome: "#33240A",
-    label: "#4A3510",
+    label: "#33240A",
     brilho: "rgba(255,255,255,.24)",
   },
 };
@@ -427,14 +429,14 @@ const CardPlano = ({ plano }: { plano: Plano }) => {
                 {linha.on ? (
                   <Check className="w-3.5 h-3.5 translate-y-0.5" strokeWidth={3.2} style={{ color: tinta }} aria-hidden="true" />
                 ) : (
-                  <X className="w-3.5 h-3.5 translate-y-0.5 text-muted-foreground/40" strokeWidth={3} aria-hidden="true" />
+                  <X className="w-3.5 h-3.5 translate-y-0.5 text-muted-foreground/80" strokeWidth={3} aria-hidden="true" />
                 )}
-                <span className={`text-[11.5px] ${linha.on ? "text-foreground/75" : "text-muted-foreground/50"}`}>
+                <span className={`text-[11.5px] ${linha.on ? "text-foreground/75" : "text-muted-foreground/80"}`}>
                   {linha.texto}
                 </span>
                 <span
                   className={`text-[9px] font-bold uppercase tracking-[0.06em] whitespace-nowrap tabular-nums ${
-                    linha.on ? "text-foreground" : "text-muted-foreground/50"
+                    linha.on ? "text-foreground" : "text-muted-foreground/80"
                   }`}
                 >
                   {linha.valor}
@@ -473,7 +475,7 @@ const Escada = ({ titulo, passos }: { titulo: string; passos: { valor: string; q
       return (
         <div key={passo.quando} className="flex items-baseline gap-1.5">
           {i > 0 && (
-            <span className="text-muted-foreground/40 mr-1.5" aria-hidden="true">
+            <span className="text-muted-foreground/80 mr-1.5" aria-hidden="true">
               ›
             </span>
           )}

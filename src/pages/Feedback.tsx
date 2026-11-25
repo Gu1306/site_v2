@@ -285,7 +285,7 @@ const Feedback = () => {
                 onChange={(e) => setComentario(e.target.value)}
                 placeholder="Escreva aqui..."
                 rows={5}
-                className="bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40 rounded-2xl text-base mb-6 focus-visible:ring-accent"
+                className="bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/70 rounded-2xl text-base mb-6 focus-visible:ring-accent"
               />
               <Button
                 onClick={handleSubmit}

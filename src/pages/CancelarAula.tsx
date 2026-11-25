@@ -91,7 +91,7 @@ const CancelarAula = () => {
 
         <div className="mt-6 rounded-3xl bg-warm px-5 py-7 text-center sm:px-8">
           {carregando ? (
-            <span className="flex items-center justify-center gap-2 py-8 text-sm text-primary/60" role="status">
+            <span className="flex items-center justify-center gap-2 py-8 text-sm text-primary/75" role="status">
               <Loader2 className="h-4 w-4 animate-spin" /> Abrindo sua reserva...
             </span>
           ) : !reserva ? (
@@ -135,7 +135,7 @@ const CancelarAula = () => {
                 {reserva.primeiroNome ? `${reserva.primeiroNome}, cancelar esta aula?` : "Cancelar esta aula?"}
               </h1>
               <p className="mt-3 text-lg font-medium text-primary">{capitalizar(reserva.quando)}</p>
-              <p className="mt-2 text-sm text-primary/65">A vaga volta para a turma na hora.</p>
+              <p className="mt-2 text-sm text-primary/75">A vaga volta para a turma na hora.</p>
               {erro && <Alerta>{erro}</Alerta>}
               <button
                 type="button"
@@ -146,7 +146,7 @@ const CancelarAula = () => {
                 {ocupado && <Loader2 className="h-4 w-4 animate-spin" />}
                 Sim, cancelar minha aula
               </button>
-              <p className="mt-4 text-[13px] text-primary/55">Abriu sem querer? É só fechar esta página.</p>
+              <p className="mt-4 text-[13px] text-primary/75">Abriu sem querer? É só fechar esta página.</p>
             </>
           )}
         </div>

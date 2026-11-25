@@ -83,7 +83,7 @@ const AvaliacaoCorredor = () => {
           <p className="text-xl text-white/90 max-w-3xl mx-auto mb-8">
             Para corredores e triatletas com dor ou lesão que limita a corrida. Entenda as causas e saia com a proposta de tratamento para o seu caso.
           </p>
-          <p className="text-lg text-white/80 mb-8">
+          <p className="text-lg text-white/90 mb-8">
             {AVALIACAO.nome}: {AVALIACAO.duracao}, {AVALIACAO.valor}.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

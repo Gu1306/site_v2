@@ -75,7 +75,7 @@ const Servicos = () => {
                   <CardContent className="p-0">
                     <div className="relative w-full h-80 bg-gradient-to-br from-accent to-earth flex items-center justify-center">
                       {/* Video placeholder */}
-                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <div className="text-center text-white">
                           <Play className="w-16 h-16 mx-auto mb-4 opacity-80" />
                           <p className="text-lg font-medium">Vídeo explicativo</p>
@@ -144,7 +144,7 @@ const Servicos = () => {
                   <CardContent className="p-0">
                     <div className="relative w-full h-80 bg-gradient-to-br from-secondary to-primary flex items-center justify-center">
                       {/* Video placeholder */}
-                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <div className="text-center text-white">
                           <Play className="w-16 h-16 mx-auto mb-4 opacity-80" />
                           <p className="text-lg font-medium">Vídeo explicativo</p>
@@ -213,7 +213,7 @@ const Servicos = () => {
                   <CardContent className="p-0">
                     <div className="relative w-full h-80 bg-gradient-to-br from-earth to-secondary flex items-center justify-center">
                       {/* Video placeholder */}
-                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <div className="text-center text-white">
                           <Play className="w-16 h-16 mx-auto mb-4 opacity-80" />
                           <p className="text-lg font-medium">Vídeo explicativo</p>
@@ -235,7 +235,7 @@ const Servicos = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-warm to-accent">
+      <section className="py-20 bg-primary">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-6">
             Pronto para elevar sua performance?
