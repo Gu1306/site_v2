@@ -55,7 +55,58 @@ export function comDdi(telefone) {
 }
 const igual = (a, b) => { const x = Buffer.from(String(a)); const y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
 const validarModalidade = m => { if (!Object.hasOwn(MODALIDADES, m)) throw new PublicError('Modalidade inválida.'); return m; };
-const validarToken = t => { if (typeof t !== 'string' || !/^[A-Za-z0-9_-]{20,40}$/.test(t)) throw new PublicError('Link de cancelamento inválido.'); return t; };
+/** Soma meses a um dia AAAA-MM-DD; dia 31 num mês curto cai no último dia do mês. */
+export function somarMeses(iso, meses) {
+  const [a, m, d] = iso.split('-').map(Number);
+  const alvo = new Date(Date.UTC(a, m - 1 + meses, 1));
+  const ultimo = new Date(Date.UTC(alvo.getUTCFullYear(), alvo.getUTCMonth() + 1, 0)).getUTCDate();
+  alvo.setUTCDate(Math.min(d, ultimo));
+  return alvo.toISOString().slice(0, 10);
+}
+
+// Pacote de fortalecimento: 6 aulas por mês (24 = 4 meses, 36 = 6 meses; decisão de 25/11/2026).
+const AULAS_POR_MES = 6;
+const AULA_USADA = new Set(['realizada', 'complete', 'faltou']);
+
+/**
+ * O que o atleta tem em aberto: pacote de fortalecimento e planos de sessão com saldo.
+ * Função pura. Nada de dinheiro aqui (pagamento fica fora do app por decisão de 25/11/2026),
+ * e plano com a data vencida aparece igual aos outros, sem aviso.
+ */
+export function montarEmAberto(atleta, listas) {
+  const aulas = (listas.fortalecimento || []).filter(c => c.atletaId === atleta.id);
+  const abertas = aulas.filter(c => c.status === 'em aberto');
+  // O pacote em uso é o das aulas que ainda estão em aberto (cortesia antiga não conta).
+  const contagem = new Map();
+  for (const c of abertas) if (c.plano) contagem.set(c.plano, (contagem.get(c.plano) || 0) + 1);
+  const plano = [...contagem].sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+  const total = Number((plano || '').match(/^(\d+)\s+aulas?$/i)?.[1]) || null;
+  const doPacote = plano ? aulas.filter(c => c.plano === plano) : aulas;
+  const fortalecimento = {
+    temPacote: aulas.length > 0,
+    disponiveis: abertas.length,
+    agendadas: aulas.filter(c => c.status === 'agendada').length,
+    feitas: doPacote.filter(c => AULA_USADA.has(c.status)).length,
+    plano,
+    validade: total && atleta.fortContratada && abertas.length > 0 ? somarMeses(atleta.fortContratada, total / AULAS_POR_MES) : null,
+  };
+
+  const grupos = new Map();
+  for (const s of listas.sessoes || []) {
+    if (s.atletaId !== atleta.id || s.statusPlano === 'Plano Finalizado' || s.status === 'cancelada') continue;
+    const chave = [s.tipo, s.fimPlano || '', s.totalPlano || ''].join('|');
+    const g = grupos.get(chave) || { plano: s.tipo, total: s.totalPlano || null, feitas: 0, restam: 0, validade: s.fimPlano || null };
+    if (s.status === 'realizada') g.feitas += 1;
+    else g.restam += 1;
+    grupos.set(chave, g);
+  }
+  const planos = [...grupos.values()].filter(g => g.restam > 0)
+    .map(g => ({ ...g, total: g.total || g.feitas + g.restam }))
+    .sort((a, b) => String(a.validade || '9999').localeCompare(String(b.validade || '9999')) || a.plano.localeCompare(b.plano));
+  return { fortalecimento, planos };
+}
+
+const validarToken =t => { if (typeof t !== 'string' || !/^[A-Za-z0-9_-]{20,40}$/.test(t)) throw new PublicError('Link de cancelamento inválido.'); return t; };
 
 /** Erro de negócio vindo da agenda: carrega o código (`LOTADA`, `PASSADA`…) para a tela reagir. */
 export class ErroAgenda extends PublicError {
@@ -222,7 +273,7 @@ export function criarServicoApp({ fechamento, api, agenda, whatsapp, agora = () 
     async inicio(sessao) {
       const atleta = await atletaDaSessao(sessao);
       const listas = await fechamento.listas();
-      const aulas = listas.fortalecimento.filter(c => c.atletaId === atleta.id);
+      const emAberto = montarEmAberto(atleta, listas);
       const avisos = [];
       const reservas = [];
       await Promise.all(Object.keys(MODALIDADES).map(async modalidade => {
@@ -233,7 +284,8 @@ export function criarServicoApp({ fechamento, api, agenda, whatsapp, agora = () 
       reservas.sort((a, b) => a.aulaId.localeCompare(b.aulaId));
       return {
         primeiroNome: atleta.nome.split(/\s+/)[0],
-        fortalecimento: { temPacote: aulas.length > 0, disponiveis: aulas.filter(c => c.status === 'em aberto').length, agendadas: aulas.filter(c => c.status === 'agendada').length },
+        fortalecimento: emAberto.fortalecimento,
+        planos: emAberto.planos,
         reservas,
         avisos: avisos.sort(),
       };

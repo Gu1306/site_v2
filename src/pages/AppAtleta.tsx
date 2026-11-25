@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { AlertCircle, CalendarPlus, Check, Loader2, LogOut } from "lucide-react";
+import { AlertCircle, CalendarPlus, Check, Loader2, LogOut, MessageCircle } from "lucide-react";
 import AgendamentoAulas, { type ConfigAgendamento } from "@/components/AgendamentoAulas";
 import { useSeo } from "@/hooks/useSeo";
 import logo from "@/assets/logocarefitclub.png";
@@ -35,6 +35,7 @@ import {
  * ========================================================================= */
 
 const WHATSAPP_CAREFIT = "(16) 99600-8849";
+const LINK_WHATSAPP = "https://wa.me/5516996008849";
 
 const CONFIG: Record<Modalidade, ConfigAgendamento> = {
   fortalecimento: {
@@ -312,6 +313,16 @@ const Entrar = ({ aoEntrar }: { aoEntrar: () => void }) => {
 
 /* ------------------------------------------------------------------ Início */
 
+/** "2027-01-30" → "30/01/2027", sem passar por Date (fuso não pode mudar o dia). */
+const dataCurta = (iso: string) => iso.split("-").reverse().join("/");
+
+const Numero = ({ rotulo, valor }: { rotulo: string; valor: number | string }) => (
+  <div className="rounded-xl bg-primary/5 px-2 py-2">
+    <dt className="text-[10px] font-medium uppercase tracking-[0.08em] text-primary/55">{rotulo}</dt>
+    <dd className="mt-0.5 text-sm font-semibold text-primary">{valor}</dd>
+  </div>
+);
+
 interface InicioProps {
   inicio: InicioDoAtleta | null;
   erro: string;
@@ -343,6 +354,7 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
 
   const reservas = inicio.reservas.filter((r) => !canceladas.includes(r.modalidade + r.token));
   const pacote = inicio.fortalecimento;
+  const planos = inicio.planos || [];
 
   return (
     <>
@@ -408,27 +420,98 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
         <BotaoReservar titulo="Reservar yoga" detalhe="Terça e quinta, 6h às 7h · R$ 60 por aula" onClick={() => aoReservar("yoga")} />
       </section>
 
-      {pacote.temPacote && (
-        <section className="mt-6 rounded-2xl bg-warm px-5 py-5" aria-labelledby="titulo-pacote">
-          <h2 id="titulo-pacote" className="text-[13px] font-medium uppercase tracking-[0.09em] text-primary/55">
-            Seu pacote de fortalecimento
+      {(pacote.temPacote || planos.length > 0) && (
+        <section className="mt-7" aria-labelledby="titulo-em-aberto">
+          <h2 id="titulo-em-aberto" className="text-[13px] font-medium uppercase tracking-[0.09em] text-primary/55">
+            O que você tem com a gente
           </h2>
-          <p className="mt-2 text-primary">
-            <strong className="text-3xl font-semibold">{pacote.disponiveis}</strong>{" "}
-            <span className="text-sm">{pacote.disponiveis === 1 ? "aula disponível" : "aulas disponíveis"}</span>
-          </p>
-          <p className="mt-1 text-xs leading-relaxed text-primary/60">
-            {pacote.agendadas > 0 && `${pacote.agendadas} já ${pacote.agendadas === 1 ? "agendada" : "agendadas"}. `}
-            O saldo atualiza em até 15 minutos depois de reservar ou cancelar.
-          </p>
+          <div className="mt-3 grid gap-2.5">
+            {pacote.temPacote && (
+              <article className="rounded-2xl bg-warm px-5 py-5">
+                <h3 className="text-sm font-semibold text-primary">
+                  Fortalecimento{pacote.plano ? ` · pacote de ${pacote.plano}` : ""}
+                </h3>
+                <p className="mt-2 text-primary">
+                  <strong className="text-3xl font-semibold">{pacote.disponiveis}</strong>{" "}
+                  <span className="text-sm">{pacote.disponiveis === 1 ? "aula disponível" : "aulas disponíveis"}</span>
+                </p>
+                <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
+                  <Numero rotulo="Agendadas" valor={pacote.agendadas} />
+                  <Numero rotulo="Feitas" valor={pacote.feitas} />
+                  <Numero rotulo="Validade" valor={pacote.validade ? dataCurta(pacote.validade) : "—"} />
+                </dl>
+                <p className="mt-3 text-xs leading-relaxed text-primary/60">
+                  O saldo atualiza em até 15 minutos depois de reservar ou cancelar.
+                </p>
+              </article>
+            )}
+            {planos.map((plano) => (
+              <article key={plano.plano + (plano.validade || "")} className="rounded-2xl border border-primary/10 bg-white px-5 py-5">
+                <h3 className="text-sm font-semibold text-primary">Sessões · plano {plano.plano}</h3>
+                <p className="mt-2 text-primary">
+                  <strong className="text-3xl font-semibold">{plano.restam}</strong>{" "}
+                  <span className="text-sm">{plano.restam === 1 ? "sessão em aberto" : "sessões em aberto"}</span>
+                </p>
+                {/* Sessão cancelada ou lançada fora do plano faz a soma não fechar: aí só o que é certo aparece. */}
+                {plano.feitas + plano.restam === plano.total ? (
+                  <>
+                    <div
+                      className="mt-3 h-1.5 overflow-hidden rounded-full bg-primary/10"
+                      role="img"
+                      aria-label={`${plano.feitas} de ${plano.total} sessões feitas`}
+                    >
+                      <div
+                        className="h-full rounded-full bg-secondary"
+                        style={{ width: `${Math.round((plano.feitas / Math.max(1, plano.total)) * 100)}%` }}
+                      />
+                    </div>
+                    <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
+                      <Numero rotulo="Feitas" valor={plano.feitas} />
+                      <Numero rotulo="Do plano" valor={plano.total} />
+                      <Numero rotulo="Validade" valor={plano.validade ? dataCurta(plano.validade) : "—"} />
+                    </dl>
+                  </>
+                ) : (
+                  <p className="mt-2 text-sm text-primary/70">
+                    Validade: {plano.validade ? dataCurta(plano.validade) : "—"}
+                  </p>
+                )}
+              </article>
+            ))}
+          </div>
         </section>
       )}
 
-      <p className="mt-7 text-center text-xs leading-relaxed text-primary/50">
-        Dica: no menu do navegador, toque em “Adicionar à tela inicial” para abrir como aplicativo.
-        <br />
-        Precisa de ajuda? WhatsApp {WHATSAPP_CAREFIT}.
-      </p>
+      <section className="mt-7" aria-label="Falar com a CareFit">
+        <a
+          href={LINK_WHATSAPP}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex min-h-[56px] items-center justify-center gap-2.5 rounded-2xl border border-primary/20 bg-white px-5 font-medium text-primary transition hover:bg-primary/5"
+        >
+          <MessageCircle className="h-5 w-5" aria-hidden="true" />
+          Falar com a CareFit no WhatsApp
+        </a>
+        <p className="mt-2 text-center text-xs leading-relaxed text-primary/60">
+          {planos.length > 0 ? "Para marcar sua sessão ou tirar dúvida. " : "Para tirar dúvida ou falar com a equipe. "}
+          {WHATSAPP_CAREFIT}
+        </p>
+      </section>
+
+      <details className="mt-6 rounded-2xl bg-primary/5 px-5 py-4 text-sm text-primary">
+        <summary className="cursor-pointer font-medium">Como colocar o app na tela do celular</summary>
+        <div className="mt-3 grid gap-3 text-[13px] leading-relaxed text-primary/75">
+          <p>
+            <strong className="font-semibold text-primary">iPhone:</strong> abra esta página no Safari, toque no botão de
+            compartilhar (o quadrado com a seta para cima) e escolha “Adicionar à Tela de Início”.
+          </p>
+          <p>
+            <strong className="font-semibold text-primary">Android:</strong> abra esta página no Chrome, toque nos três
+            pontinhos no canto de cima e escolha “Adicionar à tela inicial” ou “Instalar app”.
+          </p>
+          <p>Na primeira vez que abrir pelo ícone, o app pede o código de novo. Depois fica guardado.</p>
+        </div>
+      </details>
     </>
   );
 };

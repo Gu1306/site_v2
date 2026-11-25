@@ -43,6 +43,7 @@ export const CAMPOS_CRM = {
   feitasDoPlano: '7e5cdc8c-6f0d-46bd-be35-0c0443c6db3b',
   faltamDoPlano: '3ddf0a37-9592-442d-a933-389fe441541f',
   fimDoPlano: '58e267c2-eb53-4741-83a2-370e1009dc33',
+  fortContratada: '842d843b-10bf-4470-bd3b-df2b68e1624f', // "Data Contratada Fort. em Grupo"
   ultimaSessao: '5b445b7c-a461-498d-b72e-53b895b2565a',
   primeiraSessao: '90511117-f22d-4b61-bffc-1c2190fce652',
   provaNome: '58a65e2e-7783-479d-9ec5-811e0fb99ffb',
@@ -124,6 +125,7 @@ export function reduzirAtleta(t) {
     feitasDoPlano: numeroOuNulo(CAMPOS_CRM.feitasDoPlano),
     faltamDoPlano: numeroOuNulo(CAMPOS_CRM.faltamDoPlano),
     fimDoPlano: dataDe(campo(t, CAMPOS_CRM.fimDoPlano)),
+    fortContratada: dataDe(campo(t, CAMPOS_CRM.fortContratada)),
     ultimaSessao: dataDe(campo(t, CAMPOS_CRM.ultimaSessao)),
     primeiraSessao: dataDe(campo(t, CAMPOS_CRM.primeiraSessao)),
     prova: { nome: String(campo(t, CAMPOS_CRM.provaNome)?.value || '').trim() || null, data: dataDe(campo(t, CAMPOS_CRM.provaData)) },

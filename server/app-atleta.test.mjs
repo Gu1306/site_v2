@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer, passwordHash } from './index.mjs';
-import { CAMPO_CANCELOU, LIMITES, criarClienteAgenda, criarEnviadorWhatsapp, criarServicoApp, criarSessoes, comDdi, oito } from './app-atleta.mjs';
+import { montarEmAberto, somarMeses, CAMPO_CANCELOU, LIMITES, criarClienteAgenda, criarEnviadorWhatsapp, criarServicoApp, criarSessoes, comDdi, oito } from './app-atleta.mjs';
 
 const ANA = { id: 'crm-ana', nome: 'Ana Souza Lima', telefone: '+55 16 99111-2222', sessoes: [{}, {}] };
 const BIA = { id: 'crm-bia', nome: 'Bia Rocha', telefone: '16988883333', sessoes: [] };
@@ -116,7 +116,8 @@ test('início: saldo só das aulas do próprio atleta, e as reservas das duas ag
   const { app, pedidosAgenda } = montar();
   const inicio = await app.inicio({ atletaId: 'crm-ana', tel8: '91112222' });
   assert.equal(inicio.primeiroNome, 'Ana');
-  assert.deepEqual(inicio.fortalecimento, { temPacote: true, disponiveis: 2, agendadas: 1 });
+  assert.deepEqual(inicio.fortalecimento, { temPacote: true, disponiveis: 2, agendadas: 1, feitas: 1, plano: null, validade: null });
+  assert.deepEqual(inicio.planos, []);
   assert.equal(inicio.reservas.length, 1);
   assert.equal(inicio.reservas[0].modalidade, 'fortalecimento');
   assert.deepEqual(inicio.avisos, []);
@@ -334,4 +335,35 @@ test('porta: erro de negócio da agenda chega com o código para a tela reagir',
 test('porta: sem segredo de sessão o app fica fechado', async () => {
   const { app } = montar();
   await comServidor(app, async url => { assert.equal((await fetch(url + '/api/app/inicio')).status, 503); }, { PORTAL_SESSION_SECRET: 'curto' });
+});
+
+test('em aberto: pacote com validade (6 aulas por mês) e planos de sessão com saldo, sem dinheiro', () => {
+  const atleta = { id: 'a1', fortContratada: '2026-10-05' };
+  const aula = (status, plano = '36 aulas', atletaId = 'a1') => ({ atletaId, status, plano, data: null, valor: 65 });
+  const sessao = (status, extra = {}) => ({ atletaId: 'a1', status, tipo: 'Semestral', totalPlano: 12, fimPlano: '2026-10-24', statusPlano: 'Ativo', valor: 190, pagamento: 'À Pagar (exceção)', ...extra });
+  const r = montarEmAberto(atleta, {
+    fortalecimento: [aula('em aberto'), aula('em aberto'), aula('agendada'), aula('realizada'), aula('faltou'), aula('realizada', 'Aula Cortesia'), aula('em aberto', '36 aulas', 'outro')],
+    sessoes: [
+      sessao('realizada'), sessao('aguardando'), sessao('aguardando'), sessao('cancelada'),
+      sessao('aguardando', { tipo: 'Mensal', totalPlano: 4, fimPlano: '2027-01-10' }),
+      sessao('aguardando', { statusPlano: 'Plano Finalizado', tipo: 'Quinzenal' }),
+      sessao('realizada', { tipo: 'Avaliação', totalPlano: 1, fimPlano: null }),
+      sessao('aguardando', { atletaId: 'outro' }),
+    ],
+  });
+  assert.deepEqual(r.fortalecimento, { temPacote: true, disponiveis: 2, agendadas: 1, feitas: 2, plano: '36 aulas', validade: '2027-04-05' });
+  // Plano vencido (24/10) aparece igual aos outros; finalizado, cancelado e sem saldo ficam fora.
+  assert.deepEqual(r.planos, [
+    { plano: 'Semestral', total: 12, feitas: 1, restam: 2, validade: '2026-10-24' },
+    { plano: 'Mensal', total: 4, feitas: 0, restam: 1, validade: '2027-01-10' },
+  ]);
+  assert.doesNotMatch(JSON.stringify(r), /valor|pagamento|Pagar|190|65/);
+});
+
+test('em aberto: sem data de contratação ou pacote sem número não inventa validade', () => {
+  const aula = plano => ({ atletaId: 'a1', status: 'em aberto', plano });
+  assert.equal(montarEmAberto({ id: 'a1', fortContratada: null }, { fortalecimento: [aula('24 aulas')], sessoes: [] }).fortalecimento.validade, null);
+  assert.equal(montarEmAberto({ id: 'a1', fortContratada: '2026-09-19' }, { fortalecimento: [aula('Aula Cortesia')], sessoes: [] }).fortalecimento.validade, null);
+  assert.equal(montarEmAberto({ id: 'a1', fortContratada: '2026-09-30' }, { fortalecimento: [aula('24 aulas')], sessoes: [] }).fortalecimento.validade, '2027-01-30');
+  assert.equal(somarMeses('2026-10-31', 4), '2027-02-28');
 });

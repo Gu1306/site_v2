@@ -64,9 +64,28 @@ export interface ReservaDoAtleta {
   token: string;
 }
 
+export interface PlanoDoAtleta {
+  plano: string;
+  total: number;
+  feitas: number;
+  restam: number;
+  validade: string | null;
+}
+
 export interface InicioDoAtleta {
   primeiroNome: string;
-  fortalecimento: { temPacote: boolean; disponiveis: number; agendadas: number };
+  fortalecimento: {
+    temPacote: boolean;
+    disponiveis: number;
+    agendadas: number;
+    feitas: number;
+    /** Nome do pacote em uso, ex.: "24 aulas". */
+    plano: string | null;
+    /** AAAA-MM-DD; nulo quando não há data de contratação no cadastro. */
+    validade: string | null;
+  };
+  /** Planos de sessão que ainda têm saldo. */
+  planos: PlanoDoAtleta[];
   reservas: ReservaDoAtleta[];
   avisos: string[];
 }
