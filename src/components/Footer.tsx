@@ -201,6 +201,11 @@ const Footer = () => {
             </span>
           </div>
           <div className="flex flex-col items-center md:items-end gap-2">
+            <address className="not-italic text-xs text-primary-foreground/70 text-center md:text-right">
+              Av. Áurea Aparecida Bragheto Machado, 241 - City Ribeirão, Ribeirão Preto - SP, 14021-460
+              {" · "}
+              <a href="tel:+5516996008849" className="hover:text-accent transition-colors">(16) 99600-8849</a>
+            </address>
             <p className="text-xs text-primary-foreground/50">
               © {new Date().getFullYear()} CareFit Run Base. Todos os direitos reservados. Ribeirão Preto - SP
             </p>

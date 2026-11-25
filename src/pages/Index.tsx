@@ -43,8 +43,8 @@ const historias = [
 
 export default function Index() {
   useSeo({
-    titulo: "CareFit Run Base | Fisioterapia e recovery individual para corredores",
-    descricao: "Um fisioterapeuta, um corredor, uma hora. Na CareFit, cada sessão começa por uma avaliação que decide o que o seu corpo precisa. Em Ribeirão Preto.",
+    titulo: "Fisioterapia esportiva para corredores em Ribeirão Preto | CareFit Run Base",
+    descricao: "Clínica de fisioterapia esportiva e recovery para corredores em Ribeirão Preto. Um fisioterapeuta, um corredor, uma hora: cada sessão começa por uma avaliação.",
     caminho: "/",
   });
 
