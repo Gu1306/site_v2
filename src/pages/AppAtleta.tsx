@@ -37,6 +37,27 @@ import {
 const WHATSAPP_CAREFIT = "(16) 99600-8849";
 const LINK_WHATSAPP = "https://wa.me/5516996008849";
 
+// Agendas de reserva do Google de cada fisioterapeuta, para quem JÁ tem plano.
+// Primeira sessão e avaliação ficam fora: são porta de entrada, com pagamento.
+// Tipo sem nenhuma agenda cadastrada não aparece na tela.
+const AGENDAS_FISIO: { titulo: string; detalhe: string; agendas: { nome: string; url: string }[] }[] = [
+  {
+    titulo: "Sessão Jornada Recovery",
+    detalhe: "60 min · para quem já está na jornada",
+    agendas: [
+      { nome: "Lívia", url: "https://calendar.app.google/J94MCG5wCeiCcmNu7" },
+      { nome: "Lais", url: "https://calendar.app.google/tgvbpVkLSokd5ZwT9" },
+      { nome: "Igor", url: "https://calendar.app.google/nAerGDU7JSxEH2EGA" },
+    ],
+  },
+  {
+    titulo: "Sessão de reabilitação",
+    detalhe: "Fisioterapia · para quem já fez a avaliação",
+    agendas: [],
+  },
+];
+const semAcento = (texto: string) => texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
 const CONFIG: Record<Modalidade, ConfigAgendamento> = {
   fortalecimento: {
     endpoint: endpointFortalecimento,
@@ -418,6 +439,45 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
       <section className="mt-6 grid gap-2.5" aria-label="Reservar aula">
         <BotaoReservar titulo="Reservar fortalecimento" detalhe="Veja os dias e horários com vaga" onClick={() => aoReservar("fortalecimento")} />
         <BotaoReservar titulo="Reservar yoga" detalhe="Terça e quinta, 6h às 7h · R$ 60 por aula" onClick={() => aoReservar("yoga")} />
+      </section>
+
+      <section className="mt-7" aria-labelledby="titulo-fisio">
+        <h2 id="titulo-fisio" className="text-[13px] font-medium uppercase tracking-[0.09em] text-primary/55">
+          Agendar sessão com fisioterapeuta
+        </h2>
+        <div className="mt-3 grid gap-2.5">
+          {AGENDAS_FISIO.filter((tipo) => tipo.agendas.length > 0).map((tipo) => (
+            <article key={tipo.titulo} className="rounded-2xl border border-primary/10 bg-white px-5 py-5">
+              <h3 className="text-sm font-semibold text-primary">{tipo.titulo}</h3>
+              <p className="mt-0.5 text-xs text-primary/60">{tipo.detalhe}</p>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                {tipo.agendas.map((agenda) => {
+                  const meu = Boolean(inicio.fisio) && semAcento(inicio.fisio || "") === semAcento(agenda.nome);
+                  return (
+                    <a
+                      key={agenda.nome}
+                      href={agenda.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Ver horários de ${agenda.nome}${meu ? ", que atende você" : ""}`}
+                      className={
+                        "flex min-h-[52px] flex-col items-center justify-center rounded-xl px-2 py-2 text-center text-sm font-medium transition " +
+                        (meu ? "bg-primary text-primary-foreground hover:opacity-95" : "border border-primary/20 text-primary hover:bg-primary/5")
+                      }
+                    >
+                      {agenda.nome}
+                      {meu && <span className="text-[10px] font-normal text-primary-foreground/75">atende você</span>}
+                    </a>
+                  );
+                })}
+              </div>
+            </article>
+          ))}
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-primary/60">
+          Toque no nome para ver os horários livres e reservar. Para remarcar ou cancelar, avise com 24 horas de
+          antecedência.
+        </p>
       </section>
 
       {(pacote.temPacote || planos.length > 0) && (

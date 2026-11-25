@@ -84,6 +84,8 @@ export interface InicioDoAtleta {
     /** AAAA-MM-DD; nulo quando não há data de contratação no cadastro. */
     validade: string | null;
   };
+  /** Primeiro nome do profissional que atende o atleta, segundo o cadastro. */
+  fisio?: string | null;
   /** Planos de sessão que ainda têm saldo. */
   planos: PlanoDoAtleta[];
   reservas: ReservaDoAtleta[];

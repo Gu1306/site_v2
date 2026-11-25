@@ -284,6 +284,8 @@ export function criarServicoApp({ fechamento, api, agenda, whatsapp, agora = () 
       reservas.sort((a, b) => a.aulaId.localeCompare(b.aulaId));
       return {
         primeiroNome: atleta.nome.split(/\s+/)[0],
+        // Primeiro nome do profissional do cadastro: a tela destaca a agenda dele.
+        fisio: atleta.fisio ? String(atleta.fisio).trim().split(/\s+/)[0] : null,
         fortalecimento: emAberto.fortalecimento,
         planos: emAberto.planos,
         reservas,
