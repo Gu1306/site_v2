@@ -33,6 +33,7 @@ export const CAMPOS = {
 // Campos da lista CRM ATLETAS (901326722390), usados pela carteira e pelas conversas.
 export const CAMPOS_CRM = {
   telefone: '59ed9201-7a00-4bbc-a138-2561a4d6637a',
+  email: '6ab6ed02-6bc3-41fa-a74f-f93c996ee318',
   origemMarketing: 'aeada942-1e12-4b60-ba80-0099e7822383',
   origemLead: '4f2c2832-268b-4798-9ca7-a448437000ea',
   profissional: '9ccf870b-dbd7-4784-8f78-ca32991b2bb0',
@@ -89,9 +90,15 @@ export function reduzirSessao(t) {
   };
 }
 
+// Relacao da aula com o card do atleta no CRM (campo "Nome"). Nome nunca e chave:
+// e por este id que o app do atleta acha as aulas de cada um.
+export const RELACAO_AULA_ATLETA = 'be0b6e78-1c02-4036-9a55-58a5604749ed';
+
 export function reduzirAula(t) {
+  const relacionados = campo(t, RELACAO_AULA_ATLETA)?.value;
   return {
     id: t.id, url: t.url || null, atleta: atletaDe(t), status: normalizar(t.status?.status),
+    atletaId: Array.isArray(relacionados) && relacionados.length === 1 ? relacionados[0]?.id || null : null,
     data: dataDe(campo(t, CAMPOS.dataAula)),
     valor: numero(campo(t, CAMPOS.valorAula)),
     plano: opcao(campo(t, CAMPOS.planoFortalecimento)),
@@ -419,7 +426,10 @@ export function criarServicoFechamento(api, agora = () => Date.now(), leitorAgen
     emCursoCrm ||= (async () => {
       const tarefas = await lerLista(api, LISTAS.crm);
       const atletas = tarefas.map(reduzirAtleta);
-      cacheCrm = { lidoEm: agora(), atletas, origens: new Map(tarefas.map(t => [t.id, opcao(campo(t, CAMPOS.origemMarketing))])) };
+      // O e-mail fica FORA do atleta reduzido de proposito: a carteira devolve o atleta
+      // inteiro para a tela da equipe, e o e-mail so interessa ao app do atleta.
+      const emails = new Map(tarefas.map(t => [t.id, String(campo(t, CAMPOS_CRM.email)?.value || '').trim().toLowerCase()]));
+      cacheCrm = { lidoEm: agora(), atletas, emails, origens: new Map(tarefas.map(t => [t.id, opcao(campo(t, CAMPOS.origemMarketing))])) };
       return cacheCrm;
     })().finally(() => { emCursoCrm = null; });
     return emCursoCrm;
@@ -466,6 +476,8 @@ export function criarServicoFechamento(api, agora = () => Date.now(), leitorAgen
       }
       return { lidoEm: Math.min(registro.lidoEm, d.lidoEm), atletas: [...porId.values()] };
     },
+    /** E-mail de cada atleta do CRM (id do card → e-mail), para o app do atleta. */
+    async emails(forcar = false) { return (await crm(forcar)).emails; },
     // Mesmo cache do fechamento: abrir a calculadora não gasta a API do ClickUp.
     async campanha(forcar = false) {
       const [d, fontes] = await Promise.all([dados(forcar), origens(forcar).catch(() => null)]);

@@ -13,6 +13,7 @@ import { criarLeitorAgenda } from './agenda.mjs';
 import { criarServicoAvaliacao, criarUploader } from './avaliacao-forca.mjs';
 import { criarServicoFechamento } from './fechamento.mjs';
 import { criarLeitorConteudo, criarServicoConteudo } from './conteudo.mjs';
+import { criarClienteAgenda, criarEnviadorWhatsapp, criarServicoApp, criarSessoes, LIMITES as LIMITES_APP } from './app-atleta.mjs';
 
 /*
  * Preview de link por rota.
@@ -76,6 +77,12 @@ const PREVIEWS = {
     imagem: '/og-image.jpg',
     alt: 'CareFit Run Base',
   },
+  '/app': {
+    titulo: 'CareFit | Minhas aulas',
+    descricao: 'Reserve e cancele suas aulas de fortalecimento e yoga na CareFit Run Base, direto pelo celular.',
+    imagem: '/og-image.jpg',
+    alt: 'CareFit Run Base',
+  },
   '/agendamento-yoga': {
     titulo: 'Agendar aula de yoga — CareFit Run Base',
     descricao: 'Yoga às terças e quintas, das 6h às 7h, em Ribeirão Preto. Escolha o dia e reserve sua vaga.',
@@ -114,7 +121,7 @@ function comPreview(html, preview, url) {
 
 export function passwordHash(password, salt = randomBytes(16).toString('hex')) { return `${salt}:${scryptSync(password, salt, 32).toString('hex')}`; }
 function equal(a, b) { const x = Buffer.from(a); const y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); }
-export function createServer(env = process.env, service = createService(clickupClient(env.CLICKUP_API_TOKEN)), avaliacao = criarServicoAvaliacao(clickupClient(env.CLICKUP_API_TOKEN), criarUploader(env.CLICKUP_API_TOKEN)), fechamento = criarServicoFechamento(clickupClient(env.CLICKUP_API_TOKEN), () => Date.now(), criarLeitorAgenda(env)), conversas = criarServicoConversas(criarLeitorConversas(env)), conteudo = criarServicoConteudo(criarLeitorConteudo(env))) {
+export function createServer(env = process.env, service = createService(clickupClient(env.CLICKUP_API_TOKEN)), avaliacao = criarServicoAvaliacao(clickupClient(env.CLICKUP_API_TOKEN), criarUploader(env.CLICKUP_API_TOKEN)), fechamento = criarServicoFechamento(clickupClient(env.CLICKUP_API_TOKEN), () => Date.now(), criarLeitorAgenda(env)), conversas = criarServicoConversas(criarLeitorConversas(env)), conteudo = criarServicoConteudo(criarLeitorConteudo(env)), app = criarServicoApp({ fechamento, api: clickupClient(env.CLICKUP_API_TOKEN), agenda: criarClienteAgenda(env), whatsapp: criarEnviadorWhatsapp(env) })) {
   const origin = env.PORTAL_ORIGIN || 'http://localhost:8080';
   // Quem vê o financeiro. O login é o mesmo da equipe; o Lucas entra no fortalecimento
   // e não enxerga produção nem bônus. Sem a variável, só o Gustavo.
@@ -126,6 +133,10 @@ export function createServer(env = process.env, service = createService(clickupC
   const sign = x => createHmac('sha256', secret).update(x).digest('base64url');
   const cookie = (value, age) => `carefit_session=${value}; HttpOnly; SameSite=Strict; Path=/api; Max-Age=${age}${secure ? '; Secure' : ''}`;
   const attempts = new Map();
+  // Sessão do ATLETA (/app): outro cookie, outra assinatura. Nunca abre os painéis da equipe.
+  const sessoesAtleta = criarSessoes(secret);
+  const cookieAtleta = (value, age) => `carefit_atleta=${value}; HttpOnly; SameSite=Strict; Path=/api/app; Max-Age=${age}${secure ? '; Secure' : ''}`;
+  const sessaoAtleta = req => sessoesAtleta.ler(/(?:^|;\s*)carefit_atleta=([^;]+)/.exec(req.headers.cookie || '')?.[1] || '');
   function session(req) {
     const raw = /(?:^|;\s*)carefit_session=([^;]+)/.exec(req.headers.cookie || '')?.[1] || '';
     const [payload, sig] = raw.split('.');
@@ -172,6 +183,31 @@ export function createServer(env = process.env, service = createService(clickupC
         try { whatsapp = await conversas.fila(atletas); } catch { whatsapp = null; }
         const texto = montarTexto({ hoje, carteira: montarCarteira(atletas, hoje), whatsapp, equipe: montarEquipe(listas, hoje.slice(0, 7), hoje) });
         return send(200, { hoje, texto, whatsapp: Boolean(whatsapp) });
+      }
+      /*
+       * App do atleta. Login por código no WhatsApp; o atleta só enxerga o que é dele.
+       * `reserva` e `cancelar` são públicas de propósito: o link de cancelamento do
+       * e-mail precisa funcionar sem login, e o token do link já é a autorização.
+       */
+      if (url.pathname.startsWith('/api/app/')) {
+        res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+        res.setHeader('X-Frame-Options', 'DENY');
+        if (secret.length < 32 || !env.CLICKUP_API_TOKEN) throw new PublicError('O app ainda não foi configurado.', 503);
+        if (req.method !== 'GET' && (req.headers.origin !== origin || !req.headers['content-type']?.startsWith('application/json'))) throw new PublicError('Reabra o app pelo endereço oficial.', 403);
+        const rota = url.pathname.slice('/api/app/'.length);
+        if (rota === 'codigo' && req.method === 'POST') return send(200, await app.pedirCodigo((await body(req)).telefone));
+        if (rota === 'entrar' && req.method === 'POST') {
+          const entrada = await body(req);
+          const quem = await app.confirmarCodigo(entrada.telefone, entrada.codigo);
+          res.setHeader('Set-Cookie', cookieAtleta(sessoesAtleta.emitir(quem.atletaId, quem.tel8), Math.floor(LIMITES_APP.sessaoMs / 1000)));
+          return send(200, { ok: true });
+        }
+        if (rota === 'sair' && req.method === 'POST') { res.setHeader('Set-Cookie', cookieAtleta('', 0)); return send(200, { ok: true }); }
+        if (rota === 'reserva' && req.method === 'GET') return send(200, await app.detalhe(url.searchParams.get('m') || '', url.searchParams.get('t') || ''));
+        if (rota === 'cancelar' && req.method === 'POST') { const entrada = await body(req); return send(200, await app.cancelar(entrada.modalidade, entrada.token)); }
+        if (rota === 'inicio' && req.method === 'GET') return send(200, await app.inicio(sessaoAtleta(req)));
+        if (rota === 'reservar' && req.method === 'POST') return send(200, await app.reservar(sessaoAtleta(req), await body(req)));
+        throw new PublicError('Página não encontrada.', 404);
       }
       const prefixo = ['/api/fortalecimento/', '/api/avaliacao-forca/', '/api/gestao/'].find(p => url.pathname.startsWith(p));
       if (prefixo) {
@@ -246,6 +282,8 @@ export function createServer(env = process.env, service = createService(clickupC
       }
       if (!['GET', 'HEAD'].includes(req.method)) return send(405, { error: 'Método não permitido.' });
       res.setHeader('X-Content-Type-Options', 'nosniff');
+      // Área logada e link pessoal de cancelamento: fora da busca.
+      if (url.pathname === '/app' || url.pathname === '/cancelar-aula') res.setHeader('X-Robots-Tag', 'noindex, nofollow');
       if (url.pathname === '/painel-fortalecimento' || url.pathname === '/painel-avaliacao-forca' || url.pathname === '/gestao' || url.pathname.startsWith('/gestao/')) { res.setHeader('X-Robots-Tag', 'noindex, nofollow'); res.setHeader('X-Frame-Options', 'DENY'); }
 
       // A home é a do React (src/pages/Index.tsx), servida pelo index.html como
@@ -274,7 +312,7 @@ export function createServer(env = process.env, service = createService(clickupC
       }
       // Same static engine previously used by `serve -s`, including range requests.
       await serveHandler(req, res, { public: 'dist', rewrites: [{ source: '**', destination: '/index.html' }], directoryListing: false, headers: [{ source: '**', headers: [{ key: 'Cache-Control', value: 'no-cache' }] }, { source: 'assets/**', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] }] });
-    } catch (e) { if (!res.headersSent) send(e instanceof PublicError ? e.status : 500, { error: e instanceof PublicError ? e.message : 'Não foi possível concluir. Atualize e tente novamente.' }); else res.end(); }
+    } catch (e) { if (!res.headersSent) send(e instanceof PublicError ? e.status : 500, { error: e instanceof PublicError ? e.message : 'Não foi possível concluir. Atualize e tente novamente.', ...(e instanceof PublicError && e.codigo ? { codigo: e.codigo } : {}) }); else res.end(); }
   });
 }
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) createServer().listen(Number(process.env.PORT || 3000), '0.0.0.0', () => console.log('CareFit server ready'));

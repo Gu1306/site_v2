@@ -51,6 +51,8 @@ const AgendamentoYoga = lazy(() => import("./pages/AgendamentoYoga"));
 const Links = lazy(() => import("./pages/Links"));
 const PrimeiraSessao = lazy(() => import("./pages/PrimeiraSessao"));
 const FortalecimentoTurma = lazy(() => import("./pages/FortalecimentoTurma"));
+const AppAtleta = lazy(() => import("./pages/AppAtleta"));
+const CancelarAula = lazy(() => import("./pages/CancelarAula"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -65,7 +67,7 @@ const GestaoConteudo = lazy(() => import("./pages/gestao/GestaoConteudo"));
 const LandingAds = lazy(() => import("./pages/LandingAds"));
 const Privacidade = lazy(() => import("./pages/Privacidade"));
 
-const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto", "/painel-fortalecimento", "/painel-avaliacao-forca", "/links", "/primeira-sessao"];
+const HIDE_NAV_ON = ["/conheca-a-carefit", "/performance-ribeirao-preto", "/painel-fortalecimento", "/painel-avaliacao-forca", "/links", "/primeira-sessao", "/app", "/cancelar-aula"];
 
 const ConditionalNavigation = () => {
   const { pathname } = useLocation();
@@ -156,6 +158,8 @@ const App = () => (
             <Route path="/fortalecimento-em-turma" element={<FortalecimentoTurma />} />
             <Route path="/agendamento-fortalecimento" element={<AgendamentoFortalecimento />} />
             <Route path="/agendamento-yoga" element={<AgendamentoYoga />} />
+            <Route path="/app" element={<AppAtleta />} />
+            <Route path="/cancelar-aula" element={<CancelarAula />} />
             <Route path="/links" element={<Links />} />
             <Route path="/primeira-sessao" element={<PrimeiraSessao />} />
             <Route path="/lp/:slug" element={<LandingAds />} />

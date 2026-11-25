@@ -99,11 +99,23 @@ export interface ConfigAgendamento {
   destaque?: string;
 }
 
-const AgendamentoAulas = ({ config }: { config: ConfigAgendamento }) => {
+/**
+ * Modo app do atleta (/app): ele já entrou com o WhatsApp, então a etapa
+ * "seus dados" some e a reserva passa pelo servidor do site, que preenche
+ * nome, telefone e e-mail com o que está no cadastro.
+ */
+export interface ModoApp {
+  reservar: (aulaId: string, idempotencia: string) => Promise<ReservaConfirmada>;
+  /** Volta para a lista "minhas aulas". */
+  aoVoltar: () => void;
+}
+
+const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: ModoApp }) => {
   useSeo({
     titulo: config.seoTitulo,
     descricao: config.seoDescricao,
     caminho: config.caminho,
+    noindex: !!app,
     // Indexável desde que entrou no menu: uma página linkada de todas as outras
     // e escondida da busca ao mesmo tempo é contradição, e o Google trata assim.
   });
@@ -271,21 +283,23 @@ const AgendamentoAulas = ({ config }: { config: ConfigAgendamento }) => {
   };
 
   const confirmar = async () => {
-    if (!aula || !dadosOk || enviando) return;
+    if (!aula || (!app && !dadosOk) || enviando) return;
     setEnviando(true);
     setErroReserva(null);
 
     try {
-      const confirmada = await reservarAula(
-        {
-          aulaId: aula.id,
-          nome: nome.trim(),
-          email: email.trim().toLowerCase(),
-          telefone: normalizarTelefone(whatsapp),
-          idempotencia: chaveIdempotencia.current,
-        },
-        endpoint
-      );
+      const confirmada = app
+        ? await app.reservar(aula.id, chaveIdempotencia.current)
+        : await reservarAula(
+            {
+              aulaId: aula.id,
+              nome: nome.trim(),
+              email: email.trim().toLowerCase(),
+              telefone: normalizarTelefone(whatsapp),
+              idempotencia: chaveIdempotencia.current,
+            },
+            endpoint
+          );
       setReserva(confirmada);
       setEtapa("pronto");
       invalidarTudo();
@@ -301,6 +315,8 @@ const AgendamentoAulas = ({ config }: { config: ConfigAgendamento }) => {
       // horário — quem limpa é o `voltarAoCalendario`.
       if (falha.codigo === "LOTADA" || falha.codigo === "NAO_ENCONTRADA") {
         invalidarTudo();
+        // No app não existe a tela de dados para segurar a escolha: solta já.
+        if (app) setAula(null);
       }
     } finally {
       setEnviando(false);
@@ -332,11 +348,12 @@ const AgendamentoAulas = ({ config }: { config: ConfigAgendamento }) => {
   const podeVoltarMes = indiceMes(mesVisivel) > indiceMes(mesAtual);
   const podeAvancarMes = indiceMes(mesVisivel) < indiceMes(mesLimite);
 
-  const passoAtual: 1 | 2 | 3 = etapa === "agenda" ? (dataSelecionada ? 2 : 1) : 3;
+  const passoAtual: 1 | 2 | 3 = etapa === "agenda" ? (dataSelecionada ? (app && aula ? 3 : 2) : 1) : 3;
+  const etapas = app ? ["Data", "Horário", "Confirmar"] : ["Data", "Horário", "Seus dados"];
 
   // O pt- generoso compensa a navegação global, que é fixa no topo da janela.
   return (
-    <div className="min-h-screen bg-background px-4 pb-8 pt-24 sm:px-6 sm:pb-12 sm:pt-28">
+    <div className={`min-h-screen bg-background px-4 pb-8 sm:px-6 sm:pb-12 ${app ? "pt-4 sm:pt-8" : "pt-24 sm:pt-28"}`}>
       <div className="mx-auto w-full max-w-5xl overflow-hidden rounded-2xl bg-warm sm:rounded-3xl"
         style={{ boxShadow: "0 20px 60px -20px hsl(var(--primary) / 0.35)" }}>
         {/* A barra de marca do protótipo saiu quando a página entrou no menu:
@@ -349,6 +366,15 @@ const AgendamentoAulas = ({ config }: { config: ConfigAgendamento }) => {
           className="px-4 pb-6 pt-7 text-primary-foreground sm:px-8"
           style={{ backgroundImage: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))" }}
         >
+          {app && (
+            <button
+              type="button"
+              onClick={app.aoVoltar}
+              className="-ml-1 mb-4 flex min-h-[40px] items-center gap-1 rounded-lg pr-3 text-[13px] font-medium text-primary-foreground/85 hover:text-primary-foreground"
+            >
+              <ChevronLeft className="h-4 w-4" /> Minhas aulas
+            </button>
+          )}
           <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1">
             <p className="text-[11px] font-medium uppercase tracking-[0.13em] text-earth">
               {config.eyebrow}
@@ -371,7 +397,7 @@ const AgendamentoAulas = ({ config }: { config: ConfigAgendamento }) => {
           </p>
 
           <ol className="mt-6 grid grid-cols-3 gap-2" aria-label="Etapas do agendamento">
-            {["Data", "Horário", "Seus dados"].map((rotulo, indice) => {
+            {etapas.map((rotulo, indice) => {
               const numero = indice + 1;
               const feito = passoAtual > numero || etapa === "pronto";
               const ativo = passoAtual === numero && etapa !== "pronto";
@@ -416,25 +442,43 @@ const AgendamentoAulas = ({ config }: { config: ConfigAgendamento }) => {
               </div>
               <h2 className="text-2xl font-semibold text-primary sm:text-3xl">Aula reservada!</h2>
               <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-primary/70">
-                {capitalizar(reserva.quando)}. A confirmação foi para <strong>{reserva.email}</strong>{" "}
-                — se não aparecer, olha no spam.
+                {capitalizar(reserva.quando)}.
+                {reserva.email && (
+                  <>
+                    {" "}A confirmação foi para <strong>{reserva.email}</strong> — se não aparecer,
+                    olha no spam.
+                  </>
+                )}
               </p>
               <p className="mx-auto mt-3 max-w-md text-sm text-primary/60">
-                📍 {ENDERECO}. Chega uns 10 minutos antes para trocar de roupa e aquecer. Precisa
-                cancelar? Chama no WhatsApp {WHATSAPP_CAREFIT} que a vaga volta para a turma.
+                📍 {ENDERECO}. Chega uns 10 minutos antes para trocar de roupa e aquecer.{" "}
+                {app
+                  ? "Precisa cancelar? É só tocar em Cancelar na sua lista de aulas, e a vaga volta para a turma."
+                  : `Precisa cancelar? Use o link que foi no e-mail de confirmação, ou chama no WhatsApp ${WHATSAPP_CAREFIT}. A vaga volta para a turma.`}
               </p>
               {config.avisoSucesso && (
                 <p className="mx-auto mt-3 max-w-md text-sm font-medium text-primary/80">
                   {config.avisoSucesso}
                 </p>
               )}
-              <button
-                type="button"
-                onClick={recomecar}
-                className="mt-7 min-h-[46px] rounded-xl border border-primary/20 bg-white/60 px-5 font-medium text-primary transition-colors hover:bg-white"
-              >
-                Agendar outra aula
-              </button>
+              <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
+                {app && (
+                  <button
+                    type="button"
+                    onClick={app.aoVoltar}
+                    className="min-h-[46px] w-full rounded-xl bg-secondary px-5 font-medium text-secondary-foreground sm:w-auto"
+                  >
+                    Ver minhas aulas
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={recomecar}
+                  className="min-h-[46px] w-full rounded-xl border border-primary/20 bg-white/60 px-5 font-medium text-primary transition-colors hover:bg-white sm:w-auto"
+                >
+                  Agendar outra aula
+                </button>
+              </div>
             </section>
           ) : etapa === "dados" && aula && dataSelecionada ? (
             /* -------------------------------------------------------- Dados */
@@ -705,7 +749,12 @@ const AgendamentoAulas = ({ config }: { config: ConfigAgendamento }) => {
                                 aria-label={`${item.horaInicio} às ${item.horaFim}, ${
                                   lotada ? "turma lotada" : textoVagas(item)
                                 }`}
-                                onClick={() => setAula(item)}
+                                onClick={() => {
+                                  // Uma chave por escolha: no app o confirmar vem logo depois.
+                                  if (item.id !== aula?.id) chaveIdempotencia.current = novaChaveIdempotencia();
+                                  setErroReserva(null);
+                                  setAula(item);
+                                }}
                                 className={`grid min-h-[62px] grid-cols-[minmax(0,1fr)_auto] items-center gap-2.5 rounded-xl border p-2.5 text-left transition-colors ${
                                   escolhida
                                     ? "border-secondary bg-secondary text-secondary-foreground"
@@ -755,13 +804,22 @@ const AgendamentoAulas = ({ config }: { config: ConfigAgendamento }) => {
                 </div>
                 <button
                   type="button"
-                  onClick={irParaDados}
-                  disabled={!aula}
-                  className="min-h-[46px] rounded-xl bg-secondary px-5 font-medium text-secondary-foreground transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+                  onClick={app ? confirmar : irParaDados}
+                  disabled={!aula || enviando}
+                  className="flex min-h-[46px] items-center justify-center gap-2 rounded-xl bg-secondary px-5 font-medium text-secondary-foreground transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  Continuar
+                  {enviando && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {app ? (enviando ? "Confirmando..." : config.textoConfirmar) : "Continuar"}
                 </button>
               </div>
+
+              {app && erroReserva && (
+                <div className="mt-4" role="alert">
+                  <Aviso titulo={erroReserva.codigo === "LOTADA" ? "Essa vaga acabou" : "Não deu certo"}>
+                    {erroReserva.message}
+                  </Aviso>
+                </div>
+              )}
             </section>
           )}
         </main>

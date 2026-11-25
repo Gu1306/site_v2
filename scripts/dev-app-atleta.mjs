@@ -1,0 +1,55 @@
+// Servidor local para VER o app do atleta sem tocar em produção.
+//
+//   npm run build && node scripts/dev-app-atleta.mjs      → http://localhost:8091/app
+//
+// O login, o saldo, a reserva e o cancelamento são de mentira (ficam na memória deste
+// processo): nenhum WhatsApp sai, nada é gravado na planilha nem no ClickUp. O código de
+// acesso é sempre 123456. Só o calendário é real — ele lê as turmas direto da agenda
+// pública, que é somente leitura.
+import { createServer } from '../server/index.mjs';
+import { PublicError } from '../server/fortalecimento.mjs';
+
+const PORTA = Number(process.env.PORT || 8091);
+const token = n => String(n).repeat(32).slice(0, 32);
+let reservas = [
+  { modalidade: 'fortalecimento', aulaId: '2026-11-27T07:00', data: '2026-11-27', horaInicio: '07:00', quando: 'sexta-feira, 27/11, às 07h00', token: token('a') },
+  { modalidade: 'yoga', aulaId: '2026-12-01T06:00', data: '2026-12-01', horaInicio: '06:00', quando: 'terça-feira, 01/12, às 06h00', token: token('b') },
+];
+const DIAS = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+const quandoDe = aulaId => {
+  const [ano, mes, dia] = aulaId.slice(0, 10).split('-').map(Number);
+  return `${DIAS[new Date(ano, mes - 1, dia).getDay()]}, ${String(dia).padStart(2, '0')}/${String(mes).padStart(2, '0')}, às ${aulaId.slice(11, 13)}h${aulaId.slice(14)}`;
+};
+const achar = (m, t) => reservas.find(r => r.modalidade === m && r.token === t);
+
+const app = {
+  async pedirCodigo(telefone) { if (String(telefone || '').replace(/\D/g, '').length < 10) throw new PublicError('Coloque o seu WhatsApp com DDD.'); return { ok: true }; },
+  async confirmarCodigo(telefone, codigo) { if (codigo !== '123456') throw new PublicError('Código inválido ou vencido. Peça um novo.', 401); return { atletaId: 'dev', tel8: '00000000' }; },
+  async inicio(sessao) {
+    if (!sessao) throw new PublicError('Entre com o seu WhatsApp para continuar.', 401);
+    return { primeiroNome: 'Ana', fortalecimento: { temPacote: true, disponiveis: 14, agendadas: reservas.filter(r => r.modalidade === 'fortalecimento').length }, reservas: [...reservas].sort((a, b) => a.aulaId.localeCompare(b.aulaId)), avisos: [] };
+  },
+  async reservar(sessao, entrada) {
+    if (!sessao) throw new PublicError('Entre com o seu WhatsApp para continuar.', 401);
+    const nova = { modalidade: entrada.modalidade, aulaId: entrada.aulaId, data: entrada.aulaId.slice(0, 10), horaInicio: entrada.aulaId.slice(11), quando: quandoDe(entrada.aulaId), token: token(reservas.length + 3) };
+    reservas.push(nova);
+    return { ...nova, inicioISO: '', fimISO: '', email: 'ana@email.com', nome: 'Ana Souza' };
+  },
+  async detalhe(modalidade, t) {
+    const r = achar(modalidade, t);
+    if (!r) throw new PublicError('Não achei essa reserva. O link pode ser antigo.', 409);
+    return { modalidade, aulaId: r.aulaId, quando: r.quando, cancelada: false, passada: false, primeiroNome: 'Ana' };
+  },
+  async cancelar(modalidade, t) {
+    const r = achar(modalidade, t);
+    if (!r) throw new PublicError('Não achei essa reserva. O link pode ser antigo.', 409);
+    reservas = reservas.filter(x => x !== r);
+    return { ok: true, jaCancelada: false, quando: r.quando, aulaId: r.aulaId, credito: null };
+  },
+};
+
+const env = { PORTAL_ORIGIN: `http://localhost:${PORTA}`, PORTAL_SESSION_SECRET: 'dev-'.repeat(12), CLICKUP_API_TOKEN: 'dev' };
+createServer(env, {}, {}, {}, {}, {}, app).listen(PORTA, '127.0.0.1', () => {
+  console.log(`App do atleta (dados falsos): http://localhost:${PORTA}/app  ·  código 123456`);
+  console.log(`Link de cancelamento de exemplo: http://localhost:${PORTA}/cancelar-aula?m=yoga&t=${token('b')}`);
+});
