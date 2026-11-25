@@ -2,37 +2,75 @@ import { Link } from "react-router-dom";
 import { ArrowRight, ArrowUpRight, Check, MapPin } from "lucide-react";
 import Footer from "@/components/Footer";
 import { useSeo } from "@/hooks/useSeo";
-import espaco from "@/assets/espaco-1.jpg";
-import treino from "@/assets/espaco-2.jpg";
+import livia from "@/assets/home-livia.jpg";
+import gustavo from "@/assets/home-gustavo.jpg";
+import sala from "@/assets/home-sala-atendimento.jpg";
+import imersao from "@/assets/home-imersao.jpg";
 import "./home.css";
 
 const whatsapp = "https://api.whatsapp.com/send?phone=5516996008849";
+
+// O coração da home: o que separa a sessão da CareFit do recovery por equipamento.
+const diferencas = [
+  { tema: "Quem decide", comum: "Você escolhe o equipamento num cardápio.", carefit: "O fisioterapeuta avalia você, escolhe o protocolo e explica o porquê." },
+  { tema: "Quem acompanha", comum: "Vários atletas ao mesmo tempo, cada um na sua poltrona.", carefit: "Um fisioterapeuta com um corredor, a sessão inteira." },
+  { tema: "Quanto tempo", comum: "O tempo do aparelho.", carefit: "Uma hora de atendimento. Na primeira sessão, 80 minutos." },
+  { tema: "Sua história", comum: "Cada visita começa do zero.", carefit: "Suas lesões, provas e treinos ficam registrados. A sessão seguinte parte daí." },
+  { tema: "Para quem", comum: "Qualquer esporte, qualquer objetivo.", carefit: "Só corrida. A equipe corre e sabe o que é ter uma prova marcada." },
+  { tema: "O que você leva", comum: "Alívio do cansaço de hoje.", carefit: "O problema pequeno tratado antes de virar lesão, e o próximo passo definido." },
+];
+
+const sessao = [
+  { title: "Você conta como chegou", text: "Sono, energia, estresse e dor. O que mudou nos treinos desde a última vez e o que vem pela frente." },
+  { title: "O fisioterapeuta avalia", text: "Testa, toca e observa. Cruza o que encontrou com o seu histórico e com a sua próxima prova." },
+  { title: "O protocolo é escolhido para aquele dia", text: "Liberação, dry needling, laser, gelo, ofurô, bota de compressão. Entra o que faz sentido para você, na ordem que faz sentido." },
+  { title: "Você sai sabendo o próximo passo", text: "O que foi encontrado, o que fazer até a próxima sessão e o que observar nos treinos." },
+];
+
+const entreSessoes = [
+  { title: "Seus treinos, pelo Strava", text: "A gente acompanha volume e ritmo para chegar na sessão já sabendo como foi a sua semana." },
+  { title: "Suas provas, quilômetro por quilômetro", text: "Depois da prova, a gente estuda o que aconteceu no percurso para entender o que o seu corpo pediu." },
+  { title: "Seu treinador na conversa", text: "Sempre que temos essa oportunidade, falamos com quem monta o seu treino. O cuidado e a planilha andam juntos." },
+  { title: "Força com direção", text: "O teste de força mostra o que fortalecer e como fortalecer. Sem palpite, sem achismo." },
+];
+
 const caminhos = [
-  { title: "Voltar a correr", text: "Uma dor ou lesão mudou seus planos? Comece por entender o que seu corpo precisa para retomar a corrida.", link: "/fisioterapia-para-corredores-ribeirao-preto", label: "Conheça a fisioterapia" },
-  { title: "Construir uma base forte", text: "Prepare seu corpo para a rotina de treinos, com fortalecimento específico e acompanhamento de perto.", link: "/fortalecimento-em-turma", label: "Conheça o fortalecimento" },
-  { title: "Cuidar da recuperação", text: "Dê espaço à recuperação entre treinos e provas, com um cuidado orientado para o seu momento.", link: "/recovery-corredores-ribeirao-preto", label: "Conheça o recovery" },
-  { title: "Yoga para corredores", text: "Um momento para trabalhar mobilidade, respiração e consciência corporal, complementando sua rotina de corrida.", link: "/agendamento-yoga", label: "Reserve sua aula de yoga" },
+  { title: "Voltar a correr", text: "Uma dor ou lesão mudou seus planos? Comece pela avaliação com fisioterapeuta.", link: "/fisioterapia-para-corredores-ribeirao-preto", label: "Conheça a fisioterapia" },
+  { title: "Cuidar da recuperação", text: "Treinando forte ou com prova chegando? Comece pela Primeira Sessão Dupla.", link: "/conheca-a-carefit", label: "Conheça a primeira sessão" },
+  { title: "Construir uma base forte", text: "Fortalecimento específico para corredor, em turma pequena e com acompanhamento de perto.", link: "/fortalecimento-em-turma", label: "Conheça o fortalecimento" },
+  { title: "Yoga para corredores", text: "Mobilidade, respiração e consciência corporal para complementar a sua rotina de corrida.", link: "/agendamento-yoga", label: "Reserve sua aula de yoga" },
+];
+
+const historias = [
+  { id: "62WMUc35hbo", name: "Thais Vignini", race: "Desafio Disney Wine & Dine" },
+  { id: "lbfcs-QlmDE", name: "Talita Kriunas", race: "Meia Maratona de Lisboa" },
+  { id: "XF8N96nULVg", name: "Léo Andrade", race: "Meia Maratona do Rio" },
 ];
 
 export default function Index() {
-  useSeo({ titulo: "CareFit Run Base | Cuidado para seguir correndo", descricao: "Evolua na corrida com cuidado e consistência. Fisioterapia, fortalecimento, recovery e yoga para corredores em Ribeirão Preto. Conheça sua primeira sessão.", caminho: "/" });
+  useSeo({
+    titulo: "CareFit Run Base | Fisioterapia e recovery individual para corredores",
+    descricao: "Um fisioterapeuta, um corredor, uma hora. Na CareFit, cada sessão começa por uma avaliação que decide o que o seu corpo precisa. Em Ribeirão Preto.",
+    caminho: "/",
+  });
+
   return <>
     <main className="carefit-home">
       <section className="home-hero home-wrap">
         <div className="home-hero-copy">
-          <p className="home-eyebrow">Cuidado para corredores · Ribeirão Preto</p>
-          <h1>Mais cuidado hoje.<br /><span>Mais corrida<br />na sua vida.</span></h1>
-          <p className="home-lead">Evolua com consistência e confiança no seu corpo. Fisioterapia, fortalecimento, recovery e yoga conectados ao que você quer viver na corrida.</p>
+          <p className="home-eyebrow">Fisioterapia e performance para corredores · Ribeirão Preto</p>
+          <h1>Uma hora inteira.<br />Um fisioterapeuta.<br /><span>Só você.</span></h1>
+          <p className="home-lead">A CareFit não é um lugar onde você entra, usa o equipamento e vai embora. Cada sessão começa por uma avaliação. É ela que decide o que o seu corpo precisa hoje.</p>
           <Link className="home-button" to="/conheca-a-carefit">Conheça sua primeira sessão <ArrowRight size={18} aria-hidden="true" /></Link>
           <a className="home-text-link home-help" href={whatsapp} target="_blank" rel="noopener noreferrer">Prefere conversar? Fale com a equipe <ArrowUpRight size={15} aria-hidden="true" /></a>
         </div>
         <figure className="home-hero-photo">
-          <img src={espaco} alt="Espaço de cuidado e treinamento da CareFit Run Base" fetchPriority="high" width="800" height="900" />
-          <figcaption><span>Sua corrida começa com uma boa base.</span><small>CareFit Run Base · Ribeirão Preto</small></figcaption>
+          <img src={livia} alt="Lívia Dias, fisioterapeuta esportiva da CareFit Run Base" fetchPriority="high" width="1100" height="1650" />
+          <figcaption><span>Na sessão, o fisioterapeuta fica com você do começo ao fim.</span><small>Lívia Dias · fisioterapeuta esportiva</small></figcaption>
         </figure>
       </section>
 
-      <section className="home-proof" aria-label="A experiência da CareFit">
+      <section className="home-proof" aria-label="A CareFit em números">
         <div className="home-wrap home-proof-inner">
           <p>Você não corre sozinho.<br /><strong>A gente cuida para você seguir.</strong></p>
           {/* Base documentada da home: mapas dos atletas, contagem em 15/10/2026. */}
@@ -42,38 +80,89 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="home-wrap home-section" aria-labelledby="home-momento">
-        <div className="home-section-heading"><p className="home-eyebrow">O seu momento é o ponto de partida</p><h2 id="home-momento">O que você quer viver<br />na corrida agora?</h2><p>Da volta aos treinos à próxima linha de chegada, o cuidado começa por você.</p></div>
-        <div className="home-paths">{caminhos.map((item, i) => <article key={item.title}><span className="home-number">0{i + 1}</span><h3>{item.title}</h3><p>{item.text}</p><Link className="home-text-link" to={item.link}>{item.label}<ArrowUpRight size={18} aria-hidden="true" /></Link></article>)}</div>
+      <section className="home-wrap home-section" aria-labelledby="home-diferenca">
+        <div className="home-section-heading">
+          <p className="home-eyebrow">Por que não é um recovery comum</p>
+          <h2 id="home-diferenca">A bota e o gelo são ferramentas.<br />O que muda é quem decide como usar.</h2>
+          <p>Os equipamentos você encontra em muitos lugares. A diferença está em ter um fisioterapeuta que conhece a sua história e monta a sessão para você.</p>
+        </div>
+        <div className="home-compare" role="table" aria-label="Recovery por equipamento comparado com a sessão na CareFit">
+          <div className="home-compare-head" role="row">
+            <span role="columnheader" className="home-compare-tema" />
+            <span role="columnheader">Recovery por equipamento</span>
+            <span role="columnheader" className="home-compare-nos">Sessão na CareFit</span>
+          </div>
+          {diferencas.map(item => <div className="home-compare-row" role="row" key={item.tema}>
+            <span role="rowheader" className="home-compare-tema">{item.tema}</span>
+            <p role="cell" className="home-compare-comum"><small>Recovery por equipamento</small>{item.comum}</p>
+            <p role="cell" className="home-compare-nos"><small>Sessão na CareFit</small><Check size={16} aria-hidden="true" />{item.carefit}</p>
+          </div>)}
+        </div>
       </section>
 
       <section className="home-method">
         <div className="home-wrap home-method-inner">
-          <div><p className="home-eyebrow">Prevenção como estratégia</p><h2>Seu objetivo orienta.<br />O cuidado acompanha.</h2><p className="home-lead">Sua história, sua rotina e seus desafios ajudam a construir o caminho. A gente acompanha sua evolução e ajusta o cuidado ao longo da jornada.</p><Link className="home-text-link" to="/jornada">Conheça o método CareFit <ArrowUpRight size={18} aria-hidden="true" /></Link></div>
+          <div>
+            <p className="home-eyebrow">Como é uma sessão</p>
+            <h2>Primeiro a gente entende.<br />Depois a gente trata.</h2>
+            <p className="home-lead">Nenhuma sessão é igual à anterior, porque você não chega igual. O que entra no atendimento depende do que a avaliação mostrar.</p>
+            <img className="home-method-photo" src={sala} alt="Sala de atendimento individual da CareFit, com macas e banheira de imersão" loading="lazy" width="1500" height="1000" />
+          </div>
           <ol className="home-steps">
-            <li><span>01</span><div><h3>Entender você</h3><p>Ouvir sua história, avaliar seu momento e conhecer o que você quer conquistar.</p></div></li>
-            <li><span>02</span><div><h3>Traçar o próximo passo</h3><p>Definir as prioridades do cuidado e orientar um caminho que faça sentido para sua rotina.</p></div></li>
-            <li><span>03</span><div><h3>Acompanhar a evolução</h3><p>Reavaliar, ajustar e caminhar junto. Da recuperação à construção de uma base mais forte.</p></div></li>
+            {sessao.map((item, i) => <li key={item.title}><span>0{i + 1}</span><div><h3>{item.title}</h3><p>{item.text}</p></div></li>)}
           </ol>
+        </div>
+      </section>
+
+      <section className="home-between">
+        <div className="home-wrap">
+          <div className="home-section-heading">
+            <p className="home-eyebrow">Entre uma sessão e outra</p>
+            <h2>A gente não deixa um problema<br />pequeno ficar grande.</h2>
+            <p>Prevenção de verdade acontece quando alguém está olhando para você também fora da maca.</p>
+          </div>
+          <div className="home-between-grid">
+            {entreSessoes.map(item => <article key={item.title}><h3>{item.title}</h3><p>{item.text}</p></article>)}
+          </div>
+        </div>
+      </section>
+
+      <section className="home-wrap home-section" aria-labelledby="home-momento">
+        <div className="home-section-heading"><p className="home-eyebrow">Por onde começar</p><h2 id="home-momento">O que você quer viver<br />na corrida agora?</h2><p>Da volta aos treinos à próxima linha de chegada, o cuidado começa pelo seu momento.</p></div>
+        <div className="home-paths">{caminhos.map((item, i) => <article key={item.title}><span className="home-number">0{i + 1}</span><h3>{item.title}</h3><p>{item.text}</p><Link className="home-text-link" to={item.link}>{item.label}<ArrowUpRight size={18} aria-hidden="true" /></Link></article>)}</div>
+      </section>
+
+      <section className="home-wrap home-base home-team">
+        <img src={gustavo} alt="Gustavo Rosa, fundador da CareFit Run Base e ultramaratonista" loading="lazy" width="1100" height="1650" />
+        <div>
+          <p className="home-eyebrow">Quem cuida de você</p>
+          <h2>Feita por quem corre.<br /><span>Para quem corre.</span></h2>
+          <p>A CareFit nasceu do Gustavo Rosa, ultramaratonista, e da Lívia Dias, fisioterapeuta esportiva. Hoje a equipe tem também a Lais e o Igor na fisioterapia, o Lucas Pereira no fortalecimento e a Cintya na yoga.</p>
+          <p>Todo mundo aqui conhece a dor de quem treina para uma prova. E o sonho também.</p>
         </div>
       </section>
 
       <section className="home-wrap home-section home-stories">
         <div className="home-section-heading"><p className="home-eyebrow">Histórias de quem corre com a gente</p><h2>Cada chegada tem<br />uma história por trás.</h2></div>
-        <div className="home-videos">{[
-          { id: "62WMUc35hbo", name: "Thais Vignini", race: "Desafio Disney Wine & Dine" },
-          { id: "lbfcs-QlmDE", name: "Talita Kriunas", race: "Meia Maratona de Lisboa" },
-          { id: "XF8N96nULVg", name: "Léo Andrade", race: "Meia Maratona do Rio" },
-        ].map(person => <article key={person.id}><iframe src={`https://www.youtube-nocookie.com/embed/${person.id}`} title={`História de ${person.name} — ${person.race}`} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /><h3>{person.name}</h3><p>{person.race}</p></article>)}</div>
+        <div className="home-videos">{historias.map(person => <article key={person.id}><iframe src={`https://www.youtube-nocookie.com/embed/${person.id}`} title={`História de ${person.name} — ${person.race}`} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /><h3>{person.name}</h3><p>{person.race}</p></article>)}</div>
       </section>
 
       <section className="home-wrap home-base">
-        <img src={treino} alt="Área de fortalecimento da CareFit em Ribeirão Preto" loading="lazy" width="800" height="600" />
-        <div><p className="home-eyebrow"><MapPin size={14} aria-hidden="true" /> Sua base em Ribeirão Preto</p><h2>Um lugar para cuidar<br />de quem você é.<br /><span>E de onde quer chegar.</span></h2><p>Um espaço dedicado ao corredor, com equipe próxima e cuidado que vai além da sessão. Aqui, sua próxima prova importa. Os anos de corrida que vêm depois também.</p><Link className="home-text-link" to="/espaco">Conheça a nossa base <ArrowUpRight size={18} aria-hidden="true" /></Link></div>
+        <img src={imersao} alt="Área de imersão da CareFit Run Base em Ribeirão Preto" loading="lazy" width="1500" height="1000" />
+        <div><p className="home-eyebrow"><MapPin size={14} aria-hidden="true" /> Sua base em Ribeirão Preto</p><h2>Um espaço inteiro<br />pensado para o corredor.</h2><p>Sala de atendimento, imersão no gelo, ofurô e área de fortalecimento no mesmo lugar. Tudo com hora marcada, para o seu tempo ser respeitado.</p><Link className="home-text-link" to="/espaco">Conheça a nossa base <ArrowUpRight size={18} aria-hidden="true" /></Link></div>
       </section>
 
       <section className="home-start">
-        <div className="home-wrap home-start-inner"><div><p className="home-eyebrow">Vamos começar pela sua história</p><h2>O próximo passo é cuidar de você.</h2><p>Conheça a Primeira Sessão Dupla: dois encontros para entender seu momento e orientar os próximos passos da sua corrida.</p><ul><li><Check size={17} aria-hidden="true" /> Avaliação e cuidado personalizado</li><li><Check size={17} aria-hidden="true" /> Segunda sessão de cortesia</li></ul></div><div className="home-start-action"><Link className="home-button" to="/conheca-a-carefit">Conheça sua primeira sessão <ArrowRight size={18} aria-hidden="true" /></Link><a href={whatsapp} target="_blank" rel="noopener noreferrer">Tire suas dúvidas com a equipe</a></div></div>
+        <div className="home-wrap home-start-inner">
+          <div>
+            <p className="home-eyebrow">Vamos começar pela sua história</p>
+            <h2>Venha ver a diferença numa sessão.</h2>
+            <p>A Primeira Sessão Dupla são dois encontros: no primeiro, 80 minutos para entender sua história e iniciar o cuidado. No retorno, em até 15 dias, a gente avalia como seu corpo respondeu e ajusta os próximos passos.</p>
+            <ul><li><Check size={17} aria-hidden="true" /> Avaliação e cuidado individual</li><li><Check size={17} aria-hidden="true" /> Segunda sessão de cortesia</li></ul>
+            <p className="home-start-dor">Está com uma dor que limita a sua corrida? <Link to="/fisioterapia-para-corredores-ribeirao-preto">Comece pela avaliação de fisioterapia</Link>.</p>
+          </div>
+          <div className="home-start-action"><Link className="home-button" to="/conheca-a-carefit">Conheça sua primeira sessão <ArrowRight size={18} aria-hidden="true" /></Link><a href={whatsapp} target="_blank" rel="noopener noreferrer">Tire suas dúvidas com a equipe</a></div>
+        </div>
       </section>
     </main>
     <Footer />
