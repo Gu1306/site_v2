@@ -11,7 +11,9 @@ All colors MUST be HSL.
     /* CareFit Brand Colors - Convertidas para HSL correto */
     --primary: 186 59% 16%; /* Verde petróleo #0E3C41 convertido para HSL */
     --primary-glow: 186 59% 25%; /* Verde petróleo mais claro */
-    --secondary: 19 64% 51%; /* Terracota #C8643D convertido para HSL */
+    /* Terracota escurecido para #A84F1D (25/11/2026): o #C8643D dava 3,7:1 com texto branco
+       e reprovava. #A84F1D é o "terracota de texto" do design system (5,6:1 no branco). */
+    --secondary: 22 71% 39%;
     --warm: 30 50% 93%; /* Bege claro #F4EDE4 convertido para HSL */
     --earth: 44 42% 66%; /* Dourado #D4A656 convertido para HSL */
     
@@ -35,6 +37,13 @@ All colors MUST be HSL.
     --ring: 186 59% 16%; /* Verde petróleo para focus */
     --warm-foreground: 186 59% 16%;
     --earth-foreground: 186 59% 16%;
+
+    /* Cor de TEXTO de text-accent, text-earth e text-secondary (ver tailwind.config.ts).
+       O dourado dá 1,9:1 sobre branco; como texto em fundo claro, vira terracota de texto.
+       Sobre o verde, as regras logo abaixo do .dark devolvem o dourado (5,9:1). */
+    --accent-text: 22 71% 39%;
+    --earth-text: 22 71% 39%;
+    --secondary-text: 22 71% 39%;
 
     --radius: 0.75rem;
 
@@ -104,6 +113,28 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  /* Contraste (25/11/2026): dentro de área verde, o texto de acento volta a ser dourado e o
+     terracota fica claro; dentro de área clara aninhada, volta a versão escura. A variável
+     herda do ancestral mais próximo que a declara, então um cartão branco dentro de uma faixa
+     verde volta ao terracota escuro. */
+  .bg-primary, .from-primary, footer, .text-primary-foreground, .text-white {
+    --accent-text: var(--accent);
+    --earth-text: var(--earth);
+    --secondary-text: 20 72% 66%;
+  }
+  /* Ice Mind (25/11/2026): o laranja da página como texto. Escuro no claro (#B45309, 5,0:1),
+     claro nas faixas azul-petróleo (#F4A261, 4,7:1 sobre #1E4A58). */
+  :root { --im-laranja: #B45309; }
+  [class*="bg-[#1e4a58]" i], [class*="from-[#1e4a58]" i], [class*="bg-[#163842]" i], [class*="from-[#163842]" i] {
+    --im-laranja: #F4A261;
+  }
+  .bg-background, .bg-card, .bg-white, .bg-muted, .bg-warm, .bg-popover {
+    --im-laranja: #B45309;
+    --accent-text: 22 71% 39%;
+    --earth-text: 22 71% 39%;
+    --secondary-text: 22 71% 39%;
   }
 }
 

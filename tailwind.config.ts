@@ -78,6 +78,14 @@ export default {
 					white: 'hsl(0 0% 100%)' // Branco
 				}
 			},
+			// Contraste (25/11/2026): como TEXTO, accent, earth e secondary usam variáveis próprias,
+			// que valem terracota escuro em fundo claro e dourado/terracota claro sobre o verde
+			// (ver src/index.css). Fundo, borda e gradiente continuam com as cores de marca.
+			textColor: {
+				accent: { DEFAULT: 'hsl(var(--accent-text))' },
+				earth: { DEFAULT: 'hsl(var(--earth-text))' },
+				secondary: { DEFAULT: 'hsl(var(--secondary-text))' }
+			},
 			fontFamily: {
 				'montserrat': ['Montserrat', 'sans-serif'],
 				'poppins': ['Poppins', 'sans-serif'],

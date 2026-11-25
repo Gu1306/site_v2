@@ -18,9 +18,11 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm hover:shadow-md",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-gradient-to-r from-accent to-earth text-white font-semibold hover:from-accent/90 hover:to-earth/90 shadow-lg hover:shadow-xl transform hover:scale-105",
+        // Dourado com texto verde (5,9:1); com texto branco dava 1,9:1.
+        hero: "bg-earth text-primary font-semibold hover:bg-earth/90 shadow-lg hover:shadow-xl transform hover:scale-105",
         warm: "bg-warm text-warm-foreground hover:bg-warm/90 shadow-sm hover:shadow-md",
-        whatsapp: "bg-green-500 text-white hover:bg-green-600 shadow-lg hover:shadow-xl transform hover:scale-105",
+        // green-700 com texto branco dá 5,0:1; o green-500 dava 2,3:1.
+        whatsapp: "bg-green-700 text-white hover:bg-green-800 shadow-lg hover:shadow-xl transform hover:scale-105",
       },
       size: {
         default: "h-10 px-4 py-2",
