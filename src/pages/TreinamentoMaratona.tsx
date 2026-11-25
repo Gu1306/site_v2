@@ -2,6 +2,10 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Heart, Activity, MessageCircle, MapPin, CheckCircle } from "lucide-react";
 import Footer from "@/components/Footer";
+import { OFERTAS } from "@/lib/ofertasCarefit";
+
+const DUPLA = OFERTAS.dupla;
+const REABILITACAO = OFERTAS.reabilitacao;
 
 const desafios = [
   { nome: "Canelite", link: "/canelite-ribeirao-preto" },
@@ -16,11 +20,12 @@ const comoAjudamos = [
   { texto: "Fortalecimento específico", link: "/fortalecimento-para-corredores-ribeirao-preto" },
   { texto: "Protocolos de recovery", link: "/recovery-corredores-ribeirao-preto" },
   { texto: "Orientação de retorno ao treino", link: "" },
+  { texto: "Temporada: 6 meses de força e recovery, com recovery garantido na semana da prova-alvo", link: "/planos" },
 ];
 
 const TreinamentoMaratona = () => {
   const handleWhatsApp = () => {
-    window.open('https://api.whatsapp.com/send?phone=5516996008849', '_blank');
+    window.open("https://api.whatsapp.com/send?phone=5516996008849&text=" + encodeURIComponent("Oi! Estou num ciclo de maratona e quero saber como a CareFit pode ajudar."), "_blank");
   };
 
   return (
@@ -32,11 +37,11 @@ const TreinamentoMaratona = () => {
             Treinamento para Maratona em Ribeirão Preto
           </h1>
           <p className="text-xl text-white/90 max-w-3xl mx-auto mb-8">
-            Preparação segura para maratonas e meias maratonas com suporte especializado da CareFit Run Base.
+            Fisioterapia, fortalecimento e recovery para quem está num ciclo de maratona ou meia maratona. O treino de corrida continua com o seu treinador.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="hero" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
-              Agendar avaliação
+            <Button asChild variant="hero" size="lg" className="text-lg px-8 py-4">
+              <Link to={DUPLA.pagina}>Conheça a primeira sessão</Link>
             </Button>
             <Button variant="whatsapp" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
               <MessageCircle className="w-5 h-5" />
@@ -66,6 +71,9 @@ const TreinamentoMaratona = () => {
             </p>
             <p>
               Na <strong className="text-foreground">CareFit Run Base</strong> ajudamos corredores em Ribeirão Preto a se prepararem para maratonas e meias maratonas com suporte fisioterapêutico e treinamento complementar.
+            </p>
+            <p>
+              A gente não substitui o seu treinador. Cuidamos do corpo que sustenta o treino e conversamos com ele sempre que temos essa oportunidade.
             </p>
           </div>
         </div>
@@ -136,17 +144,21 @@ const TreinamentoMaratona = () => {
       </section>
 
       {/* CTA Final */}
-      <section className="py-20 bg-gradient-to-r from-accent to-earth">
+      <section className="py-20 bg-primary">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-6">
-            Agende sua Avaliação na CareFit Run Base
+            Comece pela sua primeira sessão
           </h2>
-          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            Se você está se preparando para uma maratona ou meia maratona em Ribeirão Preto, nossa equipe pode ajudar.
+          <p className="text-xl text-white/90 mb-4 max-w-2xl mx-auto">
+            Se você está se preparando para uma maratona ou meia maratona em Ribeirão Preto, a {DUPLA.nome} começa por uma avaliação do seu momento no ciclo.
+          </p>
+          <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
+            Está com uma dor que limita a corrida?{" "}
+            <Link to={REABILITACAO.pagina} className="underline hover:text-white">Comece pela {REABILITACAO.nome.toLowerCase()}</Link>.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Button variant="hero" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
-              Agendar avaliação
+            <Button asChild variant="hero" size="lg" className="text-lg px-8 py-4">
+              <Link to={DUPLA.pagina}>Conheça a primeira sessão</Link>
             </Button>
             <Button variant="whatsapp" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
               <MessageCircle className="w-5 h-5" />
