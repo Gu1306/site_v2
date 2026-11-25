@@ -10,7 +10,7 @@ import AgendamentoAulas, { type ConfigAgendamento } from "@/components/Agendamen
  * página muda sem erro no log.
  */
 export const ENDPOINT_YOGA =
-  "https://script.google.com/macros/s/AKfycbxh9ceNePIIaavA9WKaDBKstVAF7jeG0KC_UZ5eXKlLZUZHj2FRm64ErhMvS7JwMOzLYA/exec";
+  "https://script.google.com/macros/s/AKfycbwuLj030OziIIKcnlMngh6C3E7TsbN14f5OKYJ85FbOXNe7IUcfUcbNY2bWSc4nYZnACQ/exec";
 
 const CONFIG: ConfigAgendamento = {
   endpoint: ENDPOINT_YOGA,

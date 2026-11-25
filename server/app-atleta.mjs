@@ -25,7 +25,7 @@ export const MODALIDADES = {
   },
   yoga: {
     nome: 'Yoga',
-    url: 'https://script.google.com/macros/s/AKfycbxh9ceNePIIaavA9WKaDBKstVAF7jeG0KC_UZ5eXKlLZUZHj2FRm64ErhMvS7JwMOzLYA/exec',
+    url: 'https://script.google.com/macros/s/AKfycbwuLj030OziIIKcnlMngh6C3E7TsbN14f5OKYJ85FbOXNe7IUcfUcbNY2bWSc4nYZnACQ/exec',
     env: 'AGENDA_YOGA_URL',
   },
 };
