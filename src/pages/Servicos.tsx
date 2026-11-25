@@ -245,8 +245,8 @@ const Servicos = () => {
             <Button variant="hero" size="lg" onClick={() => window.open('https://api.whatsapp.com/send?phone=5516996008849', '_blank')}>
               Agende sua avaliação
             </Button>
-            <Button variant="outline" size="lg" className="bg-white/10 border-white text-white hover:bg-white hover:text-primary" onClick={() => navigate('/jornada')}>
-              Conhecer a jornada de 12 semanas
+            <Button variant="outline" size="lg" className="bg-white/10 border-white text-white hover:bg-white hover:text-primary" onClick={() => navigate('/planos')}>
+              Conhecer os planos
             </Button>
           </div>
         </div>

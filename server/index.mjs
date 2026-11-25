@@ -31,11 +31,14 @@ import { criarClienteAgenda, criarEnviadorWhatsapp, criarServicoApp, criarSessoe
 /**
  * Páginas que saíram do ar (25/11/2026) e para onde o endereço antigo leva,
  * com 301. /historia era a cópia antiga da /nossa-historia, com a equipe de
- * 2024; nutrição não é mais serviço da CareFit.
+ * 2024; nutrição não é mais serviço da CareFit; /jornada ("Ciclo Completo")
+ * vendia o programa de 12 semanas a R$ 5.400, que deu lugar ao Ciclo e à
+ * Temporada do /planos.
  */
 const PAGINAS_MOVIDAS = {
   '/historia': '/nossa-historia',
   '/nutricao-para-corredores-ribeirao-preto': '/',
+  '/jornada': '/planos',
 };
 
 const PREVIEWS = {

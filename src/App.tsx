@@ -16,7 +16,6 @@ import Index from "./pages/Index";
 const Manifesto = lazy(() => import("./pages/Manifesto"));
 const Servicos = lazy(() => import("./pages/Servicos"));
 const Planos = lazy(() => import("./pages/Planos"));
-const CicloCompleto = lazy(() => import("./pages/CicloCompleto"));
 const Espaco = lazy(() => import("./pages/Espaco"));
 const Comunidade = lazy(() => import("./pages/Comunidade"));
 const ComunidadeCareFit = lazy(() => import("./pages/ComunidadeCareFit"));
@@ -123,7 +122,8 @@ const App = () => (
             <Route path="/manifesto" element={<Manifesto />} />
             <Route path="/servicos" element={<Servicos />} />
             <Route path="/planos" element={<Planos />} />
-            <Route path="/jornada" element={<CicloCompleto />} />
+            {/* Era o programa de 12 semanas a R$ 5.400, que não existe mais; o servidor já responde 301 para /planos */}
+            <Route path="/jornada" element={<Navigate to="/planos" replace />} />
             {/* Página antiga, com a equipe de 2024; o servidor já responde 301 para /nossa-historia */}
             <Route path="/historia" element={<Navigate to="/nossa-historia" replace />} />
             <Route path="/espaco" element={<Espaco />} />
