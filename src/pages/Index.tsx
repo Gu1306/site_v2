@@ -35,11 +35,18 @@ const caminhos = [
   { title: "Yoga para corredores", text: "Mobilidade, respiração e consciência corporal para complementar a sua rotina de corrida.", link: "/agendamento-yoga", label: "Reserve sua aula de yoga" },
 ];
 
-const historias = [
-  { id: "62WMUc35hbo", name: "Thais Vignini", race: "Desafio Disney Wine & Dine" },
-  { id: "lbfcs-QlmDE", name: "Talita Kriunas", race: "Meia Maratona de Lisboa" },
-  { id: "XF8N96nULVg", name: "Léo Andrade", race: "Meia Maratona do Rio" },
+// Relatos curtos (cortes verticais de menos de 1 minuto), os mesmos da home anterior.
+const relatos = [
+  { arquivo: "ps03-thais-vignini-cheguei-com-dor", nome: "Thais Vignini", titulo: "Cheguei com dor na canela", fala: "A Lívia, ela explicava, me explicava tudo o que podia estar acontecendo ali." },
+  { arquivo: "ps05-talita-kriunas-entender-o-proprio-corpo", nome: "Talita Kriunas", titulo: "Entender o próprio corpo", fala: "Eles me explicavam o porquê das dores." },
+  { arquivo: "ps04-joao-galindo-arrumar-a-casinha", nome: "João Galindo", titulo: "Arrumar a casinha entre os treinos", fala: "Vir aqui fazer uma liberação é tão importante quanto um treino que você faz durante a semana." },
+  { arquivo: "ps02-edmar-carvalho-eles-ja-sabiam-minha-historia", nome: "Edmar Carvalho", titulo: "Eles já sabiam minha história", fala: "Eles sabem exatamente, baseado nisso, o que tem que fazer com você." },
 ];
+
+// Um vídeo por vez: ao dar play em um, os outros da home param.
+const tocarSoEste = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+  document.querySelectorAll<HTMLVideoElement>(".carefit-home video").forEach(v => { if (v !== e.currentTarget) v.pause(); });
+};
 
 export default function Index() {
   useSeo({
@@ -94,6 +101,20 @@ export default function Index() {
         </div>
       </section>
 
+      <section className="home-wrap home-reel" aria-labelledby="home-ferramentas">
+        <figure>
+          <video controls playsInline preload="none" poster="/videos/livia-8-ferramentas-capa.jpg" onPlay={tocarSoEste} aria-label="Lívia Dias apresenta as 8 ferramentas da CareFit Run Base">
+            <source src="/videos/livia-8-ferramentas-web.mp4" type="video/mp4" />
+          </video>
+        </figure>
+        <div>
+          <p className="home-eyebrow">A CareFit em um minuto</p>
+          <h2 id="home-ferramentas">Oito ferramentas olhando<br />o corredor inteiro.</h2>
+          <p>Se o seu fisio não sabe quanto você correu essa semana, ele está trabalhando no palpite. A Lívia mostra como o seu treino, a sua força, o gelo e a sua história entram na mesma sessão, e como tudo fica registrado.</p>
+          <a className="home-text-link" href="https://www.instagram.com/carefitrunbase/reel/De4mHE1Spng/" target="_blank" rel="noopener noreferrer">Ver no nosso Instagram <ArrowUpRight size={18} aria-hidden="true" /></a>
+        </div>
+      </section>
+
       <section className="home-method">
         <div className="home-wrap home-method-inner">
           <div>
@@ -135,8 +156,13 @@ export default function Index() {
       </section>
 
       <section className="home-wrap home-section home-stories">
-        <div className="home-section-heading"><p className="home-eyebrow">Histórias de quem corre com a gente</p><h2>Cada chegada tem<br />uma história por trás.</h2></div>
-        <div className="home-videos">{historias.map(person => <article key={person.id}><iframe src={`https://www.youtube-nocookie.com/embed/${person.id}`} title={`História de ${person.name} — ${person.race}`} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /><h3>{person.name}</h3><p>{person.race}</p></article>)}</div>
+        <div className="home-section-heading"><p className="home-eyebrow">Relatos de quem corre com a gente</p><h2>Quem já passou por aqui<br />conta como é.</h2></div>
+        <div className="home-relatos" role="list" aria-label="Relatos em vídeo">{relatos.map(r => <figure role="listitem" key={r.arquivo}>
+          <video controls playsInline preload="none" poster={`/jornada-home/videos/${r.arquivo}-capa.jpg`} onPlay={tocarSoEste} aria-label={`Relato de ${r.nome}: ${r.titulo}`}>
+            <source src={`/jornada-home/videos/${r.arquivo}-web.mp4`} type="video/mp4" />
+          </video>
+          <figcaption><strong>{r.titulo}</strong><q>{r.fala}</q><span>{r.nome}</span></figcaption>
+        </figure>)}</div>
       </section>
 
       <section className="home-wrap home-base">
