@@ -43,7 +43,7 @@ const PrevencaoLesoes = () => {
           <p className="text-xl text-white/90 max-w-3xl mx-auto mb-6">
             Estratégias baseadas em ciência para correr com mais segurança, reduzir o risco de lesões e evoluir de forma consistente na corrida.
           </p>
-          <p className="text-lg text-white/80 max-w-3xl mx-auto mb-8">
+          <p className="text-lg text-white/90 max-w-3xl mx-auto mb-8">
             Na CareFit Run Base, em Ribeirão Preto, ajudamos corredores e triatletas a prevenir lesões através de uma abordagem integrada que combina fisioterapia esportiva, fortalecimento específico, recovery e acompanhamento especializado.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -273,7 +273,7 @@ const PrevencaoLesoes = () => {
       </section>
 
       {/* CTA Final */}
-      <section className="py-20 bg-gradient-to-r from-accent to-earth">
+      <section className="py-20 bg-primary">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-6">
             Agende sua Avaliação na CareFit Run Base

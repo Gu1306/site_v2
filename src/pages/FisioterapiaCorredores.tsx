@@ -326,7 +326,7 @@ const FisioterapiaCorredores = () => {
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
             Se você é corredor ou triatleta em Ribeirão Preto e quer tratar uma lesão, prevenir problemas futuros ou melhorar sua performance na corrida, agende sua avaliação na CareFit Run Base.
           </p>
-          <p className="text-lg text-white/80 mb-10 max-w-2xl mx-auto">
+          <p className="text-lg text-white/90 mb-10 max-w-2xl mx-auto">
             Nossa equipe especializada em fisioterapia esportiva para corredores está pronta para ajudar você a correr melhor e com mais segurança.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -348,7 +348,7 @@ const FisioterapiaCorredores = () => {
               Falar no WhatsApp
             </Button>
           </div>
-          <p className="text-white/70 text-sm mt-6">
+          <p className="text-white/90 text-sm mt-6">
             Av. Áurea Aparecida Bragheto Machado, 241 — Ribeirão Preto, SP
           </p>
         </div>

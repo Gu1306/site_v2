@@ -101,7 +101,7 @@ const Blog = () => {
 
       <main className="container mx-auto px-4 py-10 md:py-14">
         {filtrados.length === 0 ? (
-          <p className="py-20 text-center font-poppins text-primary/60">
+          <p className="py-20 text-center font-poppins text-primary/75">
             Nada em {secao} ainda.
           </p>
         ) : (
@@ -119,7 +119,7 @@ const Blog = () => {
                 <p className="font-poppins font-light text-lg md:text-xl leading-relaxed text-primary/80 max-w-[62ch] mb-5">
                   {manchete.descricao}
                 </p>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-poppins text-[13px] text-primary/60">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-poppins text-[13px] text-primary/75">
                   <span>{formatarData(manchete.data)}</span>
                   <span>·</span>
                   <span>{manchete.autor}</span>
@@ -159,7 +159,7 @@ const Blog = () => {
                           {prova.cidade !== "Ribeirão Preto" && ` · ${prova.cidade}`}
                         </div>
                         {!prova.confirmado && (
-                          <div className="font-poppins text-[11px] text-primary/45 mt-0.5">
+                          <div className="font-poppins text-[11px] text-primary/75 mt-0.5">
                             data não confirmada na fonte
                           </div>
                         )}
@@ -229,7 +229,7 @@ const CartaoPost = ({ post }: { post: Post }) => (
       <p className="font-poppins font-light text-sm leading-relaxed text-primary/75 mb-3">
         {post.descricao}
       </p>
-      <div className="font-poppins text-xs text-primary/55">
+      <div className="font-poppins text-xs text-primary/75">
         {formatarData(post.data)} · {post.minutosDeLeitura} min
       </div>
     </Link>

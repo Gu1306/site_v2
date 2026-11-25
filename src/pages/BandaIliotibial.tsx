@@ -224,7 +224,7 @@ const BandaIliotibial = () => {
               <MessageCircle className="w-5 h-5" /> Falar no WhatsApp
             </Button>
           </div>
-          <p className="text-white/70 text-sm mt-6">Av. Áurea Aparecida Bragheto Machado, 241 — Ribeirão Preto, SP</p>
+          <p className="text-white/90 text-sm mt-6">Av. Áurea Aparecida Bragheto Machado, 241 — Ribeirão Preto, SP</p>
         </div>
       </section>
 

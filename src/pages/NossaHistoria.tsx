@@ -897,7 +897,7 @@ const NossaHistoria = () => {
 
       {/* SEÇÃO 6: CTA FINAL ✅ COMPLETA */}
       <section 
-        className="py-16 lg:py-24 bg-gradient-to-r from-primary via-primary/90 to-earth"
+        className="py-16 lg:py-24 bg-primary"
         aria-labelledby="cta-heading"
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-fade-in">

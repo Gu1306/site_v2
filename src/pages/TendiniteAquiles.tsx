@@ -206,7 +206,7 @@ const TendiniteAquiles = () => {
       <section className="py-20 bg-gradient-to-r from-primary to-secondary">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-6">Agende sua Avaliação na CareFit Run Base</h2>
-          <p className="text-lg text-white/80 mb-6 max-w-2xl mx-auto">
+          <p className="text-lg text-white/90 mb-6 max-w-2xl mx-auto">
             A CareFit Run Base é um centro especializado em fisioterapia esportiva para corredores em Ribeirão Preto, com experiência no tratamento de lesões causadas pela corrida.
           </p>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
@@ -218,7 +218,7 @@ const TendiniteAquiles = () => {
               <MessageCircle className="w-5 h-5" /> Falar no WhatsApp
             </Button>
           </div>
-          <p className="text-white/70 text-sm mt-6">Av. Áurea Aparecida Bragheto Machado, 241 — Ribeirão Preto, SP</p>
+          <p className="text-white/90 text-sm mt-6">Av. Áurea Aparecida Bragheto Machado, 241 — Ribeirão Preto, SP</p>
         </div>
       </section>
 

@@ -201,7 +201,7 @@ const Footer = () => {
               {" · "}
               <a href="tel:+5516996008849" className="hover:text-accent transition-colors">(16) 99600-8849</a>
             </address>
-            <p className="text-xs text-primary-foreground/50">
+            <p className="text-xs text-primary-foreground/70">
               © {new Date().getFullYear()} CareFit Run Base. Todos os direitos reservados. Ribeirão Preto - SP
             </p>
             <p className="text-xs text-primary-foreground/60 flex gap-3">

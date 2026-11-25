@@ -50,7 +50,7 @@ const NotFound = () => {
           </div>
 
           <div className="border-t border-border pt-8">
-            <p className="text-sm text-primary/60 font-poppins mb-4 uppercase tracking-wider font-semibold">
+            <p className="text-sm text-primary/75 font-poppins mb-4 uppercase tracking-wider font-semibold">
               Talvez você procurasse
             </p>
             <div className="flex flex-wrap justify-center gap-3">

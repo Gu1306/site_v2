@@ -45,7 +45,7 @@ const LandingPerformance = () => {
       <section className="relative pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--accent))_0%,transparent_50%)]" />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 bg-accent/20 border border-accent/40 text-accent px-4 py-2 rounded-full text-sm font-semibold mb-8 animate-fade-in">
+          <div className="inline-flex items-center gap-2 bg-accent/10 border border-accent/40 text-[#E9DDB8] px-4 py-2 rounded-full text-sm font-semibold mb-8 animate-fade-in">
             <Zap className="w-4 h-4" />
             CAREFIT PERFORMANCE — RIBEIRÃO PRETO
           </div>

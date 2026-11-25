@@ -160,7 +160,7 @@ const AppAtleta = () => {
     <div className="min-h-screen bg-background px-4 pb-10 pt-6 sm:px-6 sm:pt-10">
       <div className="mx-auto w-full max-w-xl">
         {tela.nome === "verificando" ? (
-          <div className="grid min-h-[60vh] place-items-center text-primary/60" role="status">
+          <div className="grid min-h-[60vh] place-items-center text-primary/75" role="status">
             <span className="flex items-center gap-2 text-sm">
               <Loader2 className="h-4 w-4 animate-spin" /> Abrindo...
             </span>
@@ -228,7 +228,7 @@ const Entrar = ({ aoEntrar }: { aoEntrar: () => void }) => {
   };
 
   const campo =
-    "w-full min-h-[52px] rounded-xl border border-primary/15 bg-white px-4 text-lg text-primary outline-none placeholder:text-primary/30 focus:border-primary/40 focus:ring-2 focus:ring-primary/15";
+    "w-full min-h-[52px] rounded-xl border border-primary/15 bg-white px-4 text-lg text-primary outline-none placeholder:text-primary/75 focus:border-primary/40 focus:ring-2 focus:ring-primary/15";
 
   return (
     <div className="pt-6 sm:pt-10">
@@ -309,7 +309,7 @@ const Entrar = ({ aoEntrar }: { aoEntrar: () => void }) => {
                 Mandar outro código
               </button>
             </div>
-            <p className="mt-3 text-xs leading-relaxed text-primary/55">
+            <p className="mt-3 text-xs leading-relaxed text-primary/75">
               Não chegou? O número pode estar diferente no cadastro. Fala com a gente no WhatsApp{" "}
               {WHATSAPP_CAREFIT}.
             </p>
@@ -317,7 +317,7 @@ const Entrar = ({ aoEntrar }: { aoEntrar: () => void }) => {
         )}
       </div>
 
-      <p className="mt-5 text-center text-[13px] leading-relaxed text-primary/60">
+      <p className="mt-5 text-center text-[13px] leading-relaxed text-primary/75">
         Ainda não é atleta CareFit? Reserve direto pela página de{" "}
         <a className="font-medium text-primary underline underline-offset-2" href="/agendamento-fortalecimento">
           fortalecimento
@@ -339,7 +339,7 @@ const dataCurta = (iso: string) => iso.split("-").reverse().join("/");
 
 const Numero = ({ rotulo, valor }: { rotulo: string; valor: number | string }) => (
   <div className="rounded-xl bg-primary/5 px-2 py-2">
-    <dt className="text-[10px] font-medium uppercase tracking-[0.08em] text-primary/55">{rotulo}</dt>
+    <dt className="text-[10px] font-medium uppercase tracking-[0.08em] text-primary/75">{rotulo}</dt>
     <dd className="mt-0.5 text-sm font-semibold text-primary">{valor}</dd>
   </div>
 );
@@ -390,7 +390,7 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
         <button
           type="button"
           onClick={aoSair}
-          className="flex min-h-[40px] items-center gap-1.5 rounded-lg px-2 text-[13px] font-medium text-primary/60 hover:text-primary"
+          className="flex min-h-[40px] items-center gap-1.5 rounded-lg px-2 text-[13px] font-medium text-primary/75 hover:text-primary"
         >
           <LogOut className="h-4 w-4" /> Sair
         </button>
@@ -408,11 +408,11 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
       ))}
 
       <section className="mt-6" aria-labelledby="titulo-aulas">
-        <h2 id="titulo-aulas" className="text-[13px] font-medium uppercase tracking-[0.09em] text-primary/55">
+        <h2 id="titulo-aulas" className="text-[13px] font-medium uppercase tracking-[0.09em] text-primary/75">
           Suas próximas aulas
         </h2>
         {reservas.length === 0 ? (
-          <p className="mt-3 rounded-2xl border border-dashed border-primary/20 px-4 py-6 text-center text-sm text-primary/60">
+          <p className="mt-3 rounded-2xl border border-dashed border-primary/20 px-4 py-6 text-center text-sm text-primary/75">
             Você não tem aula reservada.
           </p>
         ) : (
@@ -442,14 +442,14 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
       </section>
 
       <section className="mt-7" aria-labelledby="titulo-fisio">
-        <h2 id="titulo-fisio" className="text-[13px] font-medium uppercase tracking-[0.09em] text-primary/55">
+        <h2 id="titulo-fisio" className="text-[13px] font-medium uppercase tracking-[0.09em] text-primary/75">
           Agendar sessão com fisioterapeuta
         </h2>
         <div className="mt-3 grid gap-2.5">
           {AGENDAS_FISIO.filter((tipo) => tipo.agendas.length > 0).map((tipo) => (
             <article key={tipo.titulo} className="rounded-2xl border border-primary/10 bg-white px-5 py-5">
               <h3 className="text-sm font-semibold text-primary">{tipo.titulo}</h3>
-              <p className="mt-0.5 text-xs text-primary/60">{tipo.detalhe}</p>
+              <p className="mt-0.5 text-xs text-primary/75">{tipo.detalhe}</p>
               <div className="mt-3 grid grid-cols-3 gap-2">
                 {tipo.agendas.map((agenda) => {
                   const meu = Boolean(inicio.fisio) && semAcento(inicio.fisio || "") === semAcento(agenda.nome);
@@ -474,7 +474,7 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
             </article>
           ))}
         </div>
-        <p className="mt-3 text-xs leading-relaxed text-primary/60">
+        <p className="mt-3 text-xs leading-relaxed text-primary/75">
           Toque no nome para ver os horários livres e reservar. Para remarcar ou cancelar, avise com 24 horas de
           antecedência.
         </p>
@@ -482,7 +482,7 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
 
       {(pacote.temPacote || planos.length > 0) && (
         <section className="mt-7" aria-labelledby="titulo-em-aberto">
-          <h2 id="titulo-em-aberto" className="text-[13px] font-medium uppercase tracking-[0.09em] text-primary/55">
+          <h2 id="titulo-em-aberto" className="text-[13px] font-medium uppercase tracking-[0.09em] text-primary/75">
             O que você tem com a gente
           </h2>
           <div className="mt-3 grid gap-2.5">
@@ -500,7 +500,7 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
                   <Numero rotulo="Feitas" valor={pacote.feitas} />
                   <Numero rotulo="Validade" valor={pacote.validade ? dataCurta(pacote.validade) : "—"} />
                 </dl>
-                <p className="mt-3 text-xs leading-relaxed text-primary/60">
+                <p className="mt-3 text-xs leading-relaxed text-primary/75">
                   O saldo atualiza em até 15 minutos depois de reservar ou cancelar.
                 </p>
               </article>
@@ -552,7 +552,7 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
           <MessageCircle className="h-5 w-5" aria-hidden="true" />
           Falar com a CareFit no WhatsApp
         </a>
-        <p className="mt-2 text-center text-xs leading-relaxed text-primary/60">
+        <p className="mt-2 text-center text-xs leading-relaxed text-primary/75">
           {planos.length > 0 ? "Para marcar sua sessão ou tirar dúvida. " : "Para tirar dúvida ou falar com a equipe. "}
           {WHATSAPP_CAREFIT}
         </p>

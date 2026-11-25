@@ -376,7 +376,7 @@ const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: Mo
             </button>
           )}
           <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1">
-            <p className="text-[11px] font-medium uppercase tracking-[0.13em] text-earth">
+            <p className="text-[11px] font-medium uppercase tracking-[0.13em] text-[#E9DDB8]">
               {config.eyebrow}
             </p>
             <span className="flex items-center gap-2 text-[11px] text-primary-foreground/70">
@@ -405,7 +405,7 @@ const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: Mo
                 <li
                   key={rotulo}
                   className={`flex items-center gap-2 text-[11px] ${
-                    feito || ativo ? "text-primary-foreground" : "text-primary-foreground/50"
+                    feito || ativo ? "text-primary-foreground" : "text-primary-foreground/70"
                   }`}
                   aria-current={ativo ? "step" : undefined}
                 >
@@ -450,7 +450,7 @@ const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: Mo
                   </>
                 )}
               </p>
-              <p className="mx-auto mt-3 max-w-md text-sm text-primary/60">
+              <p className="mx-auto mt-3 max-w-md text-sm text-primary/75">
                 📍 {ENDERECO}. Chega uns 10 minutos antes para trocar de roupa e aquecer.{" "}
                 {app
                   ? "Precisa cancelar? É só tocar em Cancelar na sua lista de aulas, e a vaga volta para a turma."
@@ -484,7 +484,7 @@ const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: Mo
             /* -------------------------------------------------------- Dados */
             <section>
               <h2 className="text-xl font-semibold text-primary sm:text-2xl">3. Confirme seus dados</h2>
-              <p className="mt-1.5 text-[13px] text-primary/60">
+              <p className="mt-1.5 text-[13px] text-primary/75">
                 Usamos essas informações para identificar e confirmar sua reserva.
               </p>
 
@@ -503,7 +503,7 @@ const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: Mo
                     onChange={(e) => setNome(e.target.value)}
                     placeholder="Seu nome"
                     autoComplete="name"
-                    className="w-full min-h-[48px] rounded-xl border border-primary/15 bg-white/70 px-3 text-primary outline-none placeholder:text-primary/35 focus:border-primary/40 focus:ring-2 focus:ring-primary/15"
+                    className="w-full min-h-[48px] rounded-xl border border-primary/15 bg-white/70 px-3 text-primary outline-none placeholder:text-primary/70 focus:border-primary/40 focus:ring-2 focus:ring-primary/15"
                   />
                 </Campo>
                 <Campo rotulo="WhatsApp com DDD">
@@ -514,7 +514,7 @@ const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: Mo
                     onChange={(e) => setWhatsapp(e.target.value)}
                     placeholder="16999998888"
                     autoComplete="tel"
-                    className="w-full min-h-[48px] rounded-xl border border-primary/15 bg-white/70 px-3 text-primary outline-none placeholder:text-primary/35 focus:border-primary/40 focus:ring-2 focus:ring-primary/15"
+                    className="w-full min-h-[48px] rounded-xl border border-primary/15 bg-white/70 px-3 text-primary outline-none placeholder:text-primary/70 focus:border-primary/40 focus:ring-2 focus:ring-primary/15"
                   />
                 </Campo>
                 <div className="sm:col-span-2">
@@ -525,7 +525,7 @@ const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: Mo
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="voce@email.com"
                       autoComplete="email"
-                      className="w-full min-h-[48px] rounded-xl border border-primary/15 bg-white/70 px-3 text-primary outline-none placeholder:text-primary/35 focus:border-primary/40 focus:ring-2 focus:ring-primary/15"
+                      className="w-full min-h-[48px] rounded-xl border border-primary/15 bg-white/70 px-3 text-primary outline-none placeholder:text-primary/70 focus:border-primary/40 focus:ring-2 focus:ring-primary/15"
                     />
                   </Campo>
                 </div>
@@ -579,7 +579,7 @@ const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: Mo
                   <h2 className="text-xl font-semibold leading-tight text-primary sm:text-2xl">
                     Escolha uma data
                   </h2>
-                  <p className="mt-1 text-[13px] text-primary/60">
+                  <p className="mt-1 text-[13px] text-primary/75">
                     Os dias com ponto verde têm aula com vaga.
                   </p>
                 </div>
@@ -614,7 +614,7 @@ const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: Mo
                     {SEMANA_CURTA.map((dia) => (
                       <span
                         key={dia}
-                        className="grid min-h-[25px] place-items-center text-[10px] font-medium uppercase text-primary/50"
+                        className="grid min-h-[25px] place-items-center text-[10px] font-medium uppercase text-primary/75"
                       >
                         {dia}
                       </span>
@@ -668,7 +668,7 @@ const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: Mo
                     })}
                   </div>
 
-                  <div className="mt-3.5 flex flex-col gap-1.5 border-t border-primary/10 pt-3 text-[11px] text-primary/60 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="mt-3.5 flex flex-col gap-1.5 border-t border-primary/10 pt-3 text-[11px] text-primary/75 sm:flex-row sm:items-center sm:justify-between">
                     <span className="flex items-center gap-2">
                       <span className="h-[7px] w-[7px] rounded-full bg-emerald-700" /> Data com vaga
                     </span>
@@ -685,7 +685,7 @@ const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: Mo
                   aria-live="polite"
                 >
                   {carregando && !aulasDoMes ? (
-                    <div className="grid min-h-[170px] place-items-center text-primary/60 lg:min-h-[354px]">
+                    <div className="grid min-h-[170px] place-items-center text-primary/75 lg:min-h-[354px]">
                       <span className="flex items-center gap-2 text-sm">
                         <Loader2 className="h-4 w-4 animate-spin" /> Carregando a agenda...
                       </span>
@@ -704,7 +704,7 @@ const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: Mo
                       </div>
                     </div>
                   ) : !dataSelecionada ? (
-                    <div className="grid min-h-[170px] place-items-center text-center text-primary/60 lg:min-h-[354px]">
+                    <div className="grid min-h-[170px] place-items-center text-center text-primary/75 lg:min-h-[354px]">
                       <div>
                         <div className="mx-auto mb-3 grid h-[54px] w-[54px] place-items-center rounded-2xl border border-primary/10 bg-white text-base font-medium text-primary">
                           {new Date().getDate()}
@@ -726,14 +726,14 @@ const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: Mo
                         <h3 className="mt-1 text-lg font-medium text-primary">
                           {capitalizar(porExtenso(dataSelecionada))}
                         </h3>
-                        <p className="mt-0.5 text-[11px] text-primary/55">
+                        <p className="mt-0.5 text-[11px] text-primary/75">
                           Horários de início e término da aula
                         </p>
                       </div>
 
                       <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
                         {aulasDoDia.length === 0 ? (
-                          <p className="py-6 text-center text-sm text-primary/60 sm:col-span-3">
+                          <p className="py-6 text-center text-sm text-primary/75 sm:col-span-3">
                             Nenhum horário nesse dia. Escolha outra data.
                           </p>
                         ) : (
@@ -759,7 +759,7 @@ const AgendamentoAulas = ({ config, app }: { config: ConfigAgendamento; app?: Mo
                                   escolhida
                                     ? "border-secondary bg-secondary text-secondary-foreground"
                                     : lotada
-                                      ? "cursor-not-allowed border-primary/10 bg-primary/5 text-primary/45"
+                                      ? "cursor-not-allowed border-primary/10 bg-primary/5 text-primary/75"
                                       : "border-primary/10 bg-white text-primary hover:border-primary/25"
                                 }`}
                               >

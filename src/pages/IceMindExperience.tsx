@@ -63,23 +63,23 @@ const IceMindExperience = () => {
   }, []);
   return <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#2C5F6F] via-[#1e4a58] to-[#163842] overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1E4A58] via-[#1e4a58] to-[#163842] overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#E8933D] rounded-full blur-3xl" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#B45309] rounded-full blur-3xl" />
         </div>
         
         <div className="container mx-auto px-6 py-20 relative z-10 text-center">
           <div className="max-w-4xl mx-auto">
             <div className="mb-6">
-              <span className="inline-block px-4 py-2 bg-[#E8933D]/20 text-[#E8933D] rounded-full text-sm font-semibold uppercase tracking-wider">
+              <span className="inline-block px-4 py-2 bg-[#E8933D]/20 text-white rounded-full text-sm font-semibold uppercase tracking-wider">
                 Ice Mind Experience
               </span>
             </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Onde a Mente Encontra Seu Limite - <span className="text-[#E8933D]">e o Ultrapassa.</span>
+              Onde a Mente Encontra Seu Limite - <span className="text-[color:var(--im-laranja)]">e o Ultrapassa.</span>
             </h1>
             
             <p className="text-xl md:text-2xl text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed">
@@ -87,7 +87,7 @@ const IceMindExperience = () => {
               Uma aula prática de 2 horas sobre regulação emocional, guiada por um ultramaratonista.
             </p>
             
-            <p className="text-lg text-white/60 mb-8 max-w-2xl mx-auto">Você já sentiu que sua mente é o seu maior limitador? Que o estresse te controla? Que você tem potencial mas não consegue acessá-lo? Você não está sozinho - e existe um caminho. Um caminho de volta para o controle, para a presença e para a sua melhor versão.
+            <p className="text-lg text-white/75 mb-8 max-w-2xl mx-auto">Você já sentiu que sua mente é o seu maior limitador? Que o estresse te controla? Que você tem potencial mas não consegue acessá-lo? Você não está sozinho - e existe um caminho. Um caminho de volta para o controle, para a presença e para a sua melhor versão.
 
           </p>
             
@@ -98,30 +98,30 @@ const IceMindExperience = () => {
               {turmaAberta ? (
                 <div className="flex flex-col items-center gap-1 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 md:w-5 md:h-5 text-[#E8933D]" />
+                    <Calendar className="w-4 h-4 md:w-5 md:h-5 text-[color:var(--im-laranja)]" />
                     <span className="text-white text-sm md:text-base font-medium">{EVENTO.dataLabel}</span>
                   </div>
                   <span className="text-white/70 text-xs md:text-sm">{EVENTO.chamadaDia}</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
-                  <Calendar className="w-4 h-4 md:w-5 md:h-5 text-[#E8933D]" />
+                  <Calendar className="w-4 h-4 md:w-5 md:h-5 text-[color:var(--im-laranja)]" />
                   <span className="text-white text-sm md:text-base font-medium">Próxima turma em definição</span>
                 </div>
               )}
               <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
-                <Clock className="w-4 h-4 md:w-5 md:h-5 text-[#E8933D]" />
+                <Clock className="w-4 h-4 md:w-5 md:h-5 text-[color:var(--im-laranja)]" />
                 <span className="text-white text-sm md:text-base font-medium">{EVENTO.horario}</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
-                <Users className="w-4 h-4 md:w-5 md:h-5 text-[#E8933D]" />
+                <Users className="w-4 h-4 md:w-5 md:h-5 text-[color:var(--im-laranja)]" />
                 <span className="text-white text-sm md:text-base font-medium">{EVENTO.vagas}</span>
               </div>
             </div>
 
             {turmaAberta ? (
               <>
-              <Button size="lg" className="bg-[#E8933D] hover:bg-[#d4832f] text-white text-sm md:text-lg px-6 md:px-10 py-5 md:py-6 rounded-full font-bold shadow-lg shadow-[#E8933D]/30 transition-all hover:scale-105" asChild>
+              <Button size="lg" className="bg-[#B45309] hover:bg-[#92400E] text-white text-sm md:text-lg px-6 md:px-10 py-5 md:py-6 rounded-full font-bold shadow-lg shadow-[#E8933D]/30 transition-all hover:scale-105" asChild>
                 <a href="#agendamento" onClick={e => {
                 e.preventDefault();
                 document.getElementById("agendamento")?.scrollIntoView({
@@ -131,10 +131,10 @@ const IceMindExperience = () => {
               }}>GARANTIR MINHA VAGA POR {EVENTO.preco}<ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
                 </a>
               </Button>
-              <p className="mt-4 text-[#E8933D] text-sm md:text-base font-semibold">{EVENTO.descontoAtleta}</p>
+              <p className="mt-4 text-[color:var(--im-laranja)] text-sm md:text-base font-semibold">{EVENTO.descontoAtleta}</p>
               </>
             ) : (
-              <Button size="lg" className="bg-[#E8933D] hover:bg-[#d4832f] text-white text-sm md:text-lg px-6 md:px-10 py-5 md:py-6 rounded-full font-bold shadow-lg shadow-[#E8933D]/30 transition-all hover:scale-105" asChild>
+              <Button size="lg" className="bg-[#B45309] hover:bg-[#92400E] text-white text-sm md:text-lg px-6 md:px-10 py-5 md:py-6 rounded-full font-bold shadow-lg shadow-[#E8933D]/30 transition-all hover:scale-105" asChild>
                 <a href={WHATSAPP_LISTA_ESPERA} target="_blank" rel="noopener noreferrer">
                   ENTRAR NA LISTA DE ESPERA<ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
                 </a>
@@ -156,9 +156,9 @@ const IceMindExperience = () => {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-[#3D3D3D] mb-4">
-              Quem Já Viveu, <span className="text-[#E8933D]">Recomenda.</span>
+              Quem Já Viveu, <span className="text-[color:var(--im-laranja)]">Recomenda.</span>
             </h2>
-            <p className="text-xl text-[#3D3D3D]/70">
+            <p className="text-xl text-[#3D3D3D]/80">
               Relatos reais de quem passou pela experiência Ice Mind.
             </p>
           </div>
@@ -176,7 +176,7 @@ const IceMindExperience = () => {
               padding: 0,
               width: '100%'
             }}>
-                <a href="https://www.instagram.com/reel/DEaTTV8xfED/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center p-8 text-[#2C5F6F] hover:text-[#E8933D] transition-colors">
+                <a href="https://www.instagram.com/reel/DEaTTV8xfED/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center p-8 text-[#2C5F6F] hover:text-[color:var(--im-laranja)] transition-colors">
                   <Instagram className="w-8 h-8 mr-2" />
                   Ver no Instagram
                 </a>
@@ -195,7 +195,7 @@ const IceMindExperience = () => {
               padding: 0,
               width: '100%'
             }}>
-                <a href="https://www.instagram.com/reel/DGaiAB1xgt4/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center p-8 text-[#2C5F6F] hover:text-[#E8933D] transition-colors">
+                <a href="https://www.instagram.com/reel/DGaiAB1xgt4/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center p-8 text-[#2C5F6F] hover:text-[color:var(--im-laranja)] transition-colors">
                   <Instagram className="w-8 h-8 mr-2" />
                   Ver no Instagram
                 </a>
@@ -214,7 +214,7 @@ const IceMindExperience = () => {
               padding: 0,
               width: '100%'
             }}>
-                <a href="https://www.instagram.com/reel/DCehwwgRx_I/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center p-8 text-[#2C5F6F] hover:text-[#E8933D] transition-colors">
+                <a href="https://www.instagram.com/reel/DCehwwgRx_I/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center p-8 text-[#2C5F6F] hover:text-[color:var(--im-laranja)] transition-colors">
                   <Instagram className="w-8 h-8 mr-2" />
                   Ver no Instagram
                 </a>
@@ -226,11 +226,11 @@ const IceMindExperience = () => {
       </section>
 
       {/* Section 2: Os Guias */}
-      <section className="py-20 md:py-32 bg-[#2C5F6F]">
+      <section className="py-20 md:py-32 bg-[#1E4A58]">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-              Você Não Está Sozinho. <span className="text-[#E8933D]">Você Tem um Guia.</span>
+              Você Não Está Sozinho. <span className="text-[color:var(--im-laranja)]">Você Tem um Guia.</span>
             </h2>
             <p className="text-xl text-white/70">
               Quem já atravessou o próprio limite conduz você pelo seu.
@@ -244,7 +244,7 @@ const IceMindExperience = () => {
                 <img src={gustavoFoto} alt="Gustavo Rosa" className="w-full h-full object-cover" />
               </div>
               <h3 className="text-2xl font-bold text-[#3D3D3D] mb-2 text-center">Gustavo Rosa</h3>
-              <p className="text-[#E8933D] font-semibold text-center mb-2">ULTRAMARATONISTA | A PRÁTICA DA RESILIÊNCIA</p>
+              <p className="text-[color:var(--im-laranja)] font-semibold text-center mb-2">ULTRAMARATONISTA | A PRÁTICA DA RESILIÊNCIA</p>
               <p className="text-sm text-gray-500 text-center mb-4">130km | 20+ Ultramaratonas | Fundador CareFit</p>
               <p className="text-[#3D3D3D]/80 text-center leading-relaxed mb-4">
                 Gustavo viveu na pele o poder do gelo e da respiração para superar limites que
@@ -264,9 +264,9 @@ const IceMindExperience = () => {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-[#3D3D3D] mb-4">
-              Seu Plano de <span className="text-[#E8933D]">Transformação Mental.</span>
+              Seu Plano de <span className="text-[color:var(--im-laranja)]">Transformação Mental.</span>
             </h2>
-            <p className="text-xl text-[#3D3D3D]/70">
+            <p className="text-xl text-[#3D3D3D]/80">
               120 minutos para transformar dois minutos de gelo numa habilidade que você usa na segunda-feira.
             </p>
           </div>
@@ -274,37 +274,37 @@ const IceMindExperience = () => {
           {/* Timeline Container */}
           <div className="relative max-w-5xl mx-auto">
             {/* Timeline Line - Desktop */}
-            <div className="hidden md:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-[#2C5F6F] via-[#E8933D] to-[#2C5F6F] transform -translate-y-1/2 rounded-full" />
+            <div className="hidden md:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-[#1E4A58] via-[#B45309] to-[#1E4A58] transform -translate-y-1/2 rounded-full" />
             
             {/* Timeline Line - Mobile */}
-            <div className="md:hidden absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-[#2C5F6F] via-[#E8933D] to-[#2C5F6F] rounded-full" />
+            <div className="md:hidden absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1E4A58] via-[#B45309] to-[#1E4A58] rounded-full" />
             
             <div className="grid md:grid-cols-3 gap-8 md:gap-4 relative">
               {/* Step 1 */}
               <div className="relative pl-20 md:pl-0">
                 {/* Mobile Circle */}
-                <div className="md:hidden absolute left-4 top-0 w-8 h-8 bg-[#2C5F6F] rounded-full border-4 border-white shadow-lg flex items-center justify-center">
+                <div className="md:hidden absolute left-4 top-0 w-8 h-8 bg-[#1E4A58] rounded-full border-4 border-white shadow-lg flex items-center justify-center">
                   <span className="text-white text-xs font-bold">1</span>
                 </div>
                 
                 {/* Desktop Circle */}
-                <div className="hidden md:flex absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-8 w-16 h-16 bg-[#2C5F6F] rounded-full border-4 border-white shadow-xl items-center justify-center z-10">
+                <div className="hidden md:flex absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-8 w-16 h-16 bg-[#1E4A58] rounded-full border-4 border-white shadow-xl items-center justify-center z-10">
                   <Brain className="w-7 h-7 text-white" />
                 </div>
                 
                 {/* Desktop Time Badge */}
                 <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 -top-20">
-                  <span className="bg-[#E8933D] text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="bg-[#B45309] text-white text-xs font-bold px-3 py-1 rounded-full">
                     60 MIN
                   </span>
                 </div>
                 
-                <div className="bg-gradient-to-br from-[#2C5F6F] to-[#1e4a58] rounded-2xl p-6 md:pt-12 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div className="bg-gradient-to-br from-[#1E4A58] to-[#1e4a58] rounded-2xl p-6 md:pt-12 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                   <div className="md:hidden flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
                       <Brain className="w-5 h-5 text-white" />
                     </div>
-                    <span className="bg-[#E8933D] text-white text-xs font-bold px-3 py-1 rounded-full">60 MIN</span>
+                    <span className="bg-[#B45309] text-white text-xs font-bold px-3 py-1 rounded-full">60 MIN</span>
                   </div>
                   
                   <h3 className="text-xl md:text-2xl font-bold text-white mb-3">
@@ -327,43 +327,43 @@ const IceMindExperience = () => {
               {/* Step 2 */}
               <div className="relative pl-20 md:pl-0">
                 {/* Mobile Circle */}
-                <div className="md:hidden absolute left-4 top-0 w-8 h-8 bg-[#E8933D] rounded-full border-4 border-white shadow-lg flex items-center justify-center">
+                <div className="md:hidden absolute left-4 top-0 w-8 h-8 bg-[#B45309] rounded-full border-4 border-white shadow-lg flex items-center justify-center">
                   <span className="text-white text-xs font-bold">2</span>
                 </div>
                 
                 {/* Desktop Circle */}
-                <div className="hidden md:flex absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-8 w-16 h-16 bg-[#E8933D] rounded-full border-4 border-white shadow-xl items-center justify-center z-10">
+                <div className="hidden md:flex absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-8 w-16 h-16 bg-[#B45309] rounded-full border-4 border-white shadow-xl items-center justify-center z-10">
                   <Snowflake className="w-7 h-7 text-white" />
                 </div>
                 
                 {/* Desktop Time Badge */}
                 <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 -top-20">
-                  <span className="bg-[#2C5F6F] text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="bg-[#1E4A58] text-white text-xs font-bold px-3 py-1 rounded-full">
                     30 MIN
                   </span>
                 </div>
                 
-                <div className="bg-gradient-to-br from-[#E8933D] to-[#d4832f] rounded-2xl p-6 md:pt-12 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div className="bg-gradient-to-br from-[#B45309] to-[#92400E] rounded-2xl p-6 md:pt-12 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                   <div className="md:hidden flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
                       <Snowflake className="w-5 h-5 text-white" />
                     </div>
-                    <span className="bg-[#2C5F6F] text-white text-xs font-bold px-3 py-1 rounded-full">30 MIN</span>
+                    <span className="bg-[#1E4A58] text-white text-xs font-bold px-3 py-1 rounded-full">30 MIN</span>
                   </div>
                   
                   <h3 className="text-xl md:text-2xl font-bold text-white mb-3">
                     O PREPARO E<br className="hidden md:block" /> A IMERSÃO
                   </h3>
-                  <p className="text-white/80 text-sm md:text-base leading-relaxed">
+                  <p className="text-white text-sm md:text-base leading-relaxed">
                     Respiração e apneia no piso de borracha, longe da banheira — as duas coisas nunca
                     se misturam, e no dia eu explico por quê. Depois, 2 minutos a 2°C: eu guio e conto
                     o tempo em voz alta. Você não precisa olhar relógio nenhum.
                   </p>
                   
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="bg-white/20 text-white/90 text-xs px-3 py-1 rounded-full">2°C</span>
-                    <span className="bg-white/20 text-white/90 text-xs px-3 py-1 rounded-full">2 minutos</span>
-                    <span className="bg-white/20 text-white/90 text-xs px-3 py-1 rounded-full">Guiado</span>
+                    <span className="bg-black/25 text-white text-xs px-3 py-1 rounded-full">2°C</span>
+                    <span className="bg-black/25 text-white text-xs px-3 py-1 rounded-full">2 minutos</span>
+                    <span className="bg-black/25 text-white text-xs px-3 py-1 rounded-full">Guiado</span>
                   </div>
                 </div>
               </div>
@@ -371,28 +371,28 @@ const IceMindExperience = () => {
               {/* Step 3 */}
               <div className="relative pl-20 md:pl-0">
                 {/* Mobile Circle */}
-                <div className="md:hidden absolute left-4 top-0 w-8 h-8 bg-[#2C5F6F] rounded-full border-4 border-white shadow-lg flex items-center justify-center">
+                <div className="md:hidden absolute left-4 top-0 w-8 h-8 bg-[#1E4A58] rounded-full border-4 border-white shadow-lg flex items-center justify-center">
                   <span className="text-white text-xs font-bold">3</span>
                 </div>
                 
                 {/* Desktop Circle */}
-                <div className="hidden md:flex absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-8 w-16 h-16 bg-[#2C5F6F] rounded-full border-4 border-white shadow-xl items-center justify-center z-10">
+                <div className="hidden md:flex absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-8 w-16 h-16 bg-[#1E4A58] rounded-full border-4 border-white shadow-xl items-center justify-center z-10">
                   <Users className="w-7 h-7 text-white" />
                 </div>
                 
                 {/* Desktop Time Badge */}
                 <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 -top-20">
-                  <span className="bg-[#E8933D] text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="bg-[#B45309] text-white text-xs font-bold px-3 py-1 rounded-full">
                     30 MIN
                   </span>
                 </div>
                 
-                <div className="bg-gradient-to-br from-[#2C5F6F] to-[#1e4a58] rounded-2xl p-6 md:pt-12 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div className="bg-gradient-to-br from-[#1E4A58] to-[#1e4a58] rounded-2xl p-6 md:pt-12 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                   <div className="md:hidden flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
                       <Users className="w-5 h-5 text-white" />
                     </div>
-                    <span className="bg-[#E8933D] text-white text-xs font-bold px-3 py-1 rounded-full">30 MIN</span>
+                    <span className="bg-[#B45309] text-white text-xs font-bold px-3 py-1 rounded-full">30 MIN</span>
                   </div>
                   
                   <h3 className="text-xl md:text-2xl font-bold text-white mb-3">
@@ -417,7 +417,7 @@ const IceMindExperience = () => {
           {/* Total Time */}
           <div className="text-center mt-12">
             <div className="inline-flex items-center gap-3 bg-gray-100 rounded-full px-6 py-3">
-              <span className="text-[#3D3D3D]/60 text-sm">Tempo total:</span>
+              <span className="text-[#3D3D3D]/80 text-sm">Tempo total:</span>
               <span className="text-[#2C5F6F] font-bold text-lg">2 HORAS DE TRANSFORMAÇÃO</span>
             </div>
           </div>
@@ -436,14 +436,14 @@ const IceMindExperience = () => {
               O Que Acontece Se Você <span className="text-red-500">Não Agir?</span>
             </h2>
             
-            <p className="text-xl text-[#3D3D3D]/70 leading-relaxed mb-8">
+            <p className="text-xl text-[#3D3D3D]/80 leading-relaxed mb-8">
               Você continua vivendo com estresse crônico que se acumula dia após dia. 
               Sua mente continua controlando você, em vez de você controlar sua mente. 
               Você sabe que é capaz de mais, mas não consegue acessar esse potencial. 
               A ansiedade, o medo e as crenças limitantes continuam ditando suas decisões e suas reações.
             </p>
             
-            <div className="flex flex-wrap justify-center gap-4 text-sm text-[#3D3D3D]/60">
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-[#3D3D3D]/80">
               <span className="px-4 py-2 bg-white rounded-full shadow">Estresse acumulado</span>
               <span className="px-4 py-2 bg-white rounded-full shadow">Potencial não acessado</span>
               <span className="px-4 py-2 bg-white rounded-full shadow">Ansiedade constante</span>
@@ -454,17 +454,17 @@ const IceMindExperience = () => {
       </section>
 
       {/* Section 5: Sucesso Alcançado */}
-      <section className="py-20 md:py-32 bg-[#2C5F6F]">
+      <section className="py-20 md:py-32 bg-[#1E4A58]">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-              O Que Você Vai <span className="text-[#E8933D]">Ganhar</span>
+              O Que Você Vai <span className="text-[color:var(--im-laranja)]">Ganhar</span>
             </h2>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
             <div className="text-center p-6">
-              <div className="w-16 h-16 bg-[#E8933D] rounded-2xl flex items-center justify-center mx-auto mb-4 transform rotate-3">
+              <div className="w-16 h-16 bg-[#B45309] rounded-2xl flex items-center justify-center mx-auto mb-4 transform rotate-3">
                 <Zap className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">RESILIÊNCIA MENTAL</h3>
@@ -474,7 +474,7 @@ const IceMindExperience = () => {
             </div>
             
             <div className="text-center p-6">
-              <div className="w-16 h-16 bg-[#E8933D] rounded-2xl flex items-center justify-center mx-auto mb-4 transform -rotate-3">
+              <div className="w-16 h-16 bg-[#B45309] rounded-2xl flex items-center justify-center mx-auto mb-4 transform -rotate-3">
                 <Heart className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">CONTROLE DO ESTRESSE</h3>
@@ -484,7 +484,7 @@ const IceMindExperience = () => {
             </div>
             
             <div className="text-center p-6">
-              <div className="w-16 h-16 bg-[#E8933D] rounded-2xl flex items-center justify-center mx-auto mb-4 transform rotate-3">
+              <div className="w-16 h-16 bg-[#B45309] rounded-2xl flex items-center justify-center mx-auto mb-4 transform rotate-3">
                 <Target className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">FOCO E CLAREZA</h3>
@@ -494,7 +494,7 @@ const IceMindExperience = () => {
             </div>
             
             <div className="text-center p-6">
-              <div className="w-16 h-16 bg-[#E8933D] rounded-2xl flex items-center justify-center mx-auto mb-4 transform -rotate-3">
+              <div className="w-16 h-16 bg-[#B45309] rounded-2xl flex items-center justify-center mx-auto mb-4 transform -rotate-3">
                 <Users className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">COMUNIDADE DE SUPERADORES</h3>
@@ -512,14 +512,14 @@ const IceMindExperience = () => {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-bold text-[#3D3D3D] mb-4">
-                Você Está Pronto Para <span className="text-[#E8933D]">Ir Além?</span>
+                Você Está Pronto Para <span className="text-[color:var(--im-laranja)]">Ir Além?</span>
               </h2>
-              <p className="text-xl text-[#3D3D3D]/70">Esta experiência é para você que é...</p>
+              <p className="text-xl text-[#3D3D3D]/80">Esta experiência é para você que é...</p>
             </div>
             
             <div className="grid md:grid-cols-2 gap-6">
               {["Atleta buscando o próximo nível de performance mental.", "Profissional que vive sob alta pressão e quer dominar o estresse.", "Pessoa curiosa em busca de autoconhecimento e superação de limites.", "Corredor que sabe que a mente é tão importante quanto o corpo.", "Alguém que quer sair da zona de conforto de forma guiada e segura.", "Quem busca ferramentas práticas para lidar com ansiedade e pressão."].map((item, index) => <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-                  <CheckCircle className="w-6 h-6 text-[#E8933D] flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-6 h-6 text-[color:var(--im-laranja)] flex-shrink-0 mt-0.5" />
                   <p className="text-[#3D3D3D]">{item}</p>
                 </div>)}
             </div>
@@ -528,15 +528,15 @@ const IceMindExperience = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 md:py-32 bg-[#2C5F6F]">
+      <section className="py-20 md:py-32 bg-[#1E4A58]">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-[#E8933D]/20 rounded-full mb-6">
-                <HelpCircle className="w-8 h-8 text-[#E8933D]" />
+                <HelpCircle className="w-8 h-8 text-[color:var(--im-laranja)]" />
               </div>
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-                Perguntas <span className="text-[#E8933D]">Frequentes</span>
+                Perguntas <span className="text-[color:var(--im-laranja)]">Frequentes</span>
               </h2>
               <p className="text-xl text-white/70">
                 Tire suas dúvidas sobre a experiência
@@ -546,7 +546,7 @@ const IceMindExperience = () => {
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 md:p-8">
               <Accordion type="single" collapsible className="space-y-4">
                 <AccordionItem value="item-1" className="border-white/20 border-b">
-                  <AccordionTrigger className="text-white text-left hover:no-underline hover:text-[#E8933D] transition-colors py-5">
+                  <AccordionTrigger className="text-white text-left hover:no-underline hover:text-[color:var(--im-laranja)] transition-colors py-5">
                     <span className="text-lg font-semibold">Preciso ter alguma experiência prévia com imersão no gelo?</span>
                   </AccordionTrigger>
                   <AccordionContent className="text-white/80 text-base pb-5">
@@ -555,7 +555,7 @@ const IceMindExperience = () => {
                 </AccordionItem>
 
                 <AccordionItem value="item-2" className="border-white/20 border-b">
-                  <AccordionTrigger className="text-white text-left hover:no-underline hover:text-[#E8933D] transition-colors py-5">
+                  <AccordionTrigger className="text-white text-left hover:no-underline hover:text-[color:var(--im-laranja)] transition-colors py-5">
                     <span className="text-lg font-semibold">E se eu não aguentar o frio?</span>
                   </AccordionTrigger>
                   <AccordionContent className="text-white/80 text-base pb-5">
@@ -564,7 +564,7 @@ const IceMindExperience = () => {
                 </AccordionItem>
 
                 <AccordionItem value="item-3" className="border-white/20 border-b">
-                  <AccordionTrigger className="text-white text-left hover:no-underline hover:text-[#E8933D] transition-colors py-5">
+                  <AccordionTrigger className="text-white text-left hover:no-underline hover:text-[color:var(--im-laranja)] transition-colors py-5">
                     <span className="text-lg font-semibold">O que eu preciso levar no dia?</span>
                   </AccordionTrigger>
                   <AccordionContent className="text-white/80 text-base pb-5">
@@ -573,7 +573,7 @@ const IceMindExperience = () => {
                 </AccordionItem>
 
                 <AccordionItem value="item-4" className="border-white/20 border-b">
-                  <AccordionTrigger className="text-white text-left hover:no-underline hover:text-[#E8933D] transition-colors py-5">
+                  <AccordionTrigger className="text-white text-left hover:no-underline hover:text-[color:var(--im-laranja)] transition-colors py-5">
                     <span className="text-lg font-semibold">Qual é a política de cancelamento/reembolso?</span>
                   </AccordionTrigger>
                   <AccordionContent className="text-white/80 text-base pb-5">
@@ -582,7 +582,7 @@ const IceMindExperience = () => {
                 </AccordionItem>
 
                 <AccordionItem value="item-5" className="border-white/20 border-b">
-                  <AccordionTrigger className="text-white text-left hover:no-underline hover:text-[#E8933D] transition-colors py-5">
+                  <AccordionTrigger className="text-white text-left hover:no-underline hover:text-[color:var(--im-laranja)] transition-colors py-5">
                     <span className="text-lg font-semibold">Existem contraindicações médicas?</span>
                   </AccordionTrigger>
                   <AccordionContent className="text-white/80 text-base pb-5">
@@ -591,7 +591,7 @@ const IceMindExperience = () => {
                 </AccordionItem>
 
                 <AccordionItem value="item-6" className="border-white/20 border-b-0">
-                  <AccordionTrigger className="text-white text-left hover:no-underline hover:text-[#E8933D] transition-colors py-5">
+                  <AccordionTrigger className="text-white text-left hover:no-underline hover:text-[color:var(--im-laranja)] transition-colors py-5">
                     <span className="text-lg font-semibold">Por que 2 minutos a 2°C, e não 10 minutos numa água mais amena?</span>
                   </AccordionTrigger>
                   <AccordionContent className="text-white/80 text-base pb-5">
@@ -603,7 +603,7 @@ const IceMindExperience = () => {
 
             <div className="text-center mt-10">
               <p className="text-white/70 mb-4">Ainda tem dúvidas?</p>
-              <Button className="bg-green-500 hover:bg-green-600 text-white px-8 py-6 rounded-full font-semibold shadow-lg transition-all hover:scale-105" asChild>
+              <Button className="bg-green-700 hover:bg-green-800 text-white px-8 py-6 rounded-full font-semibold shadow-lg transition-all hover:scale-105" asChild>
                 <a href="https://api.whatsapp.com/send?phone=5516996008849&text=Ol%C3%A1!%20Quero%20mais%20informa%C3%A7%C3%B5es%20sobre%20o%20Ice%20Mind%20Experience" target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="mr-2 h-5 w-5" />
                   Fale Conosco pelo WhatsApp
@@ -621,12 +621,12 @@ const IceMindExperience = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-bold text-[#3D3D3D] mb-4">
                 {turmaAberta ? (
-                  <>Garanta Sua <span className="text-[#E8933D]">Vaga</span></>
+                  <>Garanta Sua <span className="text-[color:var(--im-laranja)]">Vaga</span></>
                 ) : (
-                  <>Entre na Lista de <span className="text-[#E8933D]">Espera</span></>
+                  <>Entre na Lista de <span className="text-[color:var(--im-laranja)]">Espera</span></>
                 )}
               </h2>
-              <p className="text-xl text-[#3D3D3D]/70">
+              <p className="text-xl text-[#3D3D3D]/80">
                 {turmaAberta
                   ? "Escolha a sua turma e chame no WhatsApp. A confirmação é na hora."
                   : "A data da próxima turma ainda está sendo definida. Deixe seu nome com a gente e você é avisado antes de abrirmos as vagas."}
@@ -637,16 +637,16 @@ const IceMindExperience = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <div className="bg-white rounded-xl p-5 shadow-lg flex items-center gap-4 border-l-4 border-[#E8933D]">
                 <div className="w-12 h-12 bg-[#E8933D]/10 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Calendar className="w-6 h-6 text-[#E8933D]" />
+                  <Calendar className="w-6 h-6 text-[color:var(--im-laranja)]" />
                 </div>
                 <div>
-                  <p className="text-sm text-[#3D3D3D]/60 font-medium">Data do Evento</p>
+                  <p className="text-sm text-[#3D3D3D]/80 font-medium">Data do Evento</p>
                   {turmaAberta ? (
                     <>
                       <p className="text-lg font-bold text-[#3D3D3D]">{EVENTO.dataLabel}</p>
-                      <p className="text-sm text-[#E8933D] font-medium">{EVENTO.chamadaDia}</p>
+                      <p className="text-sm text-[color:var(--im-laranja)] font-medium">{EVENTO.chamadaDia}</p>
                       {EVENTO.turmas.map(t => (
-                        <p key={t.dia} className="text-xs text-[#3D3D3D]/60 mt-1">
+                        <p key={t.dia} className="text-xs text-[#3D3D3D]/80 mt-1">
                           {t.dia} — {t.horario}
                         </p>
                       ))}
@@ -658,11 +658,11 @@ const IceMindExperience = () => {
               </div>
 
               <div className="bg-white rounded-xl p-5 shadow-lg flex items-center gap-4 border-l-4 border-[#2C5F6F]">
-                <div className="w-12 h-12 bg-[#2C5F6F]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-[#1E4A58]/10 rounded-full flex items-center justify-center flex-shrink-0">
                   <Clock className="w-6 h-6 text-[#2C5F6F]" />
                 </div>
                 <div>
-                  <p className="text-sm text-[#3D3D3D]/60 font-medium">Duração</p>
+                  <p className="text-sm text-[#3D3D3D]/80 font-medium">Duração</p>
                   <p className="text-lg font-bold text-[#3D3D3D]">2 Horas de Experiência</p>
                   <p className="text-sm text-[#2C5F6F] font-medium">Imersão de 2 minutos a 2°C</p>
                 </div>
@@ -670,22 +670,22 @@ const IceMindExperience = () => {
               
               <div className="bg-white rounded-xl p-5 shadow-lg flex items-center gap-4 border-l-4 border-[#E8933D]">
                 <div className="w-12 h-12 bg-[#E8933D]/10 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Users className="w-6 h-6 text-[#E8933D]" />
+                  <Users className="w-6 h-6 text-[color:var(--im-laranja)]" />
                 </div>
                 <div>
-                  <p className="text-sm text-[#3D3D3D]/60 font-medium">Vagas Limitadas</p>
+                  <p className="text-sm text-[#3D3D3D]/80 font-medium">Vagas Limitadas</p>
                   <p className="text-lg font-bold text-[#3D3D3D]">10 pessoas por turma</p>
                 </div>
               </div>
             </div>
             
             {turmaAberta && (
-              <div className="bg-[#2C5F6F] rounded-2xl p-6 md:p-8 mb-8 text-center shadow-lg">
-                <p className="text-white/60 text-sm font-medium uppercase tracking-wider">Investimento</p>
+              <div className="bg-[#1E4A58] rounded-2xl p-6 md:p-8 mb-8 text-center shadow-lg">
+                <p className="text-white/75 text-sm font-medium uppercase tracking-wider">Investimento</p>
                 <p className="text-4xl font-bold text-white mt-2">
-                  {EVENTO.preco} <span className="text-lg font-medium text-white/60">por pessoa</span>
+                  {EVENTO.preco} <span className="text-lg font-medium text-white/75">por pessoa</span>
                 </p>
-                <p className="text-[#E8933D] font-semibold mt-3">{EVENTO.descontoAtleta}</p>
+                <p className="text-[color:var(--im-laranja)] font-semibold mt-3">{EVENTO.descontoAtleta}</p>
               </div>
             )}
 
@@ -696,7 +696,7 @@ const IceMindExperience = () => {
                   A vaga é garantida pelo WhatsApp. Você escolhe a turma, a gente confirma na hora
                   e te passa tudo que precisa saber sobre o dia.
                 </p>
-                <p className="text-sm text-[#3D3D3D]/60 mb-8">
+                <p className="text-sm text-[#3D3D3D]/80 mb-8">
                   São 10 vagas por turma, confirmadas por ordem de chegada.
                 </p>
 
@@ -705,7 +705,7 @@ const IceMindExperience = () => {
                     <Button
                       key={t.dia}
                       size="lg"
-                      className="bg-green-500 hover:bg-green-600 text-white px-8 py-6 rounded-full font-semibold shadow-lg transition-all hover:scale-105"
+                      className="bg-green-700 hover:bg-green-800 text-white px-8 py-6 rounded-full font-semibold shadow-lg transition-all hover:scale-105"
                       asChild
                     >
                       <a href={whatsappVaga(t.dia, t.horario)} target="_blank" rel="noopener noreferrer">
@@ -716,7 +716,7 @@ const IceMindExperience = () => {
                   ))}
                 </div>
 
-                <p className="text-xs text-[#3D3D3D]/50 mt-6">
+                <p className="text-xs text-[#3D3D3D]/80 mt-6">
                   {EVENTO.turmas.map(t => `${t.dia} — ${t.horario}`).join("  ·  ")}
                 </p>
               </div>
@@ -726,7 +726,7 @@ const IceMindExperience = () => {
                   As turmas do Ice Mind são pequenas — no máximo 10 pessoas — e costumam encher rápido.
                   Quem está na lista de espera recebe a data e o link de inscrição antes de todo mundo.
                 </p>
-                <Button size="lg" className="bg-green-500 hover:bg-green-600 text-white px-8 py-6 rounded-full font-semibold shadow-lg transition-all hover:scale-105" asChild>
+                <Button size="lg" className="bg-green-700 hover:bg-green-800 text-white px-8 py-6 rounded-full font-semibold shadow-lg transition-all hover:scale-105" asChild>
                   <a href={WHATSAPP_LISTA_ESPERA} target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="mr-2 h-5 w-5" />
                     Quero ser avisado da próxima turma
@@ -743,26 +743,26 @@ const IceMindExperience = () => {
       <section className="py-8 bg-[#1e4a58]">
         <div className="container mx-auto px-6">
           <div className="text-center mb-6">
-            <p className="text-white/60 text-sm">
+            <p className="text-white/75 text-sm">
               Ice Mind Experience é uma experiência da{" "}
-              <span className="text-[#E8933D] font-semibold">CareFit RunBase</span>.
+              <span className="text-[color:var(--im-laranja)] font-semibold">CareFit RunBase</span>.
             </p>
-            <p className="text-white/40 text-xs mt-1">
+            <p className="text-white/70 text-xs mt-1">
               A evolução nunca para.
             </p>
           </div>
           
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 text-white/40 text-xs">
-            <a href="https://www.instagram.com/carefitrunbase/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-[#E8933D] transition-colors">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 text-white/70 text-xs">
+            <a href="https://www.instagram.com/carefitrunbase/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-[color:var(--im-laranja)] transition-colors">
               <Instagram className="w-3 h-3" />
               @carefitrunbase
             </a>
             
-            <a href="mailto:gustavo@coutorosa.com" className="hover:text-[#E8933D] transition-colors">
+            <a href="mailto:gustavo@coutorosa.com" className="hover:text-[color:var(--im-laranja)] transition-colors">
               gustavo@coutorosa.com
             </a>
             
-            <a href="https://www.google.com/maps/search/?api=1&query=Av.+%C3%81urea+Aparecida+Bragheto+Machado,+241,+City+Ribeir%C3%A3o,+Ribeir%C3%A3o+Preto+-+SP" target="_blank" rel="noopener noreferrer" className="hover:text-[#E8933D] transition-colors text-center">
+            <a href="https://www.google.com/maps/search/?api=1&query=Av.+%C3%81urea+Aparecida+Bragheto+Machado,+241,+City+Ribeir%C3%A3o,+Ribeir%C3%A3o+Preto+-+SP" target="_blank" rel="noopener noreferrer" className="hover:text-[color:var(--im-laranja)] transition-colors text-center">
               Av. Áurea Aparecida Bragheto Machado, 241 - Ribeirão Preto, SP
             </a>
           </div>

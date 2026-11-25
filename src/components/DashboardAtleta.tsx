@@ -98,7 +98,7 @@ const DashboardAtleta = () => {
                 <div className="w-2.5 h-2.5 rounded-full bg-secondary" />
                 <div className="w-2.5 h-2.5 rounded-full bg-earth" />
                 <div className="w-2.5 h-2.5 rounded-full bg-primary/30" />
-                <div className="ml-3 flex-1 bg-warm rounded-md px-3 py-1 text-[10px] font-poppins text-primary/40 truncate">
+                <div className="ml-3 flex-1 bg-warm rounded-md px-3 py-1 text-[10px] font-poppins text-primary/75 truncate">
                   carefit-athlete-dashboard.onrender.com
                 </div>
               </div>
@@ -106,13 +106,13 @@ const DashboardAtleta = () => {
               {/* Athlete header */}
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <div className="text-[10px] font-montserrat font-semibold tracking-wider uppercase text-primary/40">
+                  <div className="text-[10px] font-montserrat font-semibold tracking-wider uppercase text-primary/75">
                     Atleta
                   </div>
                   <div className="text-xl md:text-2xl font-montserrat font-bold text-primary">
                     Ana Júlia Fernandes
                   </div>
-                  <div className="text-xs text-primary/60 font-poppins mt-0.5">
+                  <div className="text-xs text-primary/75 font-poppins mt-0.5">
                     1.280 km · 197 atividades
                   </div>
                 </div>
@@ -125,7 +125,7 @@ const DashboardAtleta = () => {
               <div className="grid grid-cols-[auto,1fr] gap-5 mb-5">
                 {/* Score circular */}
                 <div className="bg-white rounded-2xl p-4 shadow-sm border border-primary/5 flex flex-col items-center justify-center w-[160px]">
-                  <div className="text-[9px] font-montserrat font-semibold tracking-wider uppercase text-primary/40 mb-2">
+                  <div className="text-[9px] font-montserrat font-semibold tracking-wider uppercase text-primary/75 mb-2">
                     Risco Semana 16
                   </div>
                   <div className="relative w-[130px] h-[130px]">
@@ -157,7 +157,7 @@ const DashboardAtleta = () => {
                       <div className="text-3xl font-montserrat font-bold text-primary leading-none">
                         {score}
                       </div>
-                      <div className="text-[9px] font-montserrat text-primary/50 mt-1">
+                      <div className="text-[9px] font-montserrat text-primary/75 mt-1">
                         / 100
                       </div>
                     </div>
@@ -176,7 +176,7 @@ const DashboardAtleta = () => {
                     { label: "Atividades", value: "11", color: "from-primary to-secondary" },
                   ].map((m, i) => (
                     <div key={i} className="bg-white rounded-xl p-3 shadow-sm border border-primary/5">
-                      <div className="text-[9px] font-montserrat font-semibold tracking-wider uppercase text-primary/40 mb-1">
+                      <div className="text-[9px] font-montserrat font-semibold tracking-wider uppercase text-primary/75 mb-1">
                         {m.label}
                       </div>
                       <div className={`text-lg font-montserrat font-bold bg-gradient-to-br ${m.color} bg-clip-text text-transparent`}>
@@ -208,7 +208,7 @@ const DashboardAtleta = () => {
                     return (
                       <div key={i} className="bg-warm rounded-lg p-2 text-center">
                         <Icon className={`w-4 h-4 mx-auto mb-1 ${c.color}`} />
-                        <div className="text-[8px] font-montserrat font-semibold text-primary/50 uppercase tracking-wider">
+                        <div className="text-[8px] font-montserrat font-semibold text-primary/75 uppercase tracking-wider">
                           {c.label}
                         </div>
                         <div className="text-xs font-montserrat font-bold text-primary">
@@ -236,7 +236,7 @@ const DashboardAtleta = () => {
                       const Icon = m.icon;
                       return (
                         <div key={i} className="flex items-center gap-2">
-                          <Icon className="w-3 h-3 text-primary/60 flex-shrink-0" />
+                          <Icon className="w-3 h-3 text-primary/75 flex-shrink-0" />
                           <div className="text-[10px] font-montserrat font-semibold text-primary w-12">
                             {m.name}
                           </div>
@@ -249,7 +249,7 @@ const DashboardAtleta = () => {
                               className="h-full bg-gradient-to-r from-secondary to-earth rounded-full"
                             />
                           </div>
-                          <div className="text-[9px] font-poppins text-primary/60 w-10 text-right">
+                          <div className="text-[9px] font-poppins text-primary/75 w-10 text-right">
                             {m.val}
                           </div>
                         </div>
@@ -280,13 +280,13 @@ const DashboardAtleta = () => {
                             className={`w-full ${b.color} rounded-t-md`}
                           />
                         </div>
-                        <div className="text-[8px] font-montserrat font-bold text-primary/50">
+                        <div className="text-[8px] font-montserrat font-bold text-primary/75">
                           {b.z}
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div className="text-[9px] font-poppins text-primary/50 text-center">
+                  <div className="text-[9px] font-poppins text-primary/75 text-center">
                     Limiar 59% · VO2Max 41%
                   </div>
                 </div>

@@ -355,7 +355,7 @@ const FichaPreAula = () => {
                       value={id[campo.k]}
                       placeholder={campo.ph}
                       onChange={(e) => setId((prev) => ({ ...prev, [campo.k]: e.target.value }))}
-                      className="bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/30 rounded-xl h-13 text-base focus-visible:ring-accent"
+                      className="bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/70 rounded-xl h-13 text-base focus-visible:ring-accent"
                     />
                   </div>
                 ))}
@@ -441,7 +441,7 @@ const FichaPreAula = () => {
                         onChange={(e) => setRascunho(e.target.value)}
                         placeholder="Escreva aqui..."
                         rows={3}
-                        className="bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/30 rounded-2xl text-base focus-visible:ring-accent"
+                        className="bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/70 rounded-2xl text-base focus-visible:ring-accent"
                       />
                     </div>
                   )}
@@ -470,7 +470,7 @@ const FichaPreAula = () => {
                     onChange={(e) => setRascunho(e.target.value)}
                     placeholder="Escreva aqui..."
                     rows={4}
-                    className="bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/30 rounded-2xl text-base focus-visible:ring-accent"
+                    className="bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/70 rounded-2xl text-base focus-visible:ring-accent"
                   />
                   <Button
                     onClick={() => {
@@ -500,7 +500,7 @@ const FichaPreAula = () => {
                         responder(atual.key, "");
                         avancar();
                       }}
-                      className="w-full mt-3 text-primary-foreground/50 text-sm hover:text-primary-foreground/80 transition-colors py-2"
+                      className="w-full mt-3 text-primary-foreground/70 text-sm hover:text-primary-foreground/80 transition-colors py-2"
                     >
                       Pular
                     </button>
@@ -529,7 +529,7 @@ const FichaPreAula = () => {
                       responder(atual.key, "");
                       avancar();
                     }}
-                    className="w-full mt-3 text-primary-foreground/50 text-sm hover:text-primary-foreground/80 transition-colors py-2"
+                    className="w-full mt-3 text-primary-foreground/70 text-sm hover:text-primary-foreground/80 transition-colors py-2"
                   >
                     Ainda não sei a data
                   </button>

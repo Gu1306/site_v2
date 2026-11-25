@@ -376,7 +376,7 @@ const MapaMentalMetodologia = () => {
                 <span className="text-xs md:text-sm font-montserrat font-bold text-primary tracking-[0.35em] uppercase">
                   Você
                 </span>
-                <span className="text-[10px] md:text-[11px] font-poppins text-primary/60 tracking-[0.25em] uppercase mt-1">
+                <span className="text-[10px] md:text-[11px] font-poppins text-primary/75 tracking-[0.25em] uppercase mt-1">
                   Atleta
                 </span>
               </div>
@@ -429,7 +429,7 @@ const MapaMentalMetodologia = () => {
 
                 {/* CTA */}
                 <div className="flex items-center justify-between pt-5 border-t border-primary/10">
-                  <span className="text-xs font-montserrat font-semibold tracking-[0.2em] text-primary/60 uppercase">
+                  <span className="text-xs font-montserrat font-semibold tracking-[0.2em] text-primary/75 uppercase">
                     Conhecer pilar
                   </span>
                   <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center group-hover:bg-secondary transition-colors duration-300 group-hover:scale-110 transform">

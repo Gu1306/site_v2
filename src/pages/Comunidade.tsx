@@ -196,7 +196,7 @@ const Comunidade = () => {
       </section>
 
       {/* Comunidade / CTA */}
-      <section className="py-20 bg-gradient-to-r from-primary via-secondary to-primary text-white">
+      <section className="py-20 bg-primary text-white">
         <div className="container mx-auto px-4 text-center max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-montserrat font-bold mb-6">
             O dia a dia acontece no Instagram

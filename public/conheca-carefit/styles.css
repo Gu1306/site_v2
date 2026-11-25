@@ -1782,3 +1782,13 @@ body:has([aria-label="Aviso de cookies"]) .sticky-bar,body:has([aria-label="Avis
 
 .conheca-carefit-page .practical__alternative a{color:#0e3c41;text-decoration:underline;text-underline-offset:4px;font-weight:600}
 .hero__video-frame video{object-fit:cover}
+
+/* Contraste (25/11/2026): laranja #C8622A e dourado #D4A853 reprovam como texto pequeno sobre
+   fundo claro (3,5 a 4,0:1 e 2,2:1). Nesses lugares, terracota de texto #A84F1D (5,0:1 ou mais).
+   Seções escuras com seletor próprio (ex.: .feelings .eyebrow-section) continuam douradas. */
+.nav__wordmark span,
+.t-card__ig,
+.eyebrow-section,
+.dual__panel-time { color: #A84F1D; }
+/* No rodapé escuro, o laranja do logo vira terracota claro (6,2:1). */
+.footer__brand-wm span { color: #E8956B; }

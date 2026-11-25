@@ -110,7 +110,7 @@ const BlogPost = () => {
 
             {post.fontes.length > 0 && (
               <div className="mt-16 rounded-lg bg-warm/70 border border-primary/10 p-6 md:p-8">
-                <h2 className="text-xs font-montserrat font-bold uppercase tracking-[0.18em] text-primary/60 mb-4">
+                <h2 className="text-xs font-montserrat font-bold uppercase tracking-[0.18em] text-primary/75 mb-4">
                   Fontes
                 </h2>
                 <ul className="space-y-3">

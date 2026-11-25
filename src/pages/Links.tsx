@@ -81,7 +81,7 @@ const EXPLORAR: Item[] = [
 ];
 
 export const CSS = `
-.lk{--verde:#0E3C41;--verde2:#145159;--dourado:#C9B27C;--bege:#F3ECDD;min-height:100vh;background:radial-gradient(1200px 600px at 50% -10%,#1b6670 0%,var(--verde) 55%,#082a2e 100%);color:var(--bege);font-family:Montserrat,Poppins,system-ui,sans-serif;padding:32px 16px 48px}
+.lk{--verde:#0E3C41;--verde2:#145159;--dourado:#E2D3A4;--bege:#F3ECDD;min-height:100vh;background:radial-gradient(1200px 600px at 50% -10%,#145159 0%,var(--verde) 55%,#082a2e 100%);color:var(--bege);font-family:Montserrat,Poppins,system-ui,sans-serif;padding:32px 16px 48px}
 .lk *{box-sizing:border-box}
 .lk-wrap{max-width:560px;margin:0 auto}
 .lk-top{text-align:center;margin-bottom:26px}
@@ -100,7 +100,7 @@ export const CSS = `
 .lk-seta{position:absolute;z-index:1;right:16px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;background:var(--dourado);color:var(--verde);display:grid;place-items:center;font-weight:900;font-size:16px}
 .lk-hero{min-height:150px}
 .lk-hero .lk-txt b{font-size:19px}
-.lk-wapp{background:#25D366}
+.lk-wapp{background:#15803D}
 .lk-wapp .lk-seta{background:#fff;color:#128C4B}
 .lk-redes{display:flex;gap:10px;margin-top:6px}
 .lk-btn{flex:1;text-align:center;padding:13px 8px;border-radius:14px;background:rgba(243,236,221,.1);border:1px solid rgba(201,178,124,.45);color:var(--bege);text-decoration:none;font-weight:700;font-size:13.5px}
