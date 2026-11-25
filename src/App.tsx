@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 import Navigation from "./components/Navigation";
 import CookieBanner from "./components/CookieBanner";
@@ -17,7 +17,6 @@ const Manifesto = lazy(() => import("./pages/Manifesto"));
 const Servicos = lazy(() => import("./pages/Servicos"));
 const Planos = lazy(() => import("./pages/Planos"));
 const CicloCompleto = lazy(() => import("./pages/CicloCompleto"));
-const Historia = lazy(() => import("./pages/Historia"));
 const Espaco = lazy(() => import("./pages/Espaco"));
 const Comunidade = lazy(() => import("./pages/Comunidade"));
 const ComunidadeCareFit = lazy(() => import("./pages/ComunidadeCareFit"));
@@ -27,7 +26,6 @@ const IceMindExperience = lazy(() => import("./pages/IceMindExperience"));
 const NossaHistoria = lazy(() => import("./pages/NossaHistoria"));
 const CareFitCast = lazy(() => import("./pages/CareFitCast"));
 const FisioterapiaCorredores = lazy(() => import("./pages/FisioterapiaCorredores"));
-const NutricaoCorredores = lazy(() => import("./pages/NutricaoCorredores"));
 const RecoveryCorredores = lazy(() => import("./pages/RecoveryCorredores"));
 const AvaliacaoCorredor = lazy(() => import("./pages/AvaliacaoCorredor"));
 const FortalecimentoCorredores = lazy(() => import("./pages/FortalecimentoCorredores"));
@@ -126,7 +124,8 @@ const App = () => (
             <Route path="/servicos" element={<Servicos />} />
             <Route path="/planos" element={<Planos />} />
             <Route path="/jornada" element={<CicloCompleto />} />
-            <Route path="/historia" element={<Historia />} />
+            {/* Página antiga, com a equipe de 2024; o servidor já responde 301 para /nossa-historia */}
+            <Route path="/historia" element={<Navigate to="/nossa-historia" replace />} />
             <Route path="/espaco" element={<Espaco />} />
             <Route path="/comunidade" element={<Comunidade />} />
             <Route path="/comunidade-carefit" element={<ComunidadeCareFit />} />
@@ -136,7 +135,8 @@ const App = () => (
             <Route path="/nossa-historia" element={<NossaHistoria />} />
             <Route path="/carefit-cast" element={<CareFitCast />} />
             <Route path="/fisioterapia-para-corredores-ribeirao-preto" element={<FisioterapiaCorredores />} />
-            <Route path="/nutricao-para-corredores-ribeirao-preto" element={<NutricaoCorredores />} />
+            {/* Nutrição não é mais serviço da CareFit; o servidor já responde 301 para a home */}
+            <Route path="/nutricao-para-corredores-ribeirao-preto" element={<Navigate to="/" replace />} />
             <Route path="/recovery-corredores-ribeirao-preto" element={<RecoveryCorredores />} />
             <Route path="/avaliacao-do-corredor-ribeirao-preto" element={<AvaliacaoCorredor />} />
             <Route path="/fortalecimento-para-corredores-ribeirao-preto" element={<FortalecimentoCorredores />} />

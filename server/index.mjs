@@ -28,6 +28,16 @@ import { criarClienteAgenda, criarEnviadorWhatsapp, criarServicoApp, criarSessoe
  * próprio, reescrito na resposta. Para incluir outra rota, é só acrescentar
  * aqui — nada mais precisa mudar.
  */
+/**
+ * Páginas que saíram do ar (25/11/2026) e para onde o endereço antigo leva,
+ * com 301. /historia era a cópia antiga da /nossa-historia, com a equipe de
+ * 2024; nutrição não é mais serviço da CareFit.
+ */
+const PAGINAS_MOVIDAS = {
+  '/historia': '/nossa-historia',
+  '/nutricao-para-corredores-ribeirao-preto': '/',
+};
+
 const PREVIEWS = {
   '/ficha': {
     titulo: 'Ficha pré-aula — Fortalecimento CareFit',
@@ -155,6 +165,13 @@ export function createServer(env = process.env, service = createService(clickupC
       // Produto ainda indisponível; preservar o endereço sem oferecer contratação.
       if (url.pathname.replace(/\/+$/, '') === '/biomecanica-da-corrida-ribeirao-preto') {
         res.writeHead(302, { Location: '/servicos', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' });
+        return res.end();
+      }
+      // Páginas que saíram do ar em vez de ficarem com conteúdo velho: o endereço
+      // antigo (busca, link salvo) cai na página que vale hoje.
+      const destinoPermanente = PAGINAS_MOVIDAS[url.pathname.replace(/\/+$/, '')];
+      if (destinoPermanente) {
+        res.writeHead(301, { Location: destinoPermanente + url.search });
         return res.end();
       }
       if (url.pathname === '/healthz') return send(200, { ok: true });
