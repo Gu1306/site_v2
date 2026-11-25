@@ -44,3 +44,82 @@
 .home-between-grid{grid-template-columns:1fr;gap:24px;margin-top:30px}
 .home-team>img{aspect-ratio:1/1}
 }
+
+/* Mapa interativo do ciclo (components/JornadaAtleta.tsx) */
+.home-journey{margin-top:48px;--gold:#d4a656;--alert:#ef8a5c;--bar:#4f7a6b}
+.home-journey button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.home-journey-map{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:26px 26px 20px}
+.home-journey-phases,.home-journey-chart{display:grid;grid-template-columns:repeat(13,1fr)}
+.home-journey-phases span{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#a9c0b5;padding:0 0 9px 4px;border-left:1px solid rgba(255,255,255,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-journey-chart{position:relative;margin-top:48px}
+.home-journey-line{position:absolute;left:0;right:0;top:0;height:220px;width:100%;pointer-events:none;overflow:visible}
+.home-journey-line polyline{fill:none;stroke:rgba(212,166,86,.55);stroke-width:1.5;stroke-dasharray:4 5;vector-effect:non-scaling-stroke}
+.home-journey-week{display:flex;flex-direction:column;align-items:center;gap:9px;padding:0 3px 8px;border-radius:5px;transition:background .2s}
+.home-journey-week:hover{background:rgba(255,255,255,.06)}
+.home-journey-week.is-on{background:rgba(255,255,255,.1)}
+.home-journey-week:focus-visible,.home-journey-controls button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.home-journey-bar-area{display:flex;align-items:flex-end;justify-content:center;height:220px;width:100%}
+.home-journey-bar{position:relative;display:block;width:62%;max-width:44px;background:var(--bar);border-radius:4px 4px 0 0;transition:background .25s}
+.home-journey-week.is-past .home-journey-bar{background:#6f9a8a}
+.home-journey-week.is-on .home-journey-bar{background:#f5f5f0}
+.home-journey-bar i{position:absolute;left:50%;top:-22px;transform:translateX(-50%);font-style:normal;font-size:11px;font-weight:600;color:#d1ddd3;opacity:0;transition:opacity .2s}
+.home-journey-week.is-on .home-journey-bar i,.home-journey-week:hover .home-journey-bar i{opacity:1}
+.home-journey-flag{position:absolute;left:50%;top:-44px;transform:translateX(-30%);color:var(--gold)}
+.home-journey-num{font-size:11px;color:#a9c0b5}
+.home-journey-week.is-on .home-journey-num{color:#fff;font-weight:600}
+.home-journey-dot{width:11px;height:11px;border-radius:50%;border:1px solid rgba(255,255,255,.14)}
+.home-journey-dot.is-session,.home-journey-key.is-session{background:var(--gold);border-color:var(--gold)}
+.home-journey-dot.is-alert,.home-journey-key.is-alert{background:var(--alert);border-color:var(--alert);border-radius:2px;transform:rotate(45deg) scale(.86)}
+.home-journey-dot.is-coach,.home-journey-key.is-coach{background:transparent;border:2px solid #f5f5f0}
+.home-journey-legend{list-style:none;margin:16px 0 0;padding:14px 0 0;border-top:1px solid rgba(255,255,255,.12);display:flex;flex-wrap:wrap;gap:10px 26px;font-size:11px;color:#d1ddd3}
+.home-journey-legend li{display:flex;align-items:center;gap:9px}
+.home-journey-key{display:inline-block;width:11px;height:11px;border-radius:50%}
+.home-journey-key.is-bar{background:#6f9a8a;border-radius:2px}
+.home-journey-panel{background:#f5f5f0;color:var(--forest);border-radius:8px;padding:28px 30px 30px;margin-top:16px}
+.home-journey-panel-top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.home-between .home-journey-when{font-size:11px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:#c8622a;margin:0}
+.home-journey-controls{display:flex;align-items:center;gap:8px}
+.home-journey .home-journey-controls button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:40px;height:40px;border:1px solid #bcc9bf;border-radius:5px;font-size:12px;font-weight:600;color:var(--forest)}
+.home-journey .home-journey-controls button:hover:not(:disabled){background:#e4eadf}
+.home-journey .home-journey-controls button:disabled{opacity:.35;cursor:default}
+.home-journey .home-journey-controls .home-journey-play{padding:0 16px;background:var(--forest);color:#fff;border-color:var(--forest)}
+.home-journey .home-journey-controls .home-journey-play:hover{background:#2a5c50}
+.carefit-home .home-journey-title{font-size:26px;font-weight:600;line-height:1.25;margin:18px 0 22px;animation:journeyIn .35s ease both}
+.home-journey-facts{display:grid;grid-template-columns:repeat(2,1fr);gap:0 40px;margin:0;animation:journeyIn .35s ease both}
+.home-journey-facts>div{border-top:1px solid #dce1d8;padding:15px 0}
+.home-journey-facts dt{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.home-journey-facts dd{margin:0;font-size:14px;line-height:1.7}
+.home-journey-facts .is-alert dt{color:#c8622a}
+.home-journey-score{display:inline-block;font-size:11px;font-weight:600;background:#e4eadf;border-radius:20px;padding:2px 10px;margin-right:8px}
+.home-journey-score.is-low{background:#c8622a;color:#fff}
+.home-journey-end{margin-top:16px;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:26px 30px}
+.home-between .home-journey-end-title{font-size:11px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--gold);margin:0 0 18px}
+.home-journey-end ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.home-journey-end b{display:block;font-family:Montserrat,sans-serif;font-size:36px;font-weight:500;letter-spacing:-.04em;line-height:1.1}
+.home-journey-end span{font-size:12px;line-height:1.6;color:#d1ddd3;display:block;margin-top:6px}
+.home-journey-end>p:last-child{margin:22px 0 0;font-family:Montserrat,sans-serif;font-size:19px;letter-spacing:-.02em}
+.home-journey-note{font-size:11px;color:#a9c0b5;margin:16px 0 0}
+@keyframes journeyIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(max-width:700px){
+.home-journey{margin-top:30px}
+.home-journey-map{padding:18px 10px 14px}
+.home-journey-phases span{font-size:7px;letter-spacing:.04em;padding-left:2px}
+.home-journey-chart{margin-top:40px}
+.home-journey-line,.home-journey-bar-area{height:150px}
+.home-journey-week{padding:0 1px 7px;gap:7px}
+.home-journey-bar{width:74%}
+.home-journey-bar i{font-size:9px;top:-17px}
+.home-journey-flag{top:-36px}
+.home-journey-num{font-size:9px}
+.home-journey-dot{width:8px;height:8px}
+.home-journey-legend{gap:8px 16px;font-size:10px}
+.home-journey-panel{padding:20px 18px 22px}
+.carefit-home .home-journey-title{font-size:21px;margin:16px 0 16px}
+.home-journey-facts{grid-template-columns:1fr}
+.home-journey-facts dd{font-size:13px}
+.home-journey-end{padding:20px 18px}
+.home-journey-end ul{grid-template-columns:repeat(2,1fr);gap:20px 16px}
+.home-journey-end b{font-size:30px}
+.home-journey-end>p:last-child{font-size:17px}
+}
+@media(prefers-reduced-motion:reduce){.home-journey-title,.home-journey-facts{animation:none}}

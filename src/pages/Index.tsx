@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, ArrowUpRight, Check, MapPin } from "lucide-react";
 import Footer from "@/components/Footer";
+import JornadaAtleta from "@/components/JornadaAtleta";
 import { useSeo } from "@/hooks/useSeo";
 import livia from "@/assets/home-livia.jpg";
 import gustavo from "@/assets/home-gustavo.jpg";
@@ -25,13 +26,6 @@ const sessao = [
   { title: "O fisioterapeuta avalia", text: "Testa, toca e observa. Cruza o que encontrou com o seu histórico e com a sua próxima prova." },
   { title: "O protocolo é escolhido para aquele dia", text: "Liberação, dry needling, laser, gelo, ofurô, bota de compressão. Entra o que faz sentido para você, na ordem que faz sentido." },
   { title: "Você sai sabendo o próximo passo", text: "O que foi encontrado, o que fazer até a próxima sessão e o que observar nos treinos." },
-];
-
-const entreSessoes = [
-  { title: "Seus treinos, pelo Strava", text: "A gente acompanha volume e ritmo para chegar na sessão já sabendo como foi a sua semana." },
-  { title: "Suas provas, quilômetro por quilômetro", text: "Depois da prova, a gente estuda o que aconteceu no percurso para entender o que o seu corpo pediu." },
-  { title: "Seu treinador na conversa", text: "Sempre que temos essa oportunidade, falamos com quem monta o seu treino. O cuidado e a planilha andam juntos." },
-  { title: "Força com direção", text: "O teste de força mostra o que fortalecer e como fortalecer. Sem palpite, sem achismo." },
 ];
 
 const caminhos = [
@@ -117,13 +111,11 @@ export default function Index() {
       <section className="home-between">
         <div className="home-wrap">
           <div className="home-section-heading">
-            <p className="home-eyebrow">Entre uma sessão e outra</p>
+            <p className="home-eyebrow">Um ciclo inteiro, semana a semana</p>
             <h2>A gente não deixa um problema<br />pequeno ficar grande.</h2>
-            <p>Prevenção de verdade acontece quando alguém está olhando para você também fora da maca.</p>
+            <p>O plano de recovery nasce do seu treino, da sua prova e da sua história. Escolha uma semana para ver o que o treino mostrou, o que a gente viu e o que a gente fez.</p>
           </div>
-          <div className="home-between-grid">
-            {entreSessoes.map(item => <article key={item.title}><h3>{item.title}</h3><p>{item.text}</p></article>)}
-          </div>
+          <JornadaAtleta />
         </div>
       </section>
 
