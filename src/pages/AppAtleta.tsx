@@ -53,7 +53,11 @@ const AGENDAS_FISIO: { titulo: string; detalhe: string; agendas: { nome: string;
   {
     titulo: "Sessão de reabilitação",
     detalhe: "Fisioterapia · para quem já fez a avaliação",
-    agendas: [],
+    agendas: [
+      { nome: "Lívia", url: "https://calendar.app.google/qjxaZRdT3Dcu35vcA" },
+      { nome: "Lais", url: "https://calendar.app.google/kqLUAb3SfBftBkRT8" },
+      { nome: "Igor", url: "https://calendar.app.google/R5Sre6h6ch7FVDZ59" },
+    ],
   },
 ];
 const semAcento = (texto: string) => texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
