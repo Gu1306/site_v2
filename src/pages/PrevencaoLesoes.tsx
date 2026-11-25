@@ -217,7 +217,7 @@ const PrevencaoLesoes = () => {
               <li>Melhorar circulação</li>
               <li>Acelerar recuperação</li>
             </ul>
-            <Link to="/recovery-para-corredores-ribeirao-preto" className="inline-flex items-center gap-2 text-accent hover:underline font-medium">
+            <Link to="/recovery-corredores-ribeirao-preto" className="inline-flex items-center gap-2 text-accent hover:underline font-medium">
               → Recovery para corredores
             </Link>
           </div>

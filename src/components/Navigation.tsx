@@ -72,7 +72,6 @@ const Navigation = () => {
       dropdown: [
         { name: "Nossa História", href: "/nossa-historia" },
         { name: "Comunidade CareFit", href: "/comunidade-carefit" },
-        { name: "Ciclo Completo", href: "/jornada" },
         { name: "Ice Mind", href: "/ice-mind-experience" },
         { name: "Nosso Espaço", href: "/espaco" },
         { name: "Performance CareFit", href: "/performance-ribeirao-preto" },

@@ -6,8 +6,6 @@ import { ChevronDown, ChevronRight, Home, Lightbulb, Handshake, Dumbbell, Person
 // Team member photos
 import gustavoFoto from "@/assets/gustavo_foto.jpg";
 import liviaFoto from "@/assets/livia_foto.jpg";
-import guilhermeFoto from "@/assets/guilherme_foto.jpg";
-import arthurFoto from "@/assets/arthur_foto.jpg";
 import Footer from "@/components/Footer";
 
 // Timeline Item Component
@@ -133,7 +131,8 @@ const TimelineItem = ({ year, title, description, icon, variant, position, delay
 
 // Team Card Component
 interface TeamCardProps {
-  photo: string;
+  /** Sem foto, o cartão mostra as iniciais sobre o verde até a foto existir. */
+  photo?: string;
   initials: string;
   name: string;
   title: string;
@@ -172,18 +171,28 @@ const TeamCard = ({ photo, initials, name, title, specialty, bio, delay }: TeamC
     >
       {/* Photo Container */}
       <div className="relative w-full aspect-square overflow-hidden">
-        <img 
-          src={photo} 
-          alt={`Foto de ${name}`}
-          className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
-        />
-        
-        {/* Initials Badge */}
-        <div className="absolute top-4 left-4 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-primary flex items-center justify-center shadow-lg">
-          <span className="text-white font-bold text-lg sm:text-xl lg:text-2xl font-poppins">
-            {initials}
-          </span>
-        </div>
+        {photo ? (
+          <>
+            <img
+              src={photo}
+              alt={`Foto de ${name}`}
+              className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
+            />
+
+            {/* Initials Badge */}
+            <div className="absolute top-4 left-4 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-primary flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-lg sm:text-xl lg:text-2xl font-poppins">
+                {initials}
+              </span>
+            </div>
+          </>
+        ) : (
+          <div className="w-full h-full bg-primary flex items-center justify-center" aria-hidden="true">
+            <span className="text-white/90 font-semibold text-5xl sm:text-6xl font-montserrat tracking-tight">
+              {initials}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -585,6 +594,17 @@ const NossaHistoria = () => {
                 position="right"
                 delay={300}
               />
+
+              {/* Marco 5 - 2026 */}
+              <TimelineItem
+                year="2026"
+                title="A equipe de hoje"
+                description="Chegam Lais e Igor na fisioterapia, Lucas Pereira no fortalecimento e Cintya na yoga. Cada sessão começa por uma avaliação, com um fisioterapeuta e o corredor, uma hora inteira."
+                icon={<Handshake className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />}
+                variant="primary"
+                position="left"
+                delay={400}
+              />
             </div>
           </div>
         </div>
@@ -610,7 +630,7 @@ const NossaHistoria = () => {
           </div>
 
           {/* Team Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Gustavo Rosa */}
             <TeamCard
               photo={gustavoFoto}
@@ -633,26 +653,41 @@ const NossaHistoria = () => {
               delay={100}
             />
 
-            {/* Guilherme Coelho */}
+            {/* Lais e Igor: sem foto individual no acervo (25/11/2026); o cartão mostra as iniciais */}
             <TeamCard
-              photo={guilhermeFoto}
-              initials="GC"
-              name="Guilherme Coelho"
-              title="Educador Físico"
-              specialty="Fortalecimento Funcional"
-              bio="Corredor e especialista em fortalecimento funcional para corredores. Focado em construir a base que sustenta cada quilômetro da jornada. Economia de energia e potência em cada treino."
+              initials="L"
+              name="Lais"
+              title="Fisioterapeuta"
+              specialty="Fisioterapia e Recovery"
+              bio="Atende a avaliação de reabilitação, a Primeira Sessão Dupla e a Jornada Recovery. Cada sessão começa pela avaliação de como você chegou."
               delay={200}
             />
 
-            {/* Arthur Angelotti */}
             <TeamCard
-              photo={arthurFoto}
-              initials="AA"
-              name="Arthur Angelotti"
-              title="Nutricionista Esportivo"
-              specialty="Nutrição para Performance"
-              bio="Maratonista e especialista em nutrição para performance. Desenvolve estratégias alimentares que transformam treinos em conquistas. Combustível certo para cada jornada."
+              initials="I"
+              name="Igor"
+              title="Fisioterapeuta"
+              specialty="Fisioterapia e Recovery"
+              bio="Atende a avaliação de reabilitação, a Primeira Sessão Dupla e a Jornada Recovery, com o protocolo decidido pelo que a avaliação do dia mostra."
               delay={300}
+            />
+
+            <TeamCard
+              initials="LP"
+              name="Lucas Pereira"
+              title="Profissional de Educação Física"
+              specialty="Fortalecimento"
+              bio="Conduz o fortalecimento para corredores: as turmas de segunda, quarta e sexta e o fortalecimento particular."
+              delay={400}
+            />
+
+            <TeamCard
+              initials="C"
+              name="Cintya"
+              title="Responsável pela Yoga"
+              specialty="Yoga para Corredores"
+              bio="Conduz a yoga para corredores, às terças e quintas, às 6h: mobilidade, respiração e consciência corporal."
+              delay={500}
             />
           </div>
         </div>
@@ -726,7 +761,7 @@ const NossaHistoria = () => {
               <ValueCard
                 icon={<Handshake className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10" />}
                 title="Respeito e parceria"
-                description="A relação treinador–atleta é sagrada. Nós somos a base de suporte — corpo, mente e nutrição — para que o atleta realize seu sonho com seu treinador."
+                description="A relação treinador–atleta é sagrada. Nós somos a base de suporte — corpo e mente — para que o atleta realize seu sonho com seu treinador."
                 variant="accent"
                 delay={200}
               />

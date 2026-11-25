@@ -14,7 +14,7 @@ const comoAjudamos = [
   { texto: "Avaliação do corredor", link: "/avaliacao-do-corredor-ribeirao-preto" },
   { texto: "Fisioterapia preventiva", link: "/fisioterapia-para-corredores-ribeirao-preto" },
   { texto: "Fortalecimento específico", link: "/fortalecimento-para-corredores-ribeirao-preto" },
-  { texto: "Protocolos de recovery", link: "/recovery-para-corredores-ribeirao-preto" },
+  { texto: "Protocolos de recovery", link: "/recovery-corredores-ribeirao-preto" },
   { texto: "Orientação de retorno ao treino", link: "" },
 ];
 

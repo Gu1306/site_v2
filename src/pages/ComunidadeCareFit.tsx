@@ -17,7 +17,7 @@ const ComunidadeCareFit = () => {
   const pilares = [
     { icon: Heart, nome: "Recovery" },
     { icon: Shield, nome: "Fortalecimento" },
-    { icon: Zap, nome: "Nutrição" },
+    { icon: Zap, nome: "Fisioterapia" },
     { icon: Brain, nome: "Mente" },
   ];
 
@@ -38,7 +38,7 @@ const ComunidadeCareFit = () => {
   const hubItems = [
     "Fisioterapia esportiva especializada",
     "Fortalecimento específico para corrida",
-    "Nutrição esportiva para endurance",
+    "Yoga para corredores",
     "Protocolos avançados de recovery",
     "Treinamento mental e resiliência",
   ];
@@ -266,7 +266,7 @@ const ComunidadeCareFit = () => {
             <p>Os grupos são conduzidos por corredores que vivem os valores da CareFit.</p>
             <p className="font-semibold text-primary">Chamamos esses líderes de Embaixadores.</p>
             <p>
-              Os Embaixadores não são escolhidos pelo pace mais rápido, mas por viverem intensamente o DNA da CareFit. Eles estão em ciclo ativo para provas e compartilham suas rotinas reais: o fortalecimento com a nossa equipe, as estratégias nutricionais, e as sessões de recovery.
+              Os Embaixadores não são escolhidos pelo pace mais rápido, mas por viverem intensamente o DNA da CareFit. Eles estão em ciclo ativo para provas e compartilham suas rotinas reais: o fortalecimento com a nossa equipe e as sessões de recovery.
             </p>
             <p>Mais do que pace ou performance, os Embaixadores representam:</p>
           </div>

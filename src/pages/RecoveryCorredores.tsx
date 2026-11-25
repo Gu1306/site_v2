@@ -84,7 +84,7 @@ const RecoveryCorredores = () => {
               Na CareFit Run Base, em Ribeirão Preto, oferecemos protocolos de recovery especializados para corredores e triatletas, com foco em acelerar a recuperação muscular, reduzir dor pós-treino e melhorar a adaptação ao treinamento.
             </p>
             <p>
-              Nosso recovery faz parte de um ecossistema completo de cuidado ao corredor, integrado com <Link to="/fisioterapia-para-corredores-ribeirao-preto" className="text-accent hover:underline">fisioterapia esportiva</Link>, <Link to="/fortalecimento-para-corredores-ribeirao-preto" className="text-accent hover:underline">fortalecimento específico para corrida</Link> e <Link to="/nutricao-para-corredores-ribeirao-preto" className="text-accent hover:underline">nutrição esportiva</Link>.
+              Nosso recovery faz parte de um ecossistema completo de cuidado ao corredor, integrado com <Link to="/fisioterapia-para-corredores-ribeirao-preto" className="text-accent hover:underline">fisioterapia esportiva</Link> e <Link to="/fortalecimento-para-corredores-ribeirao-preto" className="text-accent hover:underline">fortalecimento específico para corrida</Link>.
             </p>
           </div>
         </div>
@@ -118,7 +118,7 @@ const RecoveryCorredores = () => {
             </div>
             <div className="flex items-start gap-3 bg-background p-5 rounded-lg shadow-sm">
               <ArrowRight className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-              <span className="text-foreground"><Link to="/nutricao-para-corredores-ribeirao-preto" className="text-accent hover:underline font-medium">Nutrição esportiva</Link> para sustentar recuperação e adaptação ao treinamento</span>
+              <span className="text-foreground"><Link to="/agendamento-yoga" className="text-accent hover:underline font-medium">Yoga para corredores</Link> para mobilidade, respiração e consciência corporal</span>
             </div>
             <div className="flex items-start gap-3 bg-background p-5 rounded-lg shadow-sm">
               <ArrowRight className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
@@ -413,7 +413,7 @@ const RecoveryCorredores = () => {
             </div>
             <div className="flex items-center gap-4 p-4 bg-muted rounded-lg">
               <ArrowRight className="w-5 h-5 text-accent flex-shrink-0" />
-              <Link to="/nutricao-para-corredores-ribeirao-preto" className="text-accent hover:underline font-medium">Nutrição esportiva para endurance</Link>
+              <Link to="/agendamento-yoga" className="text-accent hover:underline font-medium">Yoga para corredores</Link>
             </div>
             <div className="flex items-center gap-4 p-4 bg-muted rounded-lg">
               <ArrowRight className="w-5 h-5 text-accent flex-shrink-0" />
@@ -421,7 +421,7 @@ const RecoveryCorredores = () => {
             </div>
           </div>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Essa integração permite olhar para o corredor de forma completa, considerando treinamento, recuperação, alimentação e prevenção de lesões.
+            Essa integração permite olhar para o corredor de forma completa, considerando treinamento, recuperação, força e prevenção de lesões.
           </p>
         </div>
       </section>

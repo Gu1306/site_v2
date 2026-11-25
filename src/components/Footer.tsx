@@ -107,8 +107,8 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/jornada" className="text-sm text-primary-foreground/70 hover:text-accent transition-colors">
-                  Metodologia (Ciclo Completo)
+                <Link to="/planos" className="text-sm text-primary-foreground/70 hover:text-accent transition-colors">
+                  Planos
                 </Link>
               </li>
               <li>

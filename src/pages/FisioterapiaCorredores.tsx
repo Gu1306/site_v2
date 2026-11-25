@@ -103,7 +103,7 @@ const FisioterapiaCorredores = () => {
               A fisioterapia esportiva específica para corredores vai além do tratamento da dor. Ela atua na <strong className="text-foreground">prevenção de lesões, na correção biomecânica da corrida e na melhora da performance</strong>.
             </p>
             <p>
-              Na <strong className="text-foreground">CareFit Run Base</strong>, em Ribeirão Preto, a fisioterapia está integrada a um ecossistema completo de cuidado ao corredor: <Link to="/fortalecimento-para-corredores-ribeirao-preto" className="text-accent hover:underline">fortalecimento</Link>, <Link to="/nutricao-para-corredores-ribeirao-preto" className="text-accent hover:underline">nutrição</Link>, <Link to="/recovery-corredores-ribeirao-preto" className="text-accent hover:underline">recovery</Link> e treinamento mental. Isso garante resultados mais rápidos e duradouros.
+              Na <strong className="text-foreground">CareFit Run Base</strong>, em Ribeirão Preto, a fisioterapia está integrada a um ecossistema completo de cuidado ao corredor: <Link to="/fortalecimento-para-corredores-ribeirao-preto" className="text-accent hover:underline">fortalecimento</Link>, <Link to="/recovery-corredores-ribeirao-preto" className="text-accent hover:underline">recovery</Link> e treinamento mental. Isso garante resultados mais rápidos e duradouros.
             </p>
             <p>
               Atendemos corredores de 5 km, 10 km, meia maratona, maratona e também triatletas que buscam tratar lesões, melhorar a biomecânica da corrida e retornar aos treinos com segurança e performance.
@@ -206,7 +206,7 @@ const FisioterapiaCorredores = () => {
           </div>
           <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
             <p>
-              Na CareFit, o tratamento de lesões vai além da sessão de fisioterapia. Trabalhamos de forma <strong className="text-foreground">integrada com fortalecimento, nutrição e recovery</strong> para acelerar sua recuperação e evitar recidivas.
+              Na CareFit, o tratamento de lesões vai além da sessão de fisioterapia. Trabalhamos de forma <strong className="text-foreground">integrada com fortalecimento e recovery</strong> para acelerar sua recuperação e evitar recidivas.
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-6 mt-10">
@@ -250,7 +250,6 @@ const FisioterapiaCorredores = () => {
               "Orientação sobre progressão segura de volume de treino",
               "Análise biomecânica da corrida",
               "Protocolos de recovery entre sessões de treino",
-              "Integração com nutrição para saúde musculoesquelética",
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-4 p-4 bg-muted rounded-lg">
                 <ArrowRight className="w-5 h-5 text-accent flex-shrink-0" />
