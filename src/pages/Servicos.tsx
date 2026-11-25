@@ -161,77 +161,8 @@ const Servicos = () => {
               </div>
             </div>
 
-            {/* Nutrição Service */}
-            <div className="flex flex-col lg:flex-row items-center gap-12">
-              {/* Content Side */}
-              <div className="lg:w-1/2 space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-warm to-accent rounded-full flex items-center justify-center">
-                    <Target className="w-8 h-8 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-3xl font-bold text-primary">
-                      Nutrição
-                    </h2>
-                    <p className="text-accent font-medium">
-                      Alimentação conectada ao treino
-                    </p>
-                  </div>
-                </div>
-                
-                <p className="text-lg text-muted-foreground leading-relaxed">
-                  Acompanhamento nutricional integrado ao seu ciclo de treinos, com estratégias personalizadas para cada fase da sua preparação e objetivos.
-                </p>
-                
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-3">
-                    <ArrowRight className="w-5 h-5 text-accent flex-shrink-0" />
-                    <span className="text-foreground">Plano nutricional personalizado</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <ArrowRight className="w-5 h-5 text-accent flex-shrink-0" />
-                    <span className="text-foreground">Estratégias de hidratação e suplementação</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <ArrowRight className="w-5 h-5 text-accent flex-shrink-0" />
-                    <span className="text-foreground">Nutrição periodizada conforme treinos</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <ArrowRight className="w-5 h-5 text-accent flex-shrink-0" />
-                    <span className="text-foreground">Acompanhamento contínuo de resultados</span>
-                  </li>
-                </ul>
-                
-                <Button variant="hero" size="lg" onClick={() => window.open('https://api.whatsapp.com/send?phone=5516996008849', '_blank')}>
-                  Agendar consulta
-                </Button>
-              </div>
-
-              {/* Video/Image Side */}
-              <div className="lg:w-1/2">
-                <Card className="overflow-hidden border-0 shadow-lg">
-                  <CardContent className="p-0">
-                    <div className="relative w-full h-80 bg-gradient-to-br from-warm to-accent flex items-center justify-center">
-                      {/* Video placeholder */}
-                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                        <div className="text-center text-white">
-                          <Play className="w-16 h-16 mx-auto mb-4 opacity-80" />
-                          <p className="text-lg font-medium">Vídeo explicativo</p>
-                          <p className="text-sm opacity-80">Em breve</p>
-                        </div>
-                      </div>
-                      {/* Future YouTube embed space */}
-                      <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded text-sm">
-                        nutrition-video
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-
             {/* Treinamento Mental Service */}
-            <div className="flex flex-col lg:flex-row-reverse items-center gap-12">
+            <div className="flex flex-col lg:flex-row items-center gap-12">
               {/* Content Side */}
               <div className="lg:w-1/2 space-y-6">
                 <div className="flex items-center gap-4">
@@ -309,7 +240,7 @@ const Servicos = () => {
           <h2 className="text-4xl font-bold text-white mb-6">
             Pronto para elevar sua performance?
           </h2>
-          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">Nosso time de fisioterapeutas e educadores físicos está pronto para guiar sua jornada de evolução como corredor.</p>
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">Nosso time de fisioterapeutas e profissionais de educação física está pronto para guiar sua jornada de evolução como corredor.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="hero" size="lg" onClick={() => window.open('https://api.whatsapp.com/send?phone=5516996008849', '_blank')}>
               Agende sua avaliação

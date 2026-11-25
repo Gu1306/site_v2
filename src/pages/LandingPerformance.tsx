@@ -230,9 +230,8 @@ const LandingPerformance = () => {
             Um fisioterapeuta por atleta. Sempre.
           </p>
           <div className="space-y-2 text-lg md:text-xl text-muted-foreground mb-8">
-            <p>Falamos com seu treinador.</p>
-            <p>Falamos com sua nutricionista.</p>
-            <p className="font-semibold text-foreground">Alinhamos tudo.</p>
+            <p>Conversamos com seu treinador sempre que temos essa oportunidade.</p>
+            <p className="font-semibold text-foreground">E você sai de cada sessão sabendo o próximo passo.</p>
           </div>
           <p className="text-xl md:text-2xl font-bold text-primary">
             👉 Você não fica mais sozinho no seu ciclo.

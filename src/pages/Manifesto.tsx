@@ -23,7 +23,7 @@ const Manifesto = () => {
       icon: Award,
       title: "O que entregamos",
       subtitle: "Jornadas de 12 semanas, fisioterapeutas como agentes de performance",
-      content: "Oferecemos muito mais que tratamento: desenvolvemos jornadas personalizadas onde fisioterapeutas se tornam seus parceiros de performance, integrando recovery, fortalecimento, nutrição e treinamento mental em um programa estruturado.",
+      content: "Oferecemos muito mais que tratamento: desenvolvemos jornadas personalizadas onde fisioterapeutas se tornam seus parceiros de performance, integrando fisioterapia, recovery, fortalecimento e treinamento mental em um programa estruturado.",
       color: "from-warm to-accent"
     },
     {
@@ -119,7 +119,7 @@ const Manifesto = () => {
             "Correr é mais que cruzar a linha de chegada — é começar com consciência."
           </blockquote>
           <p className="text-xl text-white/90 mb-8">
-            A base está em recovery, fortalecimento, nutrição e mente treinada.
+            A base está em fisioterapia, recovery, fortalecimento e mente treinada.
           </p>
           <Button 
             variant="hero" 
