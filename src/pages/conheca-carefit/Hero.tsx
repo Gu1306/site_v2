@@ -7,8 +7,6 @@ interface Props {
   onScrollToPricing: () => void;
 }
 
-const YT_VIDEO_ID = "TyaycftJmz8";
-
 export default function Hero({ wappUrl, onScrollToPricing }: Props) {
   const [refRunners, runners] = useCountUp(300);
   const [refMar, mar] = useCountUp(110);
@@ -73,13 +71,9 @@ export default function Hero({ wappUrl, onScrollToPricing }: Props) {
 
         <aside className="hero__video-side">
           <div className="hero__video-frame" aria-label="Vídeo sobre as ferramentas da CareFit">
-            <iframe
-              src={`https://www.youtube.com/embed/${YT_VIDEO_ID}?rel=0&modestbranding=1&playsinline=1`}
-              title="Lívia apresenta as ferramentas da CareFit Run Base"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              loading="eager"
-            />
+            <video controls playsInline preload="none" poster="/videos/livia-8-ferramentas-capa.jpg" title="Lívia apresenta as ferramentas da CareFit Run Base">
+              <source src="/videos/livia-8-ferramentas-web.mp4" type="video/mp4" />
+            </video>
           </div>
           <div className="hero__video-caption">
             <span className="hero__video-live">

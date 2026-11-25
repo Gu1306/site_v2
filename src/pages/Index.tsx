@@ -6,7 +6,6 @@ import { useSeo } from "@/hooks/useSeo";
 import livia from "@/assets/home-livia.jpg";
 import gustavo from "@/assets/home-gustavo.jpg";
 import sala from "@/assets/home-sala-atendimento.jpg";
-import imersao from "@/assets/home-imersao.jpg";
 import "./home.css";
 
 const whatsapp = "https://api.whatsapp.com/send?phone=5516996008849";
@@ -101,17 +100,17 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="home-wrap home-reel" aria-labelledby="home-ferramentas">
+      <section className="home-wrap home-reel" aria-labelledby="home-espaco">
         <figure>
-          <video controls playsInline preload="none" poster="/videos/livia-8-ferramentas-capa.jpg" onPlay={tocarSoEste} aria-label="Lívia Dias apresenta as 8 ferramentas da CareFit Run Base">
-            <source src="/videos/livia-8-ferramentas-web.mp4" type="video/mp4" />
+          <video controls autoPlay muted loop playsInline preload="metadata" poster="/videos/espaco-carefit-capa.jpg" aria-label="Vídeo do espaço da CareFit Run Base: fortalecimento, imersão no gelo, salas de atendimento">
+            <source src="/videos/espaco-carefit-web.mp4" type="video/mp4" />
           </video>
         </figure>
         <div>
-          <p className="home-eyebrow">A CareFit em um minuto</p>
-          <h2 id="home-ferramentas">Oito ferramentas olhando<br />o corredor inteiro.</h2>
-          <p>Se o seu fisio não sabe quanto você correu essa semana, ele está trabalhando no palpite. A Lívia mostra como o seu treino, a sua força, o gelo e a sua história entram na mesma sessão, e como tudo fica registrado.</p>
-          <a className="home-text-link" href="https://www.instagram.com/carefitrunbase/reel/De4mHE1Spng/" target="_blank" rel="noopener noreferrer">Ver no nosso Instagram <ArrowUpRight size={18} aria-hidden="true" /></a>
+          <p className="home-eyebrow"><MapPin size={14} aria-hidden="true" /> Sua base em Ribeirão Preto</p>
+          <h2 id="home-espaco">Um espaço inteiro<br />pensado para o corredor.</h2>
+          <p>Sala de atendimento, imersão no gelo, ofurô e área de fortalecimento no mesmo lugar. Tudo com hora marcada, para o seu tempo ser respeitado.</p>
+          <Link className="home-text-link" to="/espaco">Conheça a nossa base <ArrowUpRight size={18} aria-hidden="true" /></Link>
         </div>
       </section>
 
@@ -163,11 +162,6 @@ export default function Index() {
           </video>
           <figcaption><strong>{r.titulo}</strong><q>{r.fala}</q><span>{r.nome}</span></figcaption>
         </figure>)}</div>
-      </section>
-
-      <section className="home-wrap home-base">
-        <img src={imersao} alt="Área de imersão da CareFit Run Base em Ribeirão Preto" loading="lazy" width="1500" height="1000" />
-        <div><p className="home-eyebrow"><MapPin size={14} aria-hidden="true" /> Sua base em Ribeirão Preto</p><h2>Um espaço inteiro<br />pensado para o corredor.</h2><p>Sala de atendimento, imersão no gelo, ofurô e área de fortalecimento no mesmo lugar. Tudo com hora marcada, para o seu tempo ser respeitado.</p><Link className="home-text-link" to="/espaco">Conheça a nossa base <ArrowUpRight size={18} aria-hidden="true" /></Link></div>
       </section>
 
       <section className="home-start">
