@@ -28,6 +28,8 @@ export const CAMPOS = {
   fimPlano: 'b0519a77-8347-41be-84e2-3f67d5b5c3d4',
   numeroSessao: '72994cb9-7687-4476-994c-1c7e89616dce',
   totalPlano: '2cf5b213-c034-43a3-a2dc-2285d8354ffb',
+  mensagemAtleta: '1184bcab-8622-48b4-8a15-7823bc62a3e5', // "Mensagem sugerida ao atleta" (check-in pós-sessão)
+  statusEnvio: '260046ba-486b-4ecd-9f95-46fc2ad783e3', // "Status envio WhatsApp"
 };
 
 // Campos da lista CRM ATLETAS (901326722390), usados pela carteira e pelas conversas.
@@ -442,7 +444,14 @@ export function criarServicoFechamento(api, agora = () => Date.now(), leitorAgen
     if (idade < CACHE_MS && !(forcar && idade >= ATUALIZAR_MIN_MS)) return cache;
     emCurso ||= (async () => {
       const [sessoes, fortalecimento, yoga] = await Promise.all([LISTAS.sessoes, LISTAS.fortalecimento, LISTAS.yoga].map(id => lerLista(api, id)));
-      cache = { lidoEm: agora(), sessoes: sessoes.map(reduzirSessao), fortalecimento: fortalecimento.map(reduzirAula), yoga: yoga.map(reduzirAula) };
+      // A mensagem pós-sessão é texto clínico: fica FORA da sessão reduzida (que as telas da
+      // gestão recebem inteira) e só entra aqui quando o status diz que ela foi ENVIADA.
+      const mensagens = new Map();
+      for (const t of sessoes) {
+        const texto = String(campo(t, CAMPOS.mensagemAtleta)?.value || '').trim();
+        if (texto && opcao(campo(t, CAMPOS.statusEnvio)) === 'Enviada') mensagens.set(t.id, texto);
+      }
+      cache = { lidoEm: agora(), sessoes: sessoes.map(reduzirSessao), fortalecimento: fortalecimento.map(reduzirAula), yoga: yoga.map(reduzirAula), mensagens };
       return cache;
     })().finally(() => { emCurso = null; });
     return emCurso;
@@ -480,6 +489,8 @@ export function criarServicoFechamento(api, agora = () => Date.now(), leitorAgen
     },
     /** E-mail de cada atleta do CRM (id do card → e-mail), para o app do atleta. */
     async emails(forcar = false) { return (await crm(forcar)).emails; },
+    /** Mensagens pós-sessão já enviadas (id da sessão → texto), só para o app do atleta. */
+    async mensagens(forcar = false) { return (await dados(forcar)).mensagens; },
     // Mesmo cache do fechamento: abrir a calculadora não gasta a API do ClickUp.
     async campanha(forcar = false) {
       const [d, fontes] = await Promise.all([dados(forcar), origens(forcar).catch(() => null)]);

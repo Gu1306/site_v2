@@ -53,7 +53,11 @@ const AGENDAS_FISIO: { titulo: string; detalhe: string; agendas: { nome: string;
   {
     titulo: "Sessão de reabilitação",
     detalhe: "Fisioterapia · para quem já fez a avaliação",
-    agendas: [],
+    agendas: [
+      { nome: "Lívia", url: "https://calendar.app.google/qjxaZRdT3Dcu35vcA" },
+      { nome: "Lais", url: "https://calendar.app.google/kqLUAb3SfBftBkRT8" },
+      { nome: "Igor", url: "https://calendar.app.google/R5Sre6h6ch7FVDZ59" },
+    ],
   },
 ];
 const semAcento = (texto: string) => texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -337,6 +341,42 @@ const Entrar = ({ aoEntrar }: { aoEntrar: () => void }) => {
 /** "2027-01-30" → "30/01/2027", sem passar por Date (fuso não pode mudar o dia). */
 const dataCurta = (iso: string) => iso.split("-").reverse().join("/");
 
+const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+/** "2026-11-20" → "sex, 20/11/2026". Meio-dia UTC para o fuso não trocar o dia. */
+const dataComDia = (iso: string) => `${DIAS_SEMANA[new Date(iso + "T12:00:00Z").getUTCDay()]}, ${dataCurta(iso)}`;
+
+/** Lista recolhida com as datas do que já foi usado; some quando não há data nenhuma. */
+const DatasUsadas = ({ titulo, itens }: { titulo: string; itens: { data: string; nota: string; texto?: string }[] }) =>
+  itens.length === 0 ? null : (
+    <details className="mt-3 rounded-xl bg-primary/5 px-3.5 py-2.5 text-primary">
+      <summary className="cursor-pointer text-[13px] font-medium">
+        {titulo} ({itens.length})
+      </summary>
+      <ol className="mt-2 grid gap-1 text-[13px] text-primary/75">
+        {itens.map((item, i) => (
+          <li key={item.data + i} className="border-t border-primary/10 pt-1 first:border-t-0 first:pt-0">
+            {item.texto ? (
+              <details>
+                <summary className="flex min-h-[32px] cursor-pointer list-none items-center justify-between gap-2 [&::-webkit-details-marker]:hidden">
+                  <span>{dataComDia(item.data)}</span>
+                  <span className="text-[12px] font-medium text-primary underline underline-offset-2">Ver mensagem</span>
+                </summary>
+                <p className="mb-1.5 mt-1 whitespace-pre-line rounded-lg bg-white px-3 py-2.5 text-[13px] leading-relaxed text-primary/85">
+                  {item.texto}
+                </p>
+              </details>
+            ) : (
+              <div className="flex min-h-[32px] items-center justify-between">
+                <span>{dataComDia(item.data)}</span>
+                {item.nota && <span className="text-[11px] uppercase tracking-[0.06em] text-secondary">{item.nota}</span>}
+              </div>
+            )}
+          </li>
+        ))}
+      </ol>
+    </details>
+  );
+
 const Numero = ({ rotulo, valor }: { rotulo: string; valor: number | string }) => (
   <div className="rounded-xl bg-primary/5 px-2 py-2">
     <dt className="text-[10px] font-medium uppercase tracking-[0.08em] text-primary/75">{rotulo}</dt>
@@ -500,6 +540,10 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
                   <Numero rotulo="Feitas" valor={pacote.feitas} />
                   <Numero rotulo="Validade" valor={pacote.validade ? dataCurta(pacote.validade) : "—"} />
                 </dl>
+                <DatasUsadas
+                  titulo="Ver as aulas que você já fez"
+                  itens={(pacote.usadas || []).map((u) => ({ data: u.data, nota: u.faltou ? "falta" : "" }))}
+                />
                 <p className="mt-3 text-xs leading-relaxed text-primary/75">
                   O saldo atualiza em até 15 minutos depois de reservar ou cancelar.
                 </p>
@@ -536,6 +580,14 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
                     Validade: {plano.validade ? dataCurta(plano.validade) : "—"}
                   </p>
                 )}
+                <DatasUsadas
+                  titulo="Ver as sessões que você já fez"
+                  itens={(plano.datas || []).map((data) => ({
+                    data,
+                    nota: "",
+                    texto: (plano.mensagens || []).find((m) => m.data === data)?.texto,
+                  }))}
+                />
               </article>
             ))}
           </div>

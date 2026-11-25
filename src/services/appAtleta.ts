@@ -70,6 +70,10 @@ export interface PlanoDoAtleta {
   feitas: number;
   restam: number;
   validade: string | null;
+  /** Datas das sessões já feitas (AAAA-MM-DD), da mais recente para a mais antiga. */
+  datas?: string[];
+  /** Mensagem pós-sessão que o atleta já recebeu no WhatsApp, por data. */
+  mensagens?: { data: string; texto: string }[];
 }
 
 export interface InicioDoAtleta {
@@ -79,6 +83,8 @@ export interface InicioDoAtleta {
     disponiveis: number;
     agendadas: number;
     feitas: number;
+    /** Aulas já usadas do pacote (AAAA-MM-DD), da mais recente para a mais antiga. */
+    usadas?: { data: string; faltou: boolean }[];
     /** Nome do pacote em uso, ex.: "24 aulas". */
     plano: string | null;
     /** AAAA-MM-DD; nulo quando não há data de contratação no cadastro. */
