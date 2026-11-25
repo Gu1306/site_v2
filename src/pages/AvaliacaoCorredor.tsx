@@ -4,6 +4,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ArrowRight, CheckCircle, Heart, Activity, MessageCircle, MapPin, Users, ClipboardCheck, Search, Trophy, Calendar } from "lucide-react";
 import Footer from "@/components/Footer";
+import { OFERTAS, ORIENTACOES, agendamentoCarefit, whatsappOferta } from "@/lib/ofertasCarefit";
+
+// Esta página é a da avaliação de reabilitação: nome, duração e preço vêm de ofertasCarefit.ts.
+const AVALIACAO = OFERTAS.reabilitacao;
+const DUPLA = OFERTAS.dupla;
+const AGENDAR = agendamentoCarefit("reabilitacao");
+const O_QUE_LEVAR = ORIENTACOES.find((item) => item.q === "O que preciso levar?")?.a;
 
 const avaliacaoInclui = [
   "Anamnese completa sobre histórico de treinos e provas",
@@ -36,30 +43,33 @@ const lesoesComuns = [
 const indicacoes = [
   "Estão com dor durante a corrida",
   "Sofreram alguma lesão recente",
-  "Querem voltar a correr após uma pausa",
-  "Estão iniciando na corrida",
-  "Querem melhorar performance com segurança",
-  "Estão se preparando para provas importantes",
+  "Querem voltar a correr depois de parar por uma lesão",
+  "Sentem que uma dor está mudando o jeito de correr",
 ];
 
 const faqItems = [
   {
     question: "Quanto tempo dura a avaliação?",
-    answer: "A avaliação completa dura aproximadamente 1 hora e 30 minutos.",
+    answer: `São ${AVALIACAO.duracao}.`,
   },
   {
-    question: "Preciso estar lesionado para fazer avaliação?",
-    answer: "Não. Muitos corredores fazem a avaliação de forma preventiva para identificar fatores de risco.",
+    question: "Quanto custa?",
+    answer: `A ${AVALIACAO.nome.toLowerCase()} custa ${AVALIACAO.valor}. Os valores das sessões de tratamento estão na página de planos.`,
+  },
+  {
+    question: "Preciso estar com dor para fazer a avaliação?",
+    answer: `Esta avaliação é para quem está com dor ou lesão que limita a corrida. Sem dor, o caminho é a ${DUPLA.nome}, que também começa por uma avaliação.`,
   },
   {
     question: "A avaliação inclui tratamento?",
-    answer: "Durante a avaliação já são realizados testes clínicos e técnicas de análise funcional que ajudam a identificar e iniciar o processo de recuperação.",
+    answer: "Ela termina com a proposta de tratamento para o seu caso. O tratamento segue em sessões de fisioterapia, agendadas depois da avaliação.",
   },
+  ...(O_QUE_LEVAR ? [{ question: "O que preciso levar?", answer: O_QUE_LEVAR }] : []),
 ];
 
 const AvaliacaoCorredor = () => {
   const handleWhatsApp = () => {
-    window.open('https://api.whatsapp.com/send?phone=5516996008849', '_blank');
+    window.open(whatsappOferta("reabilitacao"), "_blank");
   };
 
   return (
@@ -71,11 +81,14 @@ const AvaliacaoCorredor = () => {
             Avaliação do Corredor em Ribeirão Preto
           </h1>
           <p className="text-xl text-white/90 max-w-3xl mx-auto mb-8">
-            Avaliação completa para corredores e triatletas na CareFit Run Base. Entenda as causas de dores, lesões e limitações na corrida.
+            Para corredores e triatletas com dor ou lesão que limita a corrida. Entenda as causas e saia com a proposta de tratamento para o seu caso.
+          </p>
+          <p className="text-lg text-white/80 mb-8">
+            {AVALIACAO.nome}: {AVALIACAO.duracao}, {AVALIACAO.valor}.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="hero" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
-              Agendar avaliação
+            <Button asChild variant="hero" size="lg" className="text-lg px-8 py-4">
+              <Link to={AGENDAR}>Agendar avaliação</Link>
             </Button>
             <Button variant="whatsapp" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
               <MessageCircle className="w-5 h-5" />
@@ -118,7 +131,7 @@ const AvaliacaoCorredor = () => {
           </div>
           <div className="space-y-6 text-lg text-muted-foreground leading-relaxed mb-8">
             <p>
-              A avaliação é conduzida por nossa <Link to="/fisioterapia-para-corredores-ribeirao-preto" className="text-accent hover:underline">fisioterapeuta esportiva</Link> e tem duração aproximada de <strong className="text-foreground">1 hora e 30 minutos</strong>.
+              A avaliação é feita por um <Link to="/fisioterapia-para-corredores-ribeirao-preto" className="text-accent hover:underline">fisioterapeuta da equipe</Link>. {AVALIACAO.resumo}
             </p>
             <p>
               Durante esse período, o corredor passa por uma série de testes clínicos e funcionais que ajudam a identificar fatores de risco para lesões.
@@ -212,7 +225,7 @@ const AvaliacaoCorredor = () => {
             </h2>
           </div>
           <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-            Na CareFit Run Base já ajudamos <strong className="text-foreground">mais de 40 atletas</strong> a retornarem à corrida após lesões.
+            Na CareFit Run Base já atendemos <strong className="text-foreground">mais de 395 corredores</strong>.
           </p>
           <p className="text-lg text-muted-foreground leading-relaxed mb-6">Nosso trabalho combina:</p>
           <div className="space-y-4 mb-8">
@@ -299,6 +312,10 @@ const AvaliacaoCorredor = () => {
               </div>
             ))}
           </div>
+          <p className="text-lg text-muted-foreground leading-relaxed mt-8">
+            Sem dor, e querendo cuidar da recuperação e da performance? Comece pela{" "}
+            <Link to={DUPLA.pagina} className="text-accent hover:underline font-medium">{DUPLA.nome}</Link>, que também começa por uma avaliação.
+          </p>
         </div>
       </section>
 
@@ -342,7 +359,7 @@ const AvaliacaoCorredor = () => {
       </section>
 
       {/* CTA Final */}
-      <section className="py-20 bg-gradient-to-r from-accent to-earth">
+      <section className="py-20 bg-primary">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <p className="text-white/90 text-lg mb-6">
             A CareFit Run Base é um centro especializado em fisioterapia esportiva para corredores em Ribeirão Preto, focado em performance, prevenção de lesões e longevidade no esporte.
@@ -354,8 +371,8 @@ const AvaliacaoCorredor = () => {
             Se você é corredor ou triatleta em Ribeirão Preto e quer entender melhor seu corpo e sua corrida, nossa equipe pode ajudar.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Button variant="hero" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
-              Agendar avaliação
+            <Button asChild variant="hero" size="lg" className="text-lg px-8 py-4">
+              <Link to={AGENDAR}>Agendar avaliação</Link>
             </Button>
             <Button variant="whatsapp" size="lg" className="text-lg px-8 py-4" onClick={handleWhatsApp}>
               <MessageCircle className="w-5 h-5" />
