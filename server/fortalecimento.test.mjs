@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createService, IDS, slotOf, dayOf, validateWorkout, unpack, PANEL_REVISIONS } from './fortalecimento.mjs';
+import { createService, CHECKOUT, IDS, slotOf, dayOf, validateWorkout, unpack, PANEL_REVISIONS } from './fortalecimento.mjs';
 import { createServer, passwordHash } from './index.mjs';
 const workout = { title: 'Treino teste', displayName: 'Pessoa Teste', exercises: [{ name: 'Exercício de teste', sets: 3, reps: '10', load: 'corpo', rest: 60 }] };
 test('ClickUp escaped Markdown does not hide a saved plain-text record', () => {
@@ -78,6 +78,8 @@ test('evolution confirmed before completion, outage retry, no athlete status mut
   f.setFailField(false);
   await service.complete('class1', { evolution: 'Registro de teste', requestId: 'done1' }, 'lucas');
   assert.equal(db.get('class1').status.status, 'realizada');
+  // Concluir pede o rascunho do check-out sozinho (o treinador não precisa abrir o ClickUp).
+  assert.equal(db.get('class1').custom_fields.find(f => f.id === CHECKOUT.criar)?.value, true);
   assert.equal((await service.complete('class1', { evolution: 'Registro de teste', requestId: 'done1' }, 'lucas')).completed, true);
   const statusIndex = calls.findIndex(c => c.body?.status === 'realizada');
   assert.ok(calls.slice(0, statusIndex).some(c => c.url.includes('/field/') && c.body?.value === 'Registro de teste'));

@@ -43,3 +43,36 @@
 .cf-tv-footer>div:last-child{justify-self:end}
 .cf-tv-footer>img{height:clamp(26px,2.2vw,40px);width:auto;justify-self:center;display:block}
 @media(max-width:600px){.cf-tv-footer{grid-template-columns:1fr auto;gap:8px}.cf-tv-footer>img{display:none}}
+
+/* Check-out pós-aula: as aulas concluídas de hoje e de ontem, com a mensagem do atleta. */
+.cf-checkouts{margin-top:34px;padding-top:26px;border-top:1px solid var(--cf-line)}
+.cf-checkouts>header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
+.cf-checkouts>header h2{font-size:clamp(20px,2vw,28px);font-weight:400;margin:4px 0 6px}
+.cf-checkouts>header p{color:var(--cf-muted);font-size:14px;line-height:1.5;max-width:64ch;margin:0}
+.cf-checkout-vazio{color:var(--cf-muted);font-size:14px}
+.cf-checkout-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:16px}
+.cf-checkout{background:var(--cf-card);border:1px solid var(--cf-line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.cf-checkout-pronto{border-color:var(--cf-accent)}
+.cf-checkout-topo{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.cf-checkout-topo h3{font-size:17px;font-weight:400;margin:0;overflow-wrap:anywhere}
+.cf-checkout-topo p{color:var(--cf-muted);font-size:13px;margin:3px 0 0}
+.cf-checkout-selo{display:inline-flex;align-items:center;gap:6px;flex:none;font-size:12px;padding:5px 10px;border-radius:999px;border:1px solid var(--cf-line);color:var(--cf-muted);white-space:nowrap}
+.cf-checkout-pronto .cf-checkout-selo{color:var(--cf-accent);border-color:var(--cf-accent)}
+.cf-checkout-enviado .cf-checkout-selo{color:#9fe0b8;border-color:#3f7a59}
+.cf-checkout-bloqueado .cf-checkout-selo,.cf-checkout-reprovado .cf-checkout-selo,.cf-checkout-parado .cf-checkout-selo{color:#ffc9a8;border-color:#a8623f}
+.cf-checkout-nota{color:var(--cf-muted);font-size:13px;line-height:1.5;margin:0}
+.cf-checkout-motivo{font-size:13px;line-height:1.5;margin:0;padding:10px 12px;border-radius:9px;background:rgba(232,154,112,.12);overflow-wrap:anywhere}
+.cf-checkout-campo{display:grid;gap:6px;font-size:12px;color:var(--cf-muted)}
+.cf-checkout-campo textarea{font-size:14px;line-height:1.5;color:#fff;background:var(--cf-bg);border:1px solid var(--cf-line)}
+.cf-checkout-campo textarea[readonly]{opacity:.85}
+.cf-checkout-campo small{justify-self:end;font-size:11px}
+.cf-checkout-acoes{display:flex;flex-wrap:wrap;gap:8px}
+.cf-checkout-acoes:empty{display:none}
+@media(max-width:700px){.cf-checkouts>header{flex-direction:column}.cf-checkout-topo{flex-direction:column}}
+.cf-checkout-pendentes{border:1px solid #a8623f;background:rgba(232,154,112,.1);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.cf-checkout-pendentes h3{font-size:16px;font-weight:400;margin:0 0 6px;color:#ffc9a8}
+.cf-checkout-pendentes p{color:var(--cf-muted);font-size:13px;line-height:1.5;margin:0 0 10px;max-width:80ch}
+.cf-checkout-pendentes ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.cf-checkout-pendentes li{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;padding-top:8px;border-top:1px solid var(--cf-line)}
+.cf-checkout-pendentes li strong{font-weight:400;color:#fff}
+.cf-checkout-pendentes li span{color:var(--cf-muted)}

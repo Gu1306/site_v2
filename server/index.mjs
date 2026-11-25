@@ -289,9 +289,10 @@ export function createServer(env = process.env, service = createService(clickupC
         }
         if (route === 'agenda' && req.method === 'GET') return send(200, await service.agenda(url.searchParams.get('day') || ''));
         if (route === 'athletes' && req.method === 'GET') return send(200, await service.athletes());
+        if (route === 'checkouts' && req.method === 'GET') return send(200, await service.checkouts());
         const athlete = /^athletes\/([a-zA-Z0-9_-]+)$/.exec(route);
         if (athlete && req.method === 'GET') return send(200, await service.athlete(athlete[1], PANEL_REVISIONS));
-        const mutation = /^(athletes|classes)\/([a-zA-Z0-9_-]+)\/(workout|select|complete)$/.exec(route);
+        const mutation = /^(athletes|classes)\/([a-zA-Z0-9_-]+)\/(workout|select|complete|checkout-generate|checkout-send)$/.exec(route);
         if (mutation && req.method === 'POST') {
           const input = await body(req);
           if (!/^[0-9a-f-]{36}$/.test(input.requestId || '')) throw new PublicError('Identificador da operação inválido.');
@@ -299,6 +300,8 @@ export function createServer(env = process.env, service = createService(clickupC
           if (type === 'athletes' && action === 'workout') return send(200, await service.saveWorkout(id, input, user));
           if (type === 'classes' && action === 'select') return send(200, await service.selectWorkout(id, input, user));
           if (type === 'classes' && action === 'complete') return send(200, await service.complete(id, input, user));
+          if (type === 'classes' && action === 'checkout-generate') return send(200, await service.checkoutGenerate(id, input));
+          if (type === 'classes' && action === 'checkout-send') return send(200, await service.checkoutSend(id, input));
         }
         throw new PublicError('Página não encontrada.', 404);
       }

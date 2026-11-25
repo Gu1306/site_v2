@@ -102,6 +102,39 @@ function pack(record, heading) {
   if (record.evolution) text += '\n\nEvolução: ' + record.evolution;
   return text + `\n\nRegistro do painel CareFit — editar pelo painel para preservar o histórico.\n\n\`\`\`json\n${MARKER}\n${JSON.stringify(record)}\n\`\`\`\n`;
 }
+// ---------------------------------------------------------------- check-out pós-aula
+// O envio continua sendo do robô do n8n (guardrails, 1 por atleta/dia, fusível diário).
+// O painel só faz o que o treinador fazia à mão no ClickUp: marcar "IA pode Criar - Aula",
+// ler/ajustar o "Check Out de Aula" e marcar "IA pode Enviar Check Out".
+export const CHECKOUT = {
+  dataAula: '55b91b8a-b0b3-458c-af17-d49aaf71fa15',
+  criar: '1b9c51b3-a6b4-4909-b71d-9d67e4c8929e', // "IA pode Criar - Aula"
+  texto: 'dae3a0c3-8076-4141-8f19-0be9c1b0d21d', // "Check Out de Aula"
+  enviar: '0f0023bc-ed4c-4412-bd3c-f76535f740a9', // "IA pode Enviar Check Out"
+};
+export const CHECKOUT_MAX = 1300; // mesmo teto do validador do robô
+export const PENDENTES_DIAS = 7; // até onde o painel cobra aula sem evolução
+const ESPERA_GERACAO_MS = 25 * 60000; // o robô roda a cada 10 min; passou disso, algo barrou
+const marcado = v => v === true || String(v).toLowerCase() === 'true';
+
+/**
+ * Em que pé está o check-out de uma aula. Função pura.
+ * O recibo e os bloqueios do robô são COMENTÁRIOS no card (a lista não tem campo de
+ * status), por isso o comentário mais recente sobre check-out é a verdade do envio.
+ */
+export function estadoCheckout({ evolucao = '', texto = '', criar = false, enviar = false, comentarios = [], atualizadoEm = 0, agora = Date.now() }) {
+  const sobre = comentarios.filter(c => /check-out/i.test(c.texto || '')).sort((a, b) => b.quando - a.quando);
+  const ultimo = sobre[0] || null;
+  const resumo = c => String(c.texto || '').replace(/\s+/g, ' ').trim().slice(0, 400);
+  if (ultimo && /^✅/.test(ultimo.texto.trim())) return { estado: 'enviado', quando: ultimo.quando };
+  if (enviar && texto) return { estado: 'fila' };
+  if (ultimo && /N[ÃA]O enviado|FALHOU/.test(ultimo.texto)) return { estado: 'bloqueado', motivo: resumo(ultimo) };
+  if (texto) return { estado: 'pronto' };
+  if (ultimo && /N[ÃA]O gerado/.test(ultimo.texto)) return { estado: 'reprovado', motivo: resumo(ultimo) };
+  if (!evolucao) return { estado: 'sem-evolucao' };
+  if (criar) return { estado: agora - atualizadoEm > ESPERA_GERACAO_MS ? 'parado' : 'gerando' };
+  return { estado: 'sem-pedido' };
+}
 export function clickupClient(token, fetcher = fetch) {
   return async (path, method = 'GET', body) => {
     let res;
@@ -170,6 +203,22 @@ export function createService(api) {
     if (confirmed?.requestId !== record.requestId) throw new PublicError('Não foi possível verificar o registro salvo. Atualize antes de tentar novamente.', 503);
     return { ...confirmed, id: t.id };
   }
+  const valor = (t, id) => t.custom_fields?.find(f => f.id === id)?.value;
+  async function lerCheckout(t, agora = Date.now()) {
+    const evolucao = String(valor(t, IDS.evolution) || '').trim();
+    const texto = String(valor(t, CHECKOUT.texto) || '').trim();
+    // Comentário só interessa quando há algo em andamento: aula sem evolução não custa leitura.
+    const comentarios = evolucao ? ((await api(`/task/${t.id}/comment`)).comments || []).map(c => ({ texto: String(c.comment_text || ''), quando: Number(c.date) || 0 })) : [];
+    const pe = estadoCheckout({ evolucao, texto, criar: marcado(valor(t, CHECKOUT.criar)), enviar: marcado(valor(t, CHECKOUT.enviar)), comentarios, atualizadoEm: Number(t.date_updated) || 0, agora });
+    return { state: pe.estado, reason: pe.motivo || '', sentAt: pe.quando ? new Date(pe.quando).toISOString() : null, evolution: evolucao, text: texto };
+  }
+  async function aulaNaJanela(id) {
+    const t = await task(id, IDS.classes);
+    if (t.status?.status !== 'realizada') throw new PublicError('O check-out só existe para aula realizada.', 409);
+    const dia = t.start_date ? dayOf(t.start_date) : '';
+    if (dia !== dayOf(Date.now()) && dia !== dayOf(Date.now() - 86400000)) throw new PublicError('O check-out só pode ser enviado no dia da aula ou no dia seguinte.', 409);
+    return t;
+  }
   return {
     athlete,
     async athletes() { return (await tasks(IDS.athletes)).map(t => ({ id: t.id, name: t.name })).sort((a, b) => a.name.localeCompare(b.name)); },
@@ -223,7 +272,59 @@ export function createService(api) {
       if (confirmed.status?.status !== 'agendada') throw new PublicError('A situação da aula mudou no ClickUp durante o registro. A evolução foi salva; confira o card.', 409);
       await api(`/task/${id}`, 'PUT', { status: 'realizada' });
       if ((await task(id, IDS.classes)).status?.status !== 'realizada') throw new PublicError('Evolução salva; conclusão ainda não confirmada. Tente novamente.', 503);
-      return { completed: true };
+      // Pede o rascunho do check-out ao robô. A aula já está concluída: se este passo
+      // falhar, o treinador pede de novo pela lista de check-outs, sem perder nada.
+      let checkout = 'pedido';
+      try { await api(`/task/${id}/field/${CHECKOUT.criar}`, 'POST', { value: true }); } catch { checkout = 'falhou'; }
+      return { completed: true, checkout };
+    }); },
+    /** Aulas realizadas de hoje e de ontem (a janela do robô), com o pé do check-out de cada uma. */
+    async checkouts(agora = Date.now()) {
+      const hoje = dayOf(agora); const ontem = dayOf(agora - 86400000);
+      // Uma leitura só, de 7 dias: serve aos check-outs (hoje e ontem) e às aulas que passaram
+      // e continuam "agendada", ou seja, sem evolução. Sem evolução não existe mensagem.
+      const inicio = Date.parse(dayOf(agora - PENDENTES_DIAS * 86400000) + 'T00:00:00-03:00');
+      const itens = await tasks(IDS.classes, `&start_date_gt=${inicio - 1}&start_date_lt=${Date.parse(hoje + 'T00:00:00-03:00') + 86400000}`);
+      const pending = itens
+        .filter(t => t.status?.status === 'agendada' && t.start_date && Number(t.due_date || t.start_date) < agora)
+        .map(t => ({ id: t.id, name: t.name, day: dayOf(t.start_date), slot: slotOf(t) }))
+        .sort((a, b) => b.day.localeCompare(a.day) || String(a.slot).localeCompare(String(b.slot)) || a.name.localeCompare(b.name));
+      const result = [];
+      for (const t of itens.filter(t => t.status?.status === 'realizada' && t.start_date)) {
+        const dia = dayOf(t.start_date);
+        if (dia !== hoje && dia !== ontem) continue;
+        result.push({ id: t.id, name: t.name, day: dia, slot: slotOf(t), ...(await lerCheckout(t, agora)) });
+      }
+      result.sort((a, b) => b.day.localeCompare(a.day) || String(a.slot).localeCompare(String(b.slot)) || a.name.localeCompare(b.name));
+      return { today: hoje, yesterday: ontem, items: result, pending, syncedAt: new Date(agora).toISOString() };
+    },
+    /** Pede (ou pede de novo) o rascunho: grava a evolução, limpa o texto antigo e marca "IA pode Criar". */
+    async checkoutGenerate(id, body) { return locked('class:' + id, async () => {
+      const evolution = clean(body.evolution, 'a evolução da aula', 5000);
+      const t = await aulaNaJanela(id);
+      const atual = await lerCheckout(t);
+      if (atual.state === 'enviado') throw new PublicError('O check-out desta aula já foi enviado.', 409);
+      if (atual.state === 'fila') throw new PublicError('O check-out desta aula já está na fila de envio.', 409);
+      if (atual.state === 'bloqueado') throw new PublicError('O envio desta aula foi barrado pelo robô. Fale com o Gustavo antes de tentar de novo.', 409);
+      await api(`/task/${id}/field/${IDS.evolution}`, 'POST', { value: evolution });
+      // O robô só gera para aula SEM check-out gravado, e só de novo se a evolução mudou.
+      if (atual.text) await api(`/task/${id}/field/${CHECKOUT.texto}`, 'POST', { value: '' });
+      await api(`/task/${id}/field/${CHECKOUT.criar}`, 'POST', { value: true });
+      return lerCheckout(await task(id, IDS.classes));
+    }); },
+    /** O treinador leu (e talvez ajustou) o texto: grava o ajuste e marca "IA pode Enviar Check Out". */
+    async checkoutSend(id, body) { return locked('class:' + id, async () => {
+      const text = clean(body.text, 'o texto do check-out', CHECKOUT_MAX);
+      const t = await aulaNaJanela(id);
+      const atual = await lerCheckout(t);
+      if (atual.state !== 'pronto') throw new PublicError(atual.state === 'enviado' ? 'O check-out desta aula já foi enviado.' : atual.state === 'fila' ? 'O check-out desta aula já está na fila de envio.' : 'Este check-out não está pronto para envio. Atualize a tela.', 409);
+      if (text !== atual.text) {
+        await api(`/task/${id}/field/${CHECKOUT.texto}`, 'POST', { value: text });
+        const conferido = await task(id, IDS.classes);
+        if (String(valor(conferido, CHECKOUT.texto) || '').trim() !== text) throw new PublicError('O ajuste do texto não foi confirmado. Nada foi enviado.', 503);
+      }
+      await api(`/task/${id}/field/${CHECKOUT.enviar}`, 'POST', { value: true });
+      return lerCheckout(await task(id, IDS.classes));
     }); }
   };
 }
