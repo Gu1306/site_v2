@@ -131,11 +131,6 @@ const Footer = () => {
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/comunidade-carefit" className="text-sm text-primary-foreground/70 hover:text-accent transition-colors">
-                  Comunidade CareFit
-                </Link>
-              </li>
-              <li>
                 <Link to="/carefit-cast" className="text-sm text-primary-foreground/70 hover:text-accent transition-colors">
                   CareFit Cast
                 </Link>
