@@ -72,6 +72,8 @@ export interface PlanoDoAtleta {
   validade: string | null;
   /** Datas das sessões já feitas (AAAA-MM-DD), da mais recente para a mais antiga. */
   datas?: string[];
+  /** Mensagem pós-sessão que o atleta já recebeu no WhatsApp, por data. */
+  mensagens?: { data: string; texto: string }[];
 }
 
 export interface InicioDoAtleta {

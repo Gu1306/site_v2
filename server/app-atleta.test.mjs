@@ -340,7 +340,8 @@ test('porta: sem segredo de sessão o app fica fechado', async () => {
 test('em aberto: pacote com validade (6 aulas por mês) e planos de sessão com saldo, sem dinheiro', () => {
   const atleta = { id: 'a1', fortContratada: '2026-10-05' };
   const aula = (status, plano = '36 aulas', atletaId = 'a1', data = null) => ({ atletaId, status, plano, data, valor: 65 });
-  const sessao = (status, extra = {}) => ({ atletaId: 'a1', status, tipo: 'Semestral', totalPlano: 12, fimPlano: '2026-10-24', statusPlano: 'Ativo', valor: 190, pagamento: 'À Pagar (exceção)', ...extra });
+  let n = 0;
+  const sessao = (status, extra = {}) => ({ id: 's' + (++n), atletaId: 'a1', status, tipo: 'Semestral', totalPlano: 12, fimPlano: '2026-10-24', statusPlano: 'Ativo', valor: 190, pagamento: 'À Pagar (exceção)', ...extra });
   const r = montarEmAberto(atleta, {
     fortalecimento: [aula('em aberto'), aula('em aberto'), aula('agendada', '36 aulas', 'a1', '2026-11-27'), aula('realizada', '36 aulas', 'a1', '2026-10-07'), aula('faltou', '36 aulas', 'a1', '2026-10-14'), aula('realizada', 'Aula Cortesia', 'a1', '2026-09-25'), aula('em aberto', '36 aulas', 'outro')],
     sessoes: [
@@ -350,14 +351,14 @@ test('em aberto: pacote com validade (6 aulas por mês) e planos de sessão com 
       sessao('realizada', { tipo: 'Avaliação', totalPlano: 1, fimPlano: null }),
       sessao('aguardando', { atletaId: 'outro' }),
     ],
-  });
+  }, new Map([['s1', 'Oi! Como você ficou depois da sessão?'], ['s4', 'mensagem de sessão cancelada'], ['s8', 'mensagem de outro atleta']]));
   assert.deepEqual(r.fortalecimento, { temPacote: true, disponiveis: 2, agendadas: 1, feitas: 2, usadas: [{ data: '2026-10-14', faltou: true }, { data: '2026-10-07', faltou: false }], plano: '36 aulas', validade: '2027-04-05' });
   // Plano vencido (24/10) aparece igual aos outros; finalizado, cancelado e sem saldo ficam fora.
   assert.deepEqual(r.planos, [
-    { plano: 'Semestral', total: 12, feitas: 1, restam: 2, validade: '2026-10-24', datas: ['2026-05-02'] },
-    { plano: 'Mensal', total: 4, feitas: 0, restam: 1, validade: '2027-01-10', datas: [] },
+    { plano: 'Semestral', total: 12, feitas: 1, restam: 2, validade: '2026-10-24', datas: ['2026-05-02'], mensagens: [{ data: '2026-05-02', texto: 'Oi! Como você ficou depois da sessão?' }] },
+    { plano: 'Mensal', total: 4, feitas: 0, restam: 1, validade: '2027-01-10', datas: [], mensagens: [] },
   ]);
-  assert.doesNotMatch(JSON.stringify(r), /valor|pagamento|Pagar|190|65/);
+  assert.doesNotMatch(JSON.stringify(r), /valor|pagamento|Pagar|190|65|cancelada|outro atleta/);
 });
 
 test('em aberto: sem data de contratação ou pacote sem número não inventa validade', () => {

@@ -73,7 +73,7 @@ const AULA_USADA = new Set(['realizada', 'complete', 'faltou']);
  * Função pura. Nada de dinheiro aqui (pagamento fica fora do app por decisão de 25/11/2026),
  * e plano com a data vencida aparece igual aos outros, sem aviso.
  */
-export function montarEmAberto(atleta, listas) {
+export function montarEmAberto(atleta, listas, mensagens = new Map()) {
   const aulas = (listas.fortalecimento || []).filter(c => c.atletaId === atleta.id);
   const abertas = aulas.filter(c => c.status === 'em aberto');
   // O pacote em uso é o das aulas que ainda estão em aberto (cortesia antiga não conta).
@@ -97,13 +97,21 @@ export function montarEmAberto(atleta, listas) {
   for (const s of listas.sessoes || []) {
     if (s.atletaId !== atleta.id || s.statusPlano === 'Plano Finalizado' || s.status === 'cancelada') continue;
     const chave = [s.tipo, s.fimPlano || '', s.totalPlano || ''].join('|');
-    const g = grupos.get(chave) || { plano: s.tipo, total: s.totalPlano || null, feitas: 0, restam: 0, validade: s.fimPlano || null, datas: [] };
-    if (s.status === 'realizada') { g.feitas += 1; if (s.data) g.datas.push(s.data); }
+    const g = grupos.get(chave) || { plano: s.tipo, total: s.totalPlano || null, feitas: 0, restam: 0, validade: s.fimPlano || null, datas: [], mensagens: [] };
+    if (s.status === 'realizada') {
+      g.feitas += 1;
+      if (s.data) {
+        g.datas.push(s.data);
+        // Só a mensagem que o atleta já recebeu no WhatsApp (status Enviada).
+        const texto = mensagens.get(s.id);
+        if (texto) g.mensagens.push({ data: s.data, texto });
+      }
+    }
     else g.restam += 1;
     grupos.set(chave, g);
   }
   const planos = [...grupos.values()].filter(g => g.restam > 0)
-    .map(g => ({ ...g, total: g.total || g.feitas + g.restam, datas: g.datas.sort((a, b) => b.localeCompare(a)) }))
+    .map(g => ({ ...g, total: g.total || g.feitas + g.restam, datas: g.datas.sort((a, b) => b.localeCompare(a)), mensagens: g.mensagens.sort((a, b) => b.data.localeCompare(a.data)) }))
     .sort((a, b) => String(a.validade || '9999').localeCompare(String(b.validade || '9999')) || a.plano.localeCompare(b.plano));
   return { fortalecimento, planos };
 }
@@ -275,7 +283,9 @@ export function criarServicoApp({ fechamento, api, agenda, whatsapp, agora = () 
     async inicio(sessao) {
       const atleta = await atletaDaSessao(sessao);
       const listas = await fechamento.listas();
-      const emAberto = montarEmAberto(atleta, listas);
+      // Fechamento antigo (ou de teste) sem o método: o app segue sem as mensagens.
+      const mensagens = fechamento.mensagens ? await fechamento.mensagens() : new Map();
+      const emAberto = montarEmAberto(atleta, listas, mensagens);
       const avisos = [];
       const reservas = [];
       await Promise.all(Object.keys(MODALIDADES).map(async modalidade => {

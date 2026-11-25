@@ -346,7 +346,7 @@ const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 const dataComDia = (iso: string) => `${DIAS_SEMANA[new Date(iso + "T12:00:00Z").getUTCDay()]}, ${dataCurta(iso)}`;
 
 /** Lista recolhida com as datas do que já foi usado; some quando não há data nenhuma. */
-const DatasUsadas = ({ titulo, itens }: { titulo: string; itens: { data: string; nota: string }[] }) =>
+const DatasUsadas = ({ titulo, itens }: { titulo: string; itens: { data: string; nota: string; texto?: string }[] }) =>
   itens.length === 0 ? null : (
     <details className="mt-3 rounded-xl bg-primary/5 px-3.5 py-2.5 text-primary">
       <summary className="cursor-pointer text-[13px] font-medium">
@@ -354,9 +354,23 @@ const DatasUsadas = ({ titulo, itens }: { titulo: string; itens: { data: string;
       </summary>
       <ol className="mt-2 grid gap-1 text-[13px] text-primary/75">
         {itens.map((item, i) => (
-          <li key={item.data + i} className="flex items-center justify-between border-t border-primary/10 pt-1 first:border-t-0 first:pt-0">
-            <span>{dataComDia(item.data)}</span>
-            {item.nota && <span className="text-[11px] uppercase tracking-[0.06em] text-secondary">{item.nota}</span>}
+          <li key={item.data + i} className="border-t border-primary/10 pt-1 first:border-t-0 first:pt-0">
+            {item.texto ? (
+              <details>
+                <summary className="flex min-h-[32px] cursor-pointer list-none items-center justify-between gap-2 [&::-webkit-details-marker]:hidden">
+                  <span>{dataComDia(item.data)}</span>
+                  <span className="text-[12px] font-medium text-primary underline underline-offset-2">Ver mensagem</span>
+                </summary>
+                <p className="mb-1.5 mt-1 whitespace-pre-line rounded-lg bg-white px-3 py-2.5 text-[13px] leading-relaxed text-primary/85">
+                  {item.texto}
+                </p>
+              </details>
+            ) : (
+              <div className="flex min-h-[32px] items-center justify-between">
+                <span>{dataComDia(item.data)}</span>
+                {item.nota && <span className="text-[11px] uppercase tracking-[0.06em] text-secondary">{item.nota}</span>}
+              </div>
+            )}
           </li>
         ))}
       </ol>
@@ -568,7 +582,11 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
                 )}
                 <DatasUsadas
                   titulo="Ver as sessões que você já fez"
-                  itens={(plano.datas || []).map((data) => ({ data, nota: "" }))}
+                  itens={(plano.datas || []).map((data) => ({
+                    data,
+                    nota: "",
+                    texto: (plano.mensagens || []).find((m) => m.data === data)?.texto,
+                  }))}
                 />
               </article>
             ))}
