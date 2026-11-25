@@ -27,7 +27,7 @@ const app = {
   async confirmarCodigo(telefone, codigo) { if (codigo !== '123456') throw new PublicError('Código inválido ou vencido. Peça um novo.', 401); return { atletaId: 'dev', tel8: '00000000' }; },
   async inicio(sessao) {
     if (!sessao) throw new PublicError('Entre com o seu WhatsApp para continuar.', 401);
-    return { primeiroNome: 'Ana', fisio: 'Lais', fortalecimento: { temPacote: true, disponiveis: 14, agendadas: reservas.filter(r => r.modalidade === 'fortalecimento').length, feitas: 9, plano: '24 aulas', validade: '2027-01-30' }, planos: [{ plano: 'Semestral', total: 12, feitas: 4, restam: 8, validade: '2027-03-12' }, { plano: 'Reabilitação', total: 8, feitas: 7, restam: 1, validade: '2026-11-22' }], reservas: [...reservas].sort((a, b) => a.aulaId.localeCompare(b.aulaId)), avisos: [] };
+    return { primeiroNome: 'Ana', fisio: 'Lais', fortalecimento: { temPacote: true, disponiveis: 14, agendadas: reservas.filter(r => r.modalidade === 'fortalecimento').length, feitas: 9, usadas: [{ data: '2026-11-23', faltou: false }, { data: '2026-11-18', faltou: true }, { data: '2026-11-16', faltou: false }, { data: '2026-11-09', faltou: false }], plano: '24 aulas', validade: '2027-01-30' }, planos: [{ plano: 'Semestral', total: 12, feitas: 4, restam: 8, validade: '2027-03-12', datas: ['2026-11-12', '2026-10-29', '2026-10-15', '2026-09-30'] }, { plano: 'Reabilitação', total: 8, feitas: 7, restam: 1, validade: '2026-11-22' }], reservas: [...reservas].sort((a, b) => a.aulaId.localeCompare(b.aulaId)), avisos: [] };
   },
   async reservar(sessao, entrada) {
     if (!sessao) throw new PublicError('Entre com o seu WhatsApp para continuar.', 401);

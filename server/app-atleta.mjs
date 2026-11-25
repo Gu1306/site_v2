@@ -87,6 +87,8 @@ export function montarEmAberto(atleta, listas) {
     disponiveis: abertas.length,
     agendadas: aulas.filter(c => c.status === 'agendada').length,
     feitas: doPacote.filter(c => AULA_USADA.has(c.status)).length,
+    // Datas das aulas já usadas do pacote, da mais recente para a mais antiga.
+    usadas: doPacote.filter(c => AULA_USADA.has(c.status) && c.data).map(c => ({ data: c.data, faltou: c.status === 'faltou' })).sort((a, b) => b.data.localeCompare(a.data)),
     plano,
     validade: total && atleta.fortContratada && abertas.length > 0 ? somarMeses(atleta.fortContratada, total / AULAS_POR_MES) : null,
   };
@@ -95,13 +97,13 @@ export function montarEmAberto(atleta, listas) {
   for (const s of listas.sessoes || []) {
     if (s.atletaId !== atleta.id || s.statusPlano === 'Plano Finalizado' || s.status === 'cancelada') continue;
     const chave = [s.tipo, s.fimPlano || '', s.totalPlano || ''].join('|');
-    const g = grupos.get(chave) || { plano: s.tipo, total: s.totalPlano || null, feitas: 0, restam: 0, validade: s.fimPlano || null };
-    if (s.status === 'realizada') g.feitas += 1;
+    const g = grupos.get(chave) || { plano: s.tipo, total: s.totalPlano || null, feitas: 0, restam: 0, validade: s.fimPlano || null, datas: [] };
+    if (s.status === 'realizada') { g.feitas += 1; if (s.data) g.datas.push(s.data); }
     else g.restam += 1;
     grupos.set(chave, g);
   }
   const planos = [...grupos.values()].filter(g => g.restam > 0)
-    .map(g => ({ ...g, total: g.total || g.feitas + g.restam }))
+    .map(g => ({ ...g, total: g.total || g.feitas + g.restam, datas: g.datas.sort((a, b) => b.localeCompare(a)) }))
     .sort((a, b) => String(a.validade || '9999').localeCompare(String(b.validade || '9999')) || a.plano.localeCompare(b.plano));
   return { fortalecimento, planos };
 }

@@ -341,6 +341,28 @@ const Entrar = ({ aoEntrar }: { aoEntrar: () => void }) => {
 /** "2027-01-30" → "30/01/2027", sem passar por Date (fuso não pode mudar o dia). */
 const dataCurta = (iso: string) => iso.split("-").reverse().join("/");
 
+const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+/** "2026-11-20" → "sex, 20/11/2026". Meio-dia UTC para o fuso não trocar o dia. */
+const dataComDia = (iso: string) => `${DIAS_SEMANA[new Date(iso + "T12:00:00Z").getUTCDay()]}, ${dataCurta(iso)}`;
+
+/** Lista recolhida com as datas do que já foi usado; some quando não há data nenhuma. */
+const DatasUsadas = ({ titulo, itens }: { titulo: string; itens: { data: string; nota: string }[] }) =>
+  itens.length === 0 ? null : (
+    <details className="mt-3 rounded-xl bg-primary/5 px-3.5 py-2.5 text-primary">
+      <summary className="cursor-pointer text-[13px] font-medium">
+        {titulo} ({itens.length})
+      </summary>
+      <ol className="mt-2 grid gap-1 text-[13px] text-primary/75">
+        {itens.map((item, i) => (
+          <li key={item.data + i} className="flex items-center justify-between border-t border-primary/10 pt-1 first:border-t-0 first:pt-0">
+            <span>{dataComDia(item.data)}</span>
+            {item.nota && <span className="text-[11px] uppercase tracking-[0.06em] text-secondary">{item.nota}</span>}
+          </li>
+        ))}
+      </ol>
+    </details>
+  );
+
 const Numero = ({ rotulo, valor }: { rotulo: string; valor: number | string }) => (
   <div className="rounded-xl bg-primary/5 px-2 py-2">
     <dt className="text-[10px] font-medium uppercase tracking-[0.08em] text-primary/55">{rotulo}</dt>
@@ -504,6 +526,10 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
                   <Numero rotulo="Feitas" valor={pacote.feitas} />
                   <Numero rotulo="Validade" valor={pacote.validade ? dataCurta(pacote.validade) : "—"} />
                 </dl>
+                <DatasUsadas
+                  titulo="Ver as aulas que você já fez"
+                  itens={(pacote.usadas || []).map((u) => ({ data: u.data, nota: u.faltou ? "falta" : "" }))}
+                />
                 <p className="mt-3 text-xs leading-relaxed text-primary/60">
                   O saldo atualiza em até 15 minutos depois de reservar ou cancelar.
                 </p>
@@ -540,6 +566,10 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
                     Validade: {plano.validade ? dataCurta(plano.validade) : "—"}
                   </p>
                 )}
+                <DatasUsadas
+                  titulo="Ver as sessões que você já fez"
+                  itens={(plano.datas || []).map((data) => ({ data, nota: "" }))}
+                />
               </article>
             ))}
           </div>
