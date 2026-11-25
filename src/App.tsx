@@ -18,7 +18,6 @@ const Servicos = lazy(() => import("./pages/Servicos"));
 const Planos = lazy(() => import("./pages/Planos"));
 const Espaco = lazy(() => import("./pages/Espaco"));
 const Comunidade = lazy(() => import("./pages/Comunidade"));
-const ComunidadeCareFit = lazy(() => import("./pages/ComunidadeCareFit"));
 const Contato = lazy(() => import("./pages/Contato"));
 const Agendar = lazy(() => import("./pages/Agendar"));
 const IceMindExperience = lazy(() => import("./pages/IceMindExperience"));
@@ -128,7 +127,8 @@ const App = () => (
             <Route path="/historia" element={<Navigate to="/nossa-historia" replace />} />
             <Route path="/espaco" element={<Espaco />} />
             <Route path="/comunidade" element={<Comunidade />} />
-            <Route path="/comunidade-carefit" element={<ComunidadeCareFit />} />
+            {/* Descrevia grupos de WhatsApp que nunca existiram; o servidor já responde 301 para a home */}
+            <Route path="/comunidade-carefit" element={<Navigate to="/" replace />} />
             <Route path="/contato" element={<Contato />} />
             <Route path="/agendar" element={<Agendar />} />
             <Route path="/ice-mind-experience" element={<IceMindExperience />} />

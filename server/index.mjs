@@ -33,12 +33,14 @@ import { criarClienteAgenda, criarEnviadorWhatsapp, criarServicoApp, criarSessoe
  * com 301. /historia era a cópia antiga da /nossa-historia, com a equipe de
  * 2024; nutrição não é mais serviço da CareFit; /jornada ("Ciclo Completo")
  * vendia o programa de 12 semanas a R$ 5.400, que deu lugar ao Ciclo e à
- * Temporada do /planos.
+ * Temporada do /planos. /comunidade-carefit descrevia grupos de WhatsApp e
+ * embaixadores que nunca existiram (decisão do Gustavo, 25/11/2026).
  */
 const PAGINAS_MOVIDAS = {
   '/historia': '/nossa-historia',
   '/nutricao-para-corredores-ribeirao-preto': '/',
   '/jornada': '/planos',
+  '/comunidade-carefit': '/',
 };
 
 const PREVIEWS = {

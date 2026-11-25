@@ -201,15 +201,9 @@ const Comunidade = () => {
           <h2 className="text-3xl md:text-4xl font-montserrat font-bold mb-6">
             O dia a dia acontece no Instagram
           </h2>
-          <p className="text-lg mb-4 font-poppins opacity-90">
+          <p className="text-lg mb-8 font-poppins opacity-90">
             É lá que a gente publica bastidor de treino, prova, recovery e a rotina real da base.
             Se você quer conversar com a equipe, o WhatsApp está sempre aberto.
-          </p>
-          <p className="text-base mb-8 font-poppins opacity-75">
-            Prefere conhecer a comunidade de perto?{" "}
-            <Link to="/comunidade-carefit" className="underline hover:text-earth transition-colors">
-              Veja como funciona a Comunidade CareFit
-            </Link>.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
