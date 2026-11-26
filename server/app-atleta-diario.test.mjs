@@ -1,19 +1,24 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer, passwordHash } from './index.mjs';
-import { criarServicoApp, validarAnotacao, textoDoComentario, lerAnotacao, MARCA_DIARIO, LIMITES_DIARIO } from './app-atleta.mjs';
+import { criarServicoApp, validarAnotacao, textoDoComentario, lerAnotacao, MARCA_DIARIO, LIMITES_DIARIO, proximaSessaoAberta, blocoParaEvolucao } from './app-atleta.mjs';
+import { CAMPOS, cessaoDaEvolucao } from './fechamento.mjs';
 
 const ANA = { id: 'crm-ana', nome: 'Ana Souza Lima', telefone: '+55 16 99111-2222', sessoes: [] };
 const SESSAO = { atletaId: 'crm-ana', tel8: '91112222' };
 const HOJE = '2026-11-26';
 
-function montar() {
+function montar({ sessoes = null, cards = {}, falharSessao = false } = {}) {
   let relogio = Date.parse('2026-11-26T11:41:00Z'); // 08:41 em Brasília
   const comentarios = []; // do mais novo para o mais antigo, como o ClickUp devolve
   const chamadas = [];
   let n = 0;
   const api = async (caminho, metodo, corpo) => {
     chamadas.push({ caminho, metodo, corpo });
+    const card = /^\/task\/([^/?]+)$/.exec(caminho);
+    if (card && !metodo) { if (falharSessao) throw new Error('clickup fora'); return cards[card[1]]; }
+    const campo = /^\/task\/([^/?]+)\/field\/([^/?]+)$/.exec(caminho);
+    if (campo && metodo === 'POST') { const f = cards[campo[1]].custom_fields.find(c => c.id === campo[2]); f.value = corpo.value; return {}; }
     const m = /^\/task\/([^/?]+)\/comment(?:\?start=(\d+)&start_id=([^&]+))?$/.exec(caminho);
     if (!m) throw new Error('rota inesperada ' + caminho);
     if (metodo === 'POST') { n += 1; comentarios.unshift({ id: 'c' + n, task: m[1], comment_text: corpo.comment_text, date: String(relogio + n) }); return { id: 'c' + n }; }
@@ -21,7 +26,7 @@ function montar() {
     const inicio = m[3] ? doCard.findIndex(c => c.id === decodeURIComponent(m[3])) + 1 : 0;
     return { comments: doCard.slice(inicio, inicio + 25) };
   };
-  const fechamento = { atletas: async () => ({ lidoEm: relogio, atletas: [ANA] }) };
+  const fechamento = { atletas: async () => ({ lidoEm: relogio, atletas: [ANA] }), ...(sessoes ? { listas: async () => ({ sessoes, fortalecimento: [], yoga: [] }) } : {}) };
   const app = criarServicoApp({ fechamento, api, agenda: {}, whatsapp: null, agora: () => relogio });
   return { app, api, comentarios, chamadas, avancar: ms => { relogio += ms; } };
 }
@@ -66,7 +71,7 @@ test('diário: anotar grava comentário no card do CRM, sem notificar, e só com
   await assert.rejects(app.anotar({ atletaId: 'crm-ana', tel8: '00000000' }, boa()), { status: 401 });
   await assert.rejects(app.anotar(SESSAO, boa({ data: '2026-11-27' })), { status: 400 });
   assert.equal(chamadas.length, 0);
-  assert.deepEqual(await app.anotar(SESSAO, boa()), { ok: true });
+  assert.deepEqual(await app.anotar(SESSAO, boa()), { ok: true, sessao: 'sem-sessao' });
   assert.equal(chamadas.length, 1);
   assert.equal(chamadas[0].caminho, '/task/crm-ana/comment');
   assert.equal(chamadas[0].metodo, 'POST');
@@ -102,6 +107,71 @@ test('diário: lista só as anotações do app, da mais recente para a mais anti
   assert.deepEqual(anotacoes.map(a => a.texto), ['panturrilha', 'lombar ao acordar', 'antiga', 'bem antiga']);
   assert.equal(anotacoes[1].momento, 'Ao acordar');
   await assert.rejects(app.diario(null), { status: 401 });
+});
+
+// ---------------------------------------------------------------- cópia na Evolução da próxima sessão
+const sessao = (id, status, extra = {}) => ({ id, atletaId: 'crm-ana', status, data: null, statusPlano: 'Ativo', fimPlano: '2027-02-16', numeroSessao: 1, ...extra });
+
+test('próxima sessão em aberto: marcada de hoje em diante primeiro; senão a menor que aguarda', () => {
+  const lista = [
+    sessao('feita', 'realizada', { data: '2026-11-20', numeroSessao: 4 }),
+    sessao('aguarda-6', 'aguardando', { numeroSessao: 6 }),
+    sessao('aguarda-5', 'aguardando', { numeroSessao: 5 }),
+    sessao('marcada-passada', 'agendada', { data: '2026-11-24', numeroSessao: 7 }),
+    sessao('outro', 'agendada', { atletaId: 'crm-bia', data: '2026-11-27' }),
+    sessao('finalizado', 'agendada', { data: '2026-11-27', statusPlano: 'Plano Finalizado' }),
+  ];
+  assert.equal(proximaSessaoAberta(lista, 'crm-ana', HOJE).id, 'aguarda-5');
+  lista.push(sessao('marcada-sexta', 'agendada', { data: '2026-11-27', numeroSessao: 5 }), sessao('remarcada-hoje', 'remarcada', { data: '2026-11-26', numeroSessao: 6 }));
+  assert.equal(proximaSessaoAberta(lista, 'crm-ana', HOJE).id, 'remarcada-hoje');
+  // Dois planos aguardando: o que vence primeiro.
+  assert.equal(proximaSessaoAberta([sessao('longo', 'aguardando', { fimPlano: '2027-06-01' }), sessao('curto', 'aguardando', { fimPlano: '2026-12-20', numeroSessao: 3 })], 'crm-ana', HOJE).id, 'curto');
+  assert.equal(proximaSessaoAberta([sessao('x', 'realizada'), sessao('y', 'cancelada'), sessao('z', 'esqueceu marcar')], 'crm-ana', HOJE), null);
+});
+
+const cardSessao = (id, status, evolucao, atletaId = 'crm-ana') => ({
+  id, status: { status },
+  custom_fields: [{ id: CAMPOS.atleta, value: [{ id: atletaId }] }, { id: CAMPOS.evolucaoSessao, value: evolucao }],
+});
+const evolucaoDe = card => card.custom_fields.find(f => f.id === CAMPOS.evolucaoSessao).value;
+
+test('anotação vai para a Evolução da próxima sessão, embaixo do que a fisio já escreveu', async () => {
+  const cards = { s5: cardSessao('s5', '🆕 aguardando', 'Plano de tratamento: soltar panturrilha.') };
+  const { app } = montar({ sessoes: [sessao('s5', 'aguardando', { numeroSessao: 5 })], cards });
+  assert.deepEqual(await app.anotar(SESSAO, boa()), { ok: true, sessao: 'anotada' });
+  assert.equal(evolucaoDe(cards.s5), [
+    'Plano de tratamento: soltar panturrilha.',
+    '',
+    '📝 Anotação do atleta pelo app (26/11/2026 08:41)',
+    'Quando: qua, 25/11/2026 às 18:30 · Depois do treino · intensidade 6/10',
+    'Fisgada na panturrilha esquerda no fim do longão.',
+  ].join('\n'));
+  // Segunda anotação: entra embaixo da primeira, nada some.
+  await app.anotar(SESSAO, boa({ data: '2026-11-26', hora: '', momento: '', intensidade: null, texto: 'Hoje acordei sem dor.' }));
+  assert.match(evolucaoDe(cards.s5), /^Plano de tratamento[\s\S]+Fisgada na panturrilha[\s\S]+\n\n📝 Anotação do atleta pelo app \(26\/11\/2026 08:41\)\nQuando: qui, 26\/11\/2026\nHoje acordei sem dor\.$/);
+  // Evolução vazia: o bloco entra sozinho, e não é confundido com sessão cedida.
+  const vazio = { s9: cardSessao('s9', '📅 agendada', '') };
+  const outro = montar({ sessoes: [sessao('s9', 'agendada', { data: '2026-11-27' })], cards: vazio });
+  await outro.app.anotar(SESSAO, boa());
+  assert.equal(evolucaoDe(vazio.s9), blocoParaEvolucao(boa(), '26/11/2026 08:41'));
+  assert.equal(cessaoDaEvolucao(evolucaoDe(vazio.s9)), null);
+});
+
+test('cópia na sessão nunca escreve em card de outro atleta, nem em sessão já fechada, e falha não derruba a anotação', async () => {
+  const deOutro = { s1: cardSessao('s1', '🆕 aguardando', 'da fisio', 'crm-bia') };
+  const a = montar({ sessoes: [sessao('s1', 'aguardando')], cards: deOutro });
+  assert.deepEqual(await a.app.anotar(SESSAO, boa()), { ok: true, sessao: 'outro-atleta' });
+  assert.equal(evolucaoDe(deOutro.s1), 'da fisio');
+  assert.equal(a.comentarios.length, 1); // o comentário no CRM saiu do mesmo jeito
+
+  const fechada = { s2: cardSessao('s2', '✅ realizada', 'evolução da sessão') }; // cache velho dizia "aguardando"
+  const b = montar({ sessoes: [sessao('s2', 'aguardando')], cards: fechada });
+  assert.deepEqual(await b.app.anotar(SESSAO, boa()), { ok: true, sessao: 'fechou' });
+  assert.equal(evolucaoDe(fechada.s2), 'evolução da sessão');
+
+  const c = montar({ sessoes: [sessao('s3', 'aguardando')], cards: {}, falharSessao: true });
+  assert.deepEqual(await c.app.anotar(SESSAO, boa()), { ok: true, sessao: 'falhou' });
+  assert.equal(c.comentarios.length, 1);
 });
 
 test('diário pela porta HTTP: sem login 401, de outra origem 403', async () => {

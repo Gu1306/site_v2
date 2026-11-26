@@ -16,6 +16,7 @@
 // laço. O código de acesso tem limite por número e um fusível diário; estourou, para.
 import { createHmac, randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
 import { PublicError } from './fortalecimento.mjs';
+import { CAMPOS as CAMPOS_SESSAO } from './fechamento.mjs';
 
 export const MODALIDADES = {
   fortalecimento: {
@@ -183,6 +184,32 @@ export function lerAnotacao(comentario) {
   };
 }
 
+// A anotação também vai para a Evolução da PRÓXIMA sessão em aberto (pedido do Gustavo,
+// 26/11/2026): a fisio abre o card da sessão e já encontra o que o atleta sentiu.
+// Só ACRESCENTA no fim do campo; nunca apaga o que a fisio escreveu.
+const STATUS_MARCADA = new Set(['agendada', 'remarcada']);
+
+/**
+ * Card da próxima sessão em aberto do atleta: primeiro a marcada (agendada/remarcada) de hoje
+ * em diante, pela data; sem nenhuma marcada, a de menor número entre as que aguardam, no plano
+ * que vence primeiro. Plano finalizado e sessão marcada no passado ficam de fora.
+ */
+export function proximaSessaoAberta(sessoes, atletaId, hojeIso) {
+  const doAtleta = (sessoes || []).filter(s => s.atletaId === atletaId && s.statusPlano !== 'Plano Finalizado');
+  const marcadas = doAtleta.filter(s => STATUS_MARCADA.has(s.status) && (!s.data || s.data >= hojeIso))
+    .sort((a, b) => String(a.data || '9999').localeCompare(String(b.data || '9999')) || (a.numeroSessao || 99) - (b.numeroSessao || 99));
+  if (marcadas.length) return marcadas[0];
+  const aguardando = doAtleta.filter(s => s.status === 'aguardando')
+    .sort((a, b) => String(a.fimPlano || '9999').localeCompare(String(b.fimPlano || '9999')) || (a.numeroSessao || 99) - (b.numeroSessao || 99));
+  return aguardando[0] || null;
+}
+
+/** Bloco acrescentado na Evolução da sessão. */
+export function blocoParaEvolucao(a, registradoEm) {
+  const quando = [comDia(a.data) + (a.hora ? ` às ${a.hora}` : ''), a.momento, a.intensidade === null ? '' : `intensidade ${a.intensidade}/10`].filter(Boolean).join(' · ');
+  return `📝 Anotação do atleta pelo app (${registradoEm})\nQuando: ${quando}\n${a.texto}`;
+}
+
 const validarToken =t => { if (typeof t !== 'string' || !/^[A-Za-z0-9_-]{20,40}$/.test(t)) throw new PublicError('Link de cancelamento inválido.'); return t; };
 
 /** Erro de negócio vindo da agenda: carrega o código (`LOTADA`, `PASSADA`…) para a tela reagir. */
@@ -282,6 +309,23 @@ export function criarServicoApp({ fechamento, api, agenda, whatsapp, agora = () 
     // Telefone trocado no cadastro derruba a sessão antiga: o número é a identidade.
     if (!atleta || oito(atleta.telefone) !== sessao.tel8) throw new PublicError('Entre de novo com o seu WhatsApp.', 401);
     return atleta;
+  }
+
+  /** Acrescenta a anotação na Evolução da próxima sessão em aberto do atleta. */
+  async function anotarNaSessao(atleta, anotacao, registradoEm, hoje) {
+    if (!fechamento.listas) return 'sem-sessao';
+    const alvo = proximaSessaoAberta((await fechamento.listas()).sessoes, atleta.id, hoje);
+    if (!alvo) return 'sem-sessao';
+    // Relê o card na hora: o cache pode ter minutos, e a Evolução pode ter texto novo da fisio.
+    const card = await api(`/task/${alvo.id}`);
+    const campoDe = id => (card.custom_fields || []).find(f => f.id === id);
+    const relacao = campoDe(CAMPOS_SESSAO.atleta)?.value;
+    if (!Array.isArray(relacao) || relacao.length !== 1 || relacao[0]?.id !== atleta.id) return 'outro-atleta';
+    if (!/aguardando|agendada|remarcada/i.test(String(card.status?.status || ''))) return 'fechou';
+    const atual = String(campoDe(CAMPOS_SESSAO.evolucaoSessao)?.value || '');
+    const novo = (atual.trim() ? atual.replace(/\s+$/, '') + '\n\n' : '') + blocoParaEvolucao(anotacao, registradoEm);
+    await api(`/task/${alvo.id}/field/${CAMPOS_SESSAO.evolucaoSessao}`, 'POST', { value: novo });
+    return 'anotada';
   }
 
   /** Marca "Cancelou (devolver crédito)" no card `agendada` do atleta naquele dia. */
@@ -421,7 +465,11 @@ export function criarServicoApp({ fechamento, api, agenda, whatsapp, agora = () 
       const registradoEm = new Date(instante - 3 * 3600000).toISOString().replace(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}:\d{2}).*$/, '$3/$2/$1 $4');
       await api(`/task/${atleta.id}/comment`, 'POST', { comment_text: textoDoComentario(anotacao, registradoEm), notify_all: false });
       anotacoes.set(atleta.id, { dia: hoje, n: doDia.n + 1, ultima: { texto: anotacao.texto, em: instante } });
-      return { ok: true };
+      // O comentário já garante a anotação; a cópia na sessão é bônus e não derruba o pedido.
+      let copia;
+      try { copia = await anotarNaSessao(atleta, anotacao, registradoEm, hoje); }
+      catch (erro) { copia = 'falhou'; console.error('app-atleta: anotação sem cópia na sessão', erro?.message || erro); }
+      return { ok: true, sessao: copia };
     },
 
     /** Público: quem tem o token (link do e-mail ou app aberto) vê a própria reserva. */
