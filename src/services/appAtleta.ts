@@ -116,6 +116,32 @@ export interface Cancelamento {
   aulaId: string;
 }
 
+/** Diário para a fisio: cada anotação vira comentário no card do atleta no ClickUp. */
+export const MOMENTOS_DIARIO = ["Ao acordar", "Durante o treino", "Depois do treino", "No dia a dia"] as const;
+
+export interface AnotacaoDiario {
+  id: string;
+  /** AAAA-MM-DD */
+  data: string;
+  /** "HH:MM" ou "" */
+  hora: string;
+  momento: string;
+  intensidade: number | null;
+  texto: string;
+  registradoEm: number | null;
+}
+
+export interface NovaAnotacao {
+  data: string;
+  hora: string;
+  momento: string;
+  intensidade: number | null;
+  texto: string;
+}
+
+export const lerDiario = () => apiApp<{ anotacoes: AnotacaoDiario[] }>("diario");
+export const anotarNoDiario = (anotacao: NovaAnotacao) => apiApp<{ ok: true; repetida?: boolean }>("diario", anotacao);
+
 export const cancelarReserva = (modalidade: Modalidade, token: string) =>
   apiApp<Cancelamento>("cancelar", { modalidade, token });
 

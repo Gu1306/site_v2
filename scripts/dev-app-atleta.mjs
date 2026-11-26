@@ -8,6 +8,7 @@
 // pública, que é somente leitura.
 import { createServer } from '../server/index.mjs';
 import { PublicError } from '../server/fortalecimento.mjs';
+import { validarAnotacao, textoDoComentario, lerAnotacao } from '../server/app-atleta.mjs';
 
 const PORTA = Number(process.env.PORT || 8091);
 const token = n => String(n).repeat(32).slice(0, 32);
@@ -46,7 +47,23 @@ const app = {
     reservas = reservas.filter(x => x !== r);
     return { ok: true, jaCancelada: false, quando: r.quando, aulaId: r.aulaId, credito: null };
   },
+  // Diário: os "comentários" ficam na memória, no mesmo formato que vai para o ClickUp.
+  async diario(sessao) {
+    if (!sessao) throw new PublicError('Entre com o seu WhatsApp para continuar.', 401);
+    return { anotacoes: comentarios.map((c, i) => ({ id: 'c' + i, ...lerAnotacao(c), registradoEm: null })).sort((a, b) => (b.data + b.hora).localeCompare(a.data + a.hora)) };
+  },
+  async anotar(sessao, entrada) {
+    if (!sessao) throw new PublicError('Entre com o seu WhatsApp para continuar.', 401);
+    const texto = textoDoComentario(validarAnotacao(entrada, new Date(Date.now() - 3 * 3600000).toISOString().slice(0, 10)), 'agora');
+    comentarios.unshift(texto);
+    console.log('\n--- comentário que iria para o ClickUp ---\n' + texto);
+    return { ok: true };
+  },
 };
+const comentarios = [
+  textoDoComentario({ data: '2026-11-24', hora: '06:40', momento: 'Ao acordar', intensidade: 4, texto: 'Acordei com a lombar travada, lado direito. Melhorou depois do banho.' }, '24/11/2026 06:45'),
+  textoDoComentario({ data: '2026-11-22', hora: '', momento: 'Depois do treino', intensidade: null, texto: 'Canela bem melhor! Fiz 12 km sem sentir nada.' }, '22/11/2026 10:02'),
+];
 
 const env = { PORTAL_ORIGIN: `http://localhost:${PORTA}`, PORTAL_SESSION_SECRET: 'dev-'.repeat(12), CLICKUP_API_TOKEN: 'dev' };
 createServer(env, {}, {}, {}, {}, {}, app).listen(PORTA, '127.0.0.1', () => {

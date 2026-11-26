@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { AlertCircle, CalendarPlus, Check, Loader2, LogOut, MessageCircle } from "lucide-react";
 import AgendamentoAulas, { type ConfigAgendamento } from "@/components/AgendamentoAulas";
+import DiarioFisio from "@/components/DiarioFisio";
 import { useSeo } from "@/hooks/useSeo";
 import logo from "@/assets/logocarefitclub.png";
 import {
@@ -519,6 +520,8 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
           antecedência.
         </p>
       </section>
+
+      <DiarioFisio fisio={inicio.fisio} />
 
       {(pacote.temPacote || planos.length > 0) && (
         <section className="mt-7" aria-labelledby="titulo-em-aberto">

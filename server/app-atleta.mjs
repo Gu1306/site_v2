@@ -121,6 +121,68 @@ export function montarEmAberto(atleta, listas, mensagens = new Map(), cedidas = 
   return { fortalecimento, planos };
 }
 
+// ---------------------------------------------------------------- Diário para a fisio
+// Sugestão do João Galindo (26/11/2026): o atleta sente algo na semana, esquece na sessão.
+// Cada anotação vira um COMENTÁRIO no card do atleta no CRM, legível para a fisio, e o
+// app relê esses comentários para mostrar o histórico. A 1ª linha é a marca que separa
+// as anotações do app dos outros comentários do card.
+export const MARCA_DIARIO = '📝 DIÁRIO DO ATLETA (pelo app)';
+export const MOMENTOS = ['Ao acordar', 'Durante o treino', 'Depois do treino', 'No dia a dia'];
+export const LIMITES_DIARIO = { porDia: 20, texto: 1000, diasParaTras: 60 };
+const DIAS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+const brData = iso => iso.split('-').reverse().join('/');
+const comDia = iso => `${DIAS[new Date(iso + 'T12:00:00Z').getUTCDay()]}, ${brData(iso)}`;
+
+/** Valida o que veio do app. Devolve a anotação limpa ou lança PublicError. */
+export function validarAnotacao(entrada, hojeIso) {
+  const data = String(entrada?.data || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data) || Number.isNaN(Date.parse(data + 'T12:00:00Z'))) throw new PublicError('Escolha o dia em que você sentiu.');
+  if (data > hojeIso) throw new PublicError('O dia não pode ser no futuro.');
+  const limite = new Date(Date.parse(hojeIso + 'T12:00:00Z') - LIMITES_DIARIO.diasParaTras * 86400000).toISOString().slice(0, 10);
+  if (data < limite) throw new PublicError(`Dá para anotar até ${LIMITES_DIARIO.diasParaTras} dias para trás.`);
+  const hora = String(entrada?.hora || '');
+  if (hora && !/^([01]\d|2[0-3]):[0-5]\d$/.test(hora)) throw new PublicError('Hora inválida.');
+  const momento = String(entrada?.momento || '');
+  if (momento && !MOMENTOS.includes(momento)) throw new PublicError('Momento inválido.');
+  let intensidade = entrada?.intensidade;
+  if (intensidade === '' || intensidade === undefined) intensidade = null;
+  if (intensidade !== null && !(Number.isInteger(intensidade) && intensidade >= 0 && intensidade <= 10)) throw new PublicError('A intensidade vai de 0 a 10.');
+  // Texto livre: sem caracteres de controle (menos quebra de linha), sem linhas em branco em série.
+  const texto = String(entrada?.texto || '').replace(/\r\n?/g, '\n').replace(/[\u0000-\u0009\u000B-\u001F\u007F]/g, '').replace(/\n{3,}/g, '\n\n').trim();
+  if (texto.length < 3) throw new PublicError('Conte o que você sentiu.');
+  if (texto.length > LIMITES_DIARIO.texto) throw new PublicError(`Use até ${LIMITES_DIARIO.texto} caracteres.`);
+  return { data, hora, momento, intensidade, texto };
+}
+
+/** Texto do comentário no ClickUp: a fisio lê; o app relê com `lerAnotacao`. */
+export function textoDoComentario(a, registradoEm) {
+  const quando = [comDia(a.data) + (a.hora ? ` às ${a.hora}` : ''), a.momento].filter(Boolean).join(' · ');
+  return [
+    MARCA_DIARIO,
+    `Quando: ${quando}`,
+    `Intensidade: ${a.intensidade === null ? 'não informada' : a.intensidade + '/10'}`,
+    `Anotado em: ${registradoEm}`,
+    '',
+    a.texto,
+  ].join('\n');
+}
+
+/** Lê de volta um comentário escrito por `textoDoComentario`; outro comentário qualquer → null. */
+export function lerAnotacao(comentario) {
+  const linhas = String(comentario || '').replace(/\r\n?/g, '\n').split('\n');
+  if (linhas[0]?.trim() !== MARCA_DIARIO) return null;
+  const quando = /^Quando: \S+, (\d{2})\/(\d{2})\/(\d{4})(?: às (\d{2}:\d{2}))?(?: · (.+))?$/.exec(linhas[1] || '');
+  const intensidade = /^Intensidade: (?:(\d{1,2})\/10|não informada)$/.exec(linhas[2] || '');
+  if (!quando || !intensidade || !/^Anotado em: /.test(linhas[3] || '')) return null;
+  return {
+    data: `${quando[3]}-${quando[2]}-${quando[1]}`,
+    hora: quando[4] || '',
+    momento: MOMENTOS.includes(quando[5]) ? quando[5] : '',
+    intensidade: intensidade[1] === undefined ? null : Number(intensidade[1]),
+    texto: linhas.slice(5).join('\n').trim(),
+  };
+}
+
 const validarToken =t => { if (typeof t !== 'string' || !/^[A-Za-z0-9_-]{20,40}$/.test(t)) throw new PublicError('Link de cancelamento inválido.'); return t; };
 
 /** Erro de negócio vindo da agenda: carrega o código (`LOTADA`, `PASSADA`…) para a tela reagir. */
@@ -199,6 +261,7 @@ export function criarSessoes(segredo, agora = () => Date.now()) {
  * `api` é o cliente do ClickUp, usado só para marcar o checkbox de cancelamento.
  */
 export function criarServicoApp({ fechamento, api, agenda, whatsapp, agora = () => Date.now(), sortear = () => randomInt(0, 1000000), agendar = (fn, ms) => { const t = setTimeout(fn, ms); t.unref?.(); } }) {
+  const anotacoes = new Map(); // atletaId → { dia, n, ultima: { texto, em } }
   const codigos = new Map(); // tel8 → { codigo, ate, tentativas, atletaId }
   const pedidos = new Map(); // tel8 → [instantes dos pedidos da última hora]
   let fusivel = { dia: '', envios: 0 };
@@ -323,6 +386,42 @@ export function criarServicoApp({ fechamento, api, agenda, whatsapp, agora = () 
       const email = (await fechamento.emails()).get(atleta.id) || '';
       const reserva = await agenda.reservar(modalidade, { aulaId, nome: atleta.nome, email: /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) ? email : '', telefone: '+' + telefone, idempotencia });
       return { modalidade, aulaId: reserva.aulaId, quando: reserva.quando, inicioISO: reserva.inicioISO, fimISO: reserva.fimISO, email: reserva.email || '', nome: atleta.nome, token: reserva.token || null };
+    },
+
+    /** Anotações do diário do atleta, lidas dos comentários do card dele no CRM. */
+    async diario(sessao) {
+      const atleta = await atletaDaSessao(sessao);
+      const lidas = [];
+      let pagina = (await api(`/task/${atleta.id}/comment`)).comments || [];
+      // O ClickUp devolve 25 por vez, do mais novo para o mais antigo; 4 páginas bastam.
+      for (let i = 0; i < 4 && pagina.length; i++) {
+        for (const c of pagina) {
+          const a = lerAnotacao(c.comment_text);
+          if (a) lidas.push({ id: String(c.id), ...a, registradoEm: Number(c.date) || null });
+        }
+        if (pagina.length < 25) break;
+        const ultimo = pagina[pagina.length - 1];
+        pagina = (await api(`/task/${atleta.id}/comment?start=${encodeURIComponent(ultimo.date)}&start_id=${encodeURIComponent(ultimo.id)}`)).comments || [];
+      }
+      lidas.sort((a, b) => (b.data + b.hora).localeCompare(a.data + a.hora) || (b.registradoEm || 0) - (a.registradoEm || 0));
+      return { anotacoes: lidas.slice(0, 30) };
+    },
+
+    /** Grava uma anotação como comentário no card do atleta (sem notificar ninguém). */
+    async anotar(sessao, entrada) {
+      const atleta = await atletaDaSessao(sessao);
+      const instante = agora();
+      const hoje = diaDe(instante);
+      const anotacao = validarAnotacao(entrada, hoje);
+      const conta = anotacoes.get(atleta.id);
+      const doDia = conta && conta.dia === hoje ? conta : { dia: hoje, n: 0, ultima: null };
+      // Toque duplo / reenvio: o mesmo texto em menos de 2 minutos não vira outro comentário.
+      if (doDia.ultima && doDia.ultima.texto === anotacao.texto && instante - doDia.ultima.em < 120000) return { ok: true, repetida: true };
+      if (doDia.n >= LIMITES_DIARIO.porDia) throw new PublicError('Você já fez muitas anotações hoje. Conte o resto direto para a sua fisio.', 429);
+      const registradoEm = new Date(instante - 3 * 3600000).toISOString().replace(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}:\d{2}).*$/, '$3/$2/$1 $4');
+      await api(`/task/${atleta.id}/comment`, 'POST', { comment_text: textoDoComentario(anotacao, registradoEm), notify_all: false });
+      anotacoes.set(atleta.id, { dia: hoje, n: doDia.n + 1, ultima: { texto: anotacao.texto, em: instante } });
+      return { ok: true };
     },
 
     /** Público: quem tem o token (link do e-mail ou app aberto) vê a própria reserva. */

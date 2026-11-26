@@ -236,6 +236,8 @@ export function createServer(env = process.env, service = createService(clickupC
         if (rota === 'cancelar' && req.method === 'POST') { const entrada = await body(req); return send(200, await app.cancelar(entrada.modalidade, entrada.token)); }
         if (rota === 'inicio' && req.method === 'GET') return send(200, await app.inicio(sessaoAtleta(req)));
         if (rota === 'reservar' && req.method === 'POST') return send(200, await app.reservar(sessaoAtleta(req), await body(req)));
+        if (rota === 'diario' && req.method === 'GET') return send(200, await app.diario(sessaoAtleta(req)));
+        if (rota === 'diario' && req.method === 'POST') return send(200, await app.anotar(sessaoAtleta(req), await body(req)));
         throw new PublicError('Página não encontrada.', 404);
       }
       const prefixo = ['/api/fortalecimento/', '/api/avaliacao-forca/', '/api/gestao/'].find(p => url.pathname.startsWith(p));
