@@ -138,6 +138,9 @@ export function passwordHash(password, salt = randomBytes(16).toString('hex')) {
 function equal(a, b) { const x = Buffer.from(a); const y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); }
 export function createServer(env = process.env, service = createService(clickupClient(env.CLICKUP_API_TOKEN)), avaliacao = criarServicoAvaliacao(clickupClient(env.CLICKUP_API_TOKEN), criarUploader(env.CLICKUP_API_TOKEN)), fechamento = criarServicoFechamento(clickupClient(env.CLICKUP_API_TOKEN), () => Date.now(), criarLeitorAgenda(env)), conversas = criarServicoConversas(criarLeitorConversas(env)), conteudo = criarServicoConteudo(criarLeitorConteudo(env)), app = criarServicoApp({ fechamento, api: clickupClient(env.CLICKUP_API_TOKEN), agenda: criarClienteAgenda(env), whatsapp: criarEnviadorWhatsapp(env) })) {
   const origin = env.PORTAL_ORIGIN || 'http://localhost:8080';
+  // O mesmo endereço sem o www (carefitrunbase.com.br) abre a página, mas o login e as
+  // reservas recusam o Origin diferente. Quem chega por ele vai para o oficial.
+  const hostSemWww = (() => { try { const h = new URL(origin).hostname; return h.startsWith('www.') ? h.slice(4) : ''; } catch { return ''; } })();
   // Quem vê o financeiro. O login é o mesmo da equipe; o Lucas entra no fortalecimento
   // e não enxerga produção nem bônus. Sem a variável, só o Gustavo.
   const financeiro = new Set(String(env.PORTAL_FINANCEIRO_USERS ?? 'gustavo').split(',').map(u => u.trim().toLowerCase()).filter(Boolean));
@@ -167,6 +170,10 @@ export function createServer(env = process.env, service = createService(clickupC
     const send = (status, data) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' }); res.end(JSON.stringify(data)); };
     try {
       const url = new URL(req.url, 'http://localhost');
+      if (hostSemWww && (req.method === 'GET' || req.method === 'HEAD') && String(req.headers.host || '').toLowerCase().replace(/:\d+$/, '') === hostSemWww) {
+        res.writeHead(301, { Location: origin + url.pathname + url.search });
+        return res.end();
+      }
       // Produto ainda indisponível; preservar o endereço sem oferecer contratação.
       if (url.pathname.replace(/\/+$/, '') === '/biomecanica-da-corrida-ribeirao-preto') {
         res.writeHead(302, { Location: '/servicos', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' });

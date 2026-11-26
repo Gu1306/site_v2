@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import http from 'node:http';
 import { createServer, passwordHash } from './index.mjs';
 import { montarEmAberto, somarMeses, CAMPO_CANCELOU, LIMITES, criarClienteAgenda, criarEnviadorWhatsapp, criarServicoApp, criarSessoes, comDdi, oito } from './app-atleta.mjs';
 
@@ -304,6 +305,25 @@ test('porta: entrar grava o cookie do atleta e o início só abre com ele', asyn
     // O cookie do atleta não abre o painel da equipe.
     assert.equal((await fetch(url + '/api/gestao/session', { headers: { Cookie: cookie.split(';')[0].replace('carefit_atleta', 'carefit_session') } })).status, 401);
   });
+});
+
+test('porta: endereço sem www vai para o oficial (senão o login recusa o Origin)', async () => {
+  const { app } = montar();
+  const pedir = (porta, host, caminho) => new Promise((ok, erro) => {
+    http.get({ host: '127.0.0.1', port: porta, path: caminho, headers: { Host: host } }, r => { r.resume(); ok({ status: r.statusCode, local: r.headers.location }); }).on('error', erro);
+  });
+  const server = createServer({ ...base, PORTAL_ORIGIN: 'https://www.carefit.example' }, {}, {}, {}, {}, {}, app);
+  await new Promise(r => server.listen(0, '127.0.0.1', r));
+  try {
+    const porta = server.address().port;
+    assert.deepEqual(await pedir(porta, 'carefit.example', '/app?x=1'), { status: 301, local: 'https://www.carefit.example/app?x=1' });
+    assert.deepEqual(await pedir(porta, 'CAREFIT.example:443', '/'), { status: 301, local: 'https://www.carefit.example/' });
+    // Caminho que parece outro domínio continua no oficial.
+    assert.equal((await pedir(porta, 'carefit.example', '//evil.example/x')).local.startsWith('https://www.carefit.example/'), true);
+    // O endereço oficial e o acesso interno (healthcheck) não são redirecionados.
+    assert.notEqual((await pedir(porta, 'www.carefit.example', '/api/app/inicio')).status, 301);
+    assert.notEqual((await pedir(porta, '127.0.0.1', '/api/app/inicio')).status, 301);
+  } finally { server.close(); }
 });
 
 test('porta: POST de outra origem é recusado; cancelar pelo link funciona sem login', async () => {
