@@ -582,11 +582,19 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
                 )}
                 <DatasUsadas
                   titulo="Ver as sessões que você já fez"
-                  itens={(plano.datas || []).map((data) => ({
-                    data,
-                    nota: "",
-                    texto: (plano.mensagens || []).find((m) => m.data === data)?.texto,
-                  }))}
+                  itens={
+                    plano.usadas
+                      ? plano.usadas.map((u) => ({
+                          data: u.data,
+                          nota: u.cedidaPara === undefined ? "" : u.cedidaPara ? `cedida para ${u.cedidaPara}` : "cedida",
+                          texto: u.texto,
+                        }))
+                      : (plano.datas || []).map((data) => ({
+                          data,
+                          nota: "",
+                          texto: (plano.mensagens || []).find((m) => m.data === data)?.texto,
+                        }))
+                  }
                 />
               </article>
             ))}

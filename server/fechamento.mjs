@@ -30,7 +30,33 @@ export const CAMPOS = {
   totalPlano: '2cf5b213-c034-43a3-a2dc-2285d8354ffb',
   mensagemAtleta: '1184bcab-8622-48b4-8a15-7823bc62a3e5', // "Mensagem sugerida ao atleta" (check-in pós-sessão)
   statusEnvio: '260046ba-486b-4ecd-9f95-46fc2ad783e3', // "Status envio WhatsApp"
+  evolucaoSessao: 'c0bd14e1-8db4-44e3-8841-fc776ce83f27', // "Evolução" (texto clínico: só a 1ª linha é lida, para cessão)
 };
+
+const CONECTORES = new Set(['da', 'de', 'do', 'das', 'dos', 'e']);
+const PARENTESCO = /^(?:(?:a|o|à|ao|sua|seu)\s+)*(?:esposa|esposo|marido|mulher|namorada|namorado|noiva|noivo|filha|filho|irmã|irma|irmão|irmao|mãe|mae|pai|amiga|amigo|sogra|sogro|cunhada|cunhado|prima|primo|colega|tia|tio|sobrinha|sobrinho|enteada|enteado|neta|neto)\b[\s,]*/i;
+/**
+ * Sessão do plano cedida a outra pessoa, do jeito que a equipe escreve na 1ª linha da Evolução:
+ * "ANA JÚLIA FERNANDES USOU A SESSÃO DELE NO DIA 15/10/2026" ou "cedeu sessão para a esposa monica".
+ * Devolve só o nome curto de quem usou ({ para: 'Ana Júlia' }; '' se não der para ler o nome).
+ * Nunca o resto do texto: é a avaliação clínica de OUTRA pessoa.
+ */
+export function cessaoDaEvolucao(texto) {
+  const linha = String(texto || '').split(/\r?\n/).map(l => l.trim()).find(Boolean)?.replace(/\s+/g, ' ') || '';
+  const usou = /^(.+?)\s+us(?:ou|ará|ara)\s+(?:a\s+)?sess[aã]o\s+(?:dele|dela)\b/i.exec(linha);
+  const cedeu = /\bced(?:eu|ida|ido)\s+(?:a\s+|sua\s+)?sess[aã]o\s+(?:para|pra|à|ao)\s+(.+)$/i.exec(linha)
+    || /\bsess[aã]o\s+cedida\s+(?:para|pra|à|ao)\s+(.+)$/i.exec(linha);
+  if (!usou && !cedeu) return null;
+  // Antes de "usou" tem de vir um nome, não uma frase ("Paciente comentou que a amiga usou...").
+  if (usou && usou[1].split(' ').filter(p => !CONECTORES.has(p.toLowerCase())).length > 4) return { para: '' };
+  const bruto = usou ? usou[1] : cedeu[1].replace(PARENTESCO, '');
+  const palavras = bruto.split(/\s+(?:no|na|em|dia|que|pois|porque)\s+|[\d.,;:()/–—-]/i)[0].split(' ').filter(p => /^[\p{L}']+$/u.test(p));
+  const curto = [];
+  for (const p of palavras) { curto.push(p); if (curto.filter(x => !CONECTORES.has(x.toLowerCase())).length === 2) break; }
+  while (curto.length && CONECTORES.has(curto[curto.length - 1].toLowerCase())) curto.pop();
+  const para = curto.map(p => { const m = p.toLocaleLowerCase('pt-BR'); return CONECTORES.has(m) ? m : m.charAt(0).toLocaleUpperCase('pt-BR') + m.slice(1); }).join(' ');
+  return { para };
+}
 
 // Campos da lista CRM ATLETAS (901326722390), usados pela carteira e pelas conversas.
 export const CAMPOS_CRM = {
@@ -451,7 +477,13 @@ export function criarServicoFechamento(api, agora = () => Date.now(), leitorAgen
         const texto = String(campo(t, CAMPOS.mensagemAtleta)?.value || '').trim();
         if (texto && opcao(campo(t, CAMPOS.statusEnvio)) === 'Enviada') mensagens.set(t.id, texto);
       }
-      cache = { lidoEm: agora(), sessoes: sessoes.map(reduzirSessao), fortalecimento: fortalecimento.map(reduzirAula), yoga: yoga.map(reduzirAula), mensagens };
+      // Sessão cedida: guarda só o nome curto de quem usou, nunca a Evolução.
+      const cedidas = new Map();
+      for (const t of sessoes) {
+        const cessao = cessaoDaEvolucao(campo(t, CAMPOS.evolucaoSessao)?.value);
+        if (cessao) cedidas.set(t.id, cessao);
+      }
+      cache = { lidoEm: agora(), sessoes: sessoes.map(reduzirSessao), fortalecimento: fortalecimento.map(reduzirAula), yoga: yoga.map(reduzirAula), mensagens, cedidas };
       return cache;
     })().finally(() => { emCurso = null; });
     return emCurso;
@@ -491,6 +523,8 @@ export function criarServicoFechamento(api, agora = () => Date.now(), leitorAgen
     async emails(forcar = false) { return (await crm(forcar)).emails; },
     /** Mensagens pós-sessão já enviadas (id da sessão → texto), só para o app do atleta. */
     async mensagens(forcar = false) { return (await dados(forcar)).mensagens; },
+    /** Sessões cedidas a outra pessoa (id da sessão → { para }), só para o app do atleta. */
+    async cedidas(forcar = false) { return (await dados(forcar)).cedidas || new Map(); },
     // Mesmo cache do fechamento: abrir a calculadora não gasta a API do ClickUp.
     async campanha(forcar = false) {
       const [d, fontes] = await Promise.all([dados(forcar), origens(forcar).catch(() => null)]);

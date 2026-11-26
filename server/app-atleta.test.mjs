@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import { createServer, passwordHash } from './index.mjs';
+import { cessaoDaEvolucao } from './fechamento.mjs';
 import { montarEmAberto, somarMeses, CAMPO_CANCELOU, LIMITES, criarClienteAgenda, criarEnviadorWhatsapp, criarServicoApp, criarSessoes, comDdi, oito } from './app-atleta.mjs';
 
 const ANA = { id: 'crm-ana', nome: 'Ana Souza Lima', telefone: '+55 16 99111-2222', sessoes: [{}, {}] };
@@ -375,10 +376,42 @@ test('em aberto: pacote com validade (6 aulas por mês) e planos de sessão com 
   assert.deepEqual(r.fortalecimento, { temPacote: true, disponiveis: 2, agendadas: 1, feitas: 2, usadas: [{ data: '2026-10-14', faltou: true }, { data: '2026-10-07', faltou: false }], plano: '36 aulas', validade: '2027-04-05' });
   // Plano vencido (24/10) aparece igual aos outros; finalizado, cancelado e sem saldo ficam fora.
   assert.deepEqual(r.planos, [
-    { plano: 'Semestral', total: 12, feitas: 1, restam: 2, validade: '2026-10-24', datas: ['2026-05-02'], mensagens: [{ data: '2026-05-02', texto: 'Oi! Como você ficou depois da sessão?' }] },
-    { plano: 'Mensal', total: 4, feitas: 0, restam: 1, validade: '2027-01-10', datas: [], mensagens: [] },
+    { plano: 'Semestral', total: 12, feitas: 1, restam: 2, validade: '2026-10-24', datas: ['2026-05-02'], mensagens: [{ data: '2026-05-02', texto: 'Oi! Como você ficou depois da sessão?' }], usadas: [{ data: '2026-05-02', texto: 'Oi! Como você ficou depois da sessão?' }] },
+    { plano: 'Mensal', total: 4, feitas: 0, restam: 1, validade: '2027-01-10', datas: [], mensagens: [], usadas: [] },
   ]);
   assert.doesNotMatch(JSON.stringify(r), /valor|pagamento|Pagar|190|65|cancelada|outro atleta/);
+});
+
+test('cessão: lê o nome curto na 1ª linha da Evolução e ignora o resto do texto', () => {
+  const caso = t => cessaoDaEvolucao(t)?.para ?? null;
+  assert.equal(caso('ANA JÚLIA FERNANDES USOU A SESSÃO DELE NO DIA 15/10/2026\n\nNEURAL\n-Lasegue: dor pontual'), 'Ana Júlia');
+  assert.equal(caso('cedeu sessão para a esposa monica'), 'Monica');
+  assert.equal(caso('Sessão cedida para o filho, Pedro Henrique Souza.'), 'Pedro Henrique');
+  assert.equal(caso('Maria da Silva usou a sessão dela'), 'Maria da Silva');
+  assert.equal(caso('\n  Cedeu a sessão para Ana. Liberação de panturrilha'), 'Ana');
+  // Frase comprida antes de "usou": cessão sim, nome não.
+  assert.equal(caso('Paciente comentou hoje que a amiga dele usou a sessão dele'), '');
+  // Texto clínico comum não é cessão.
+  assert.equal(caso('Paciente relata dor; usou a sessão do plano para liberação'), null);
+  assert.equal(caso('Liberação miofascial completa em MMII'), null);
+  assert.equal(caso(''), null);
+  assert.equal(caso(undefined), null);
+  // A segunda linha (clínica) nunca entra no nome.
+  assert.equal(caso('JOANA usou a sessão dele\nCARLOS cedeu sessão para Bia'), 'Joana');
+});
+
+test('em aberto: sessão cedida mostra só "para quem", no próprio dia, sem a mensagem dela', () => {
+  const sessao = (id, status, data) => ({ id, atletaId: 'a1', status, data, tipo: 'Semestral', totalPlano: 4, fimPlano: '2027-02-16', statusPlano: 'Ativo' });
+  const r = montarEmAberto({ id: 'a1' }, {
+    sessoes: [sessao('s1', 'realizada', '2026-10-15'), sessao('s2', 'realizada', '2026-10-15'), sessao('s3', 'realizada', '2026-11-05'), sessao('s4', 'aguardando', null)],
+  }, new Map([['s1', 'Mensagem do João'], ['s2', 'Mensagem que falaria da outra pessoa']]), new Map([['s2', { para: 'Ana Júlia' }], ['s3', { para: '' }]]));
+  assert.deepEqual(r.planos[0].usadas, [
+    { data: '2026-11-05', cedidaPara: '' },
+    { data: '2026-10-15', texto: 'Mensagem do João' },
+    { data: '2026-10-15', cedidaPara: 'Ana Júlia' },
+  ]);
+  assert.equal(r.planos[0].feitas, 3);
+  assert.doesNotMatch(JSON.stringify(r), /falaria da outra/);
 });
 
 test('em aberto: sem data de contratação ou pacote sem número não inventa validade', () => {

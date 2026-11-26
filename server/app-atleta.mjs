@@ -73,7 +73,7 @@ const AULA_USADA = new Set(['realizada', 'complete', 'faltou']);
  * Função pura. Nada de dinheiro aqui (pagamento fica fora do app por decisão de 25/11/2026),
  * e plano com a data vencida aparece igual aos outros, sem aviso.
  */
-export function montarEmAberto(atleta, listas, mensagens = new Map()) {
+export function montarEmAberto(atleta, listas, mensagens = new Map(), cedidas = new Map()) {
   const aulas = (listas.fortalecimento || []).filter(c => c.atletaId === atleta.id);
   const abertas = aulas.filter(c => c.status === 'em aberto');
   // O pacote em uso é o das aulas que ainda estão em aberto (cortesia antiga não conta).
@@ -97,21 +97,26 @@ export function montarEmAberto(atleta, listas, mensagens = new Map()) {
   for (const s of listas.sessoes || []) {
     if (s.atletaId !== atleta.id || s.statusPlano === 'Plano Finalizado' || s.status === 'cancelada') continue;
     const chave = [s.tipo, s.fimPlano || '', s.totalPlano || ''].join('|');
-    const g = grupos.get(chave) || { plano: s.tipo, total: s.totalPlano || null, feitas: 0, restam: 0, validade: s.fimPlano || null, datas: [], mensagens: [] };
+    const g = grupos.get(chave) || { plano: s.tipo, total: s.totalPlano || null, feitas: 0, restam: 0, validade: s.fimPlano || null, datas: [], mensagens: [], usadas: [] };
     if (s.status === 'realizada') {
       g.feitas += 1;
       if (s.data) {
         g.datas.push(s.data);
+        // Sessão cedida: o atleta vê só "cedida para Fulana". A mensagem dessa sessão, se
+        // houver, falaria da outra pessoa e não aparece.
+        const cessao = cedidas.get(s.id);
         // Só a mensagem que o atleta já recebeu no WhatsApp (status Enviada).
-        const texto = mensagens.get(s.id);
+        const texto = cessao ? null : mensagens.get(s.id);
         if (texto) g.mensagens.push({ data: s.data, texto });
+        // Uma linha por sessão: duas no mesmo dia não trocam mensagem nem aviso entre si.
+        g.usadas.push({ data: s.data, ...(texto ? { texto } : {}), ...(cessao ? { cedidaPara: cessao.para } : {}) });
       }
     }
     else g.restam += 1;
     grupos.set(chave, g);
   }
   const planos = [...grupos.values()].filter(g => g.restam > 0)
-    .map(g => ({ ...g, total: g.total || g.feitas + g.restam, datas: g.datas.sort((a, b) => b.localeCompare(a)), mensagens: g.mensagens.sort((a, b) => b.data.localeCompare(a.data)) }))
+    .map(g => ({ ...g, total: g.total || g.feitas + g.restam, datas: g.datas.sort((a, b) => b.localeCompare(a)), mensagens: g.mensagens.sort((a, b) => b.data.localeCompare(a.data)), usadas: g.usadas.sort((a, b) => b.data.localeCompare(a.data)) }))
     .sort((a, b) => String(a.validade || '9999').localeCompare(String(b.validade || '9999')) || a.plano.localeCompare(b.plano));
   return { fortalecimento, planos };
 }
@@ -285,7 +290,8 @@ export function criarServicoApp({ fechamento, api, agenda, whatsapp, agora = () 
       const listas = await fechamento.listas();
       // Fechamento antigo (ou de teste) sem o método: o app segue sem as mensagens.
       const mensagens = fechamento.mensagens ? await fechamento.mensagens() : new Map();
-      const emAberto = montarEmAberto(atleta, listas, mensagens);
+      const cedidas = fechamento.cedidas ? await fechamento.cedidas() : new Map();
+      const emAberto = montarEmAberto(atleta, listas, mensagens, cedidas);
       const avisos = [];
       const reservas = [];
       await Promise.all(Object.keys(MODALIDADES).map(async modalidade => {

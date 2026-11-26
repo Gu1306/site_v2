@@ -74,6 +74,8 @@ export interface PlanoDoAtleta {
   datas?: string[];
   /** Mensagem pós-sessão que o atleta já recebeu no WhatsApp, por data. */
   mensagens?: { data: string; texto: string }[];
+  /** Uma linha por sessão feita: mensagem dela e, se foi cedida, para quem ("" = sem nome). */
+  usadas?: { data: string; texto?: string; cedidaPara?: string }[];
 }
 
 export interface InicioDoAtleta {
