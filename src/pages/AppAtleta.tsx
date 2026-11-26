@@ -3,6 +3,7 @@ import { AlertCircle, CalendarPlus, Check, Loader2, LogOut, MessageCircle } from
 import AgendamentoAulas, { type ConfigAgendamento } from "@/components/AgendamentoAulas";
 import DiarioFisio from "@/components/DiarioFisio";
 import { useSeo } from "@/hooks/useSeo";
+import { useAtualizarSozinho } from "@/hooks/useAtualizarSozinho";
 import logo from "@/assets/logocarefitclub.png";
 import {
   ErroAgendamento,
@@ -100,6 +101,9 @@ const AppAtleta = () => {
   const [inicio, setInicio] = useState<InicioDoAtleta | null>(null);
   const [erroGeral, setErroGeral] = useState("");
   const [recado, setRecado] = useState("");
+
+  // Versão nova no ar: recarrega sozinho, menos no meio de uma reserva.
+  useAtualizarSozinho(() => tela.nome === "reservar");
 
   const carregar = useCallback(async () => {
     setErroGeral("");
