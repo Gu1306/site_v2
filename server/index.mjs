@@ -136,7 +136,24 @@ function comPreview(html, preview, url) {
 
 export function passwordHash(password, salt = randomBytes(16).toString('hex')) { return `${salt}:${scryptSync(password, salt, 32).toString('hex')}`; }
 function equal(a, b) { const x = Buffer.from(a); const y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); }
-export function createServer(env = process.env, service = createService(clickupClient(env.CLICKUP_API_TOKEN)), avaliacao = criarServicoAvaliacao(clickupClient(env.CLICKUP_API_TOKEN), criarUploader(env.CLICKUP_API_TOKEN)), fechamento = criarServicoFechamento(clickupClient(env.CLICKUP_API_TOKEN), () => Date.now(), criarLeitorAgenda(env)), conversas = criarServicoConversas(criarLeitorConversas(env)), conteudo = criarServicoConteudo(criarLeitorConteudo(env)), app = criarServicoApp({ fechamento, api: clickupClient(env.CLICKUP_API_TOKEN), agenda: criarClienteAgenda(env), whatsapp: criarEnviadorWhatsapp(env) })) {
+/** Dono dos caches do ClickUp (CRM + listas) que a gestão e o app do atleta compartilham. */
+const fechamentoPadrao = env => criarServicoFechamento(clickupClient(env.CLICKUP_API_TOKEN), () => Date.now(), criarLeitorAgenda(env));
+
+/**
+ * Mantém o CRM e as listas quentes: lê ao subir e de novo a cada 10 min, abaixo dos 15 min
+ * em que o cache vencido ainda é servido na hora e renovado por trás. Assim o atleta que
+ * abre o app depois de horas parado não paga os 3–5 s do ClickUp frio. Erro aqui só vai
+ * para o log: a leitura seguinte (ou o próprio pedido do atleta) tenta de novo.
+ */
+export function manterCacheQuente(fechamento, intervaloMs = 10 * 60000, agendar = setInterval) {
+  const ler = () => fechamento.atletas().catch(e => console.error('aquecimento do cache falhou', e?.message || e));
+  ler();
+  const temporizador = agendar(ler, intervaloMs);
+  temporizador?.unref?.();
+  return temporizador;
+}
+
+export function createServer(env = process.env, service = createService(clickupClient(env.CLICKUP_API_TOKEN)), avaliacao = criarServicoAvaliacao(clickupClient(env.CLICKUP_API_TOKEN), criarUploader(env.CLICKUP_API_TOKEN)), fechamento = fechamentoPadrao(env), conversas = criarServicoConversas(criarLeitorConversas(env)), conteudo = criarServicoConteudo(criarLeitorConteudo(env)), app = criarServicoApp({ fechamento, api: clickupClient(env.CLICKUP_API_TOKEN), agenda: criarClienteAgenda(env), whatsapp: criarEnviadorWhatsapp(env) })) {
   const origin = env.PORTAL_ORIGIN || 'http://localhost:8080';
   // O mesmo endereço sem o www (carefitrunbase.com.br) abre a página, mas o login e as
   // reservas recusam o Origin diferente. Quem chega por ele vai para o oficial.
@@ -357,4 +374,10 @@ export function createServer(env = process.env, service = createService(clickupC
     } catch (e) { if (!res.headersSent) send(e instanceof PublicError ? e.status : 500, { error: e instanceof PublicError ? e.message : 'Não foi possível concluir. Atualize e tente novamente.', ...(e instanceof PublicError && e.codigo ? { codigo: e.codigo } : {}) }); else res.end(); }
   });
 }
-if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) createServer().listen(Number(process.env.PORT || 3000), '0.0.0.0', () => console.log('CareFit server ready'));
+if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  const fechamento = fechamentoPadrao(process.env);
+  createServer(process.env, undefined, undefined, fechamento).listen(Number(process.env.PORT || 3000), '0.0.0.0', () => {
+    console.log('CareFit server ready');
+    manterCacheQuente(fechamento);
+  });
+}
