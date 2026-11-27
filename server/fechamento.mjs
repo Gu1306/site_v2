@@ -84,6 +84,7 @@ export const BONUS = { limite: 100, porSessao: 15 };
 
 const CACHE_MS = 2 * 60000;
 const ATUALIZAR_MIN_MS = 60000; // o token é o mesmo das automações do n8n: não gastar o limite da API
+const ESTALE_MAX_MS = 15 * 60000; // até aqui o cache vencido é servido na hora e renovado por trás
 const SEMANAS_HISTORICO = 8;
 const PRIMEIRA_SEMANA = '2024-01-01';
 
@@ -447,47 +448,52 @@ async function lerLista(api, lista) {
 }
 
 export function criarServicoFechamento(api, agora = () => Date.now(), leitorAgenda = null) {
-  let cache = null; let emCurso = null;
+  /**
+   * Cache com renovação por trás. Dentro de CACHE_MS devolve o guardado. Vencido há
+   * menos de ESTALE_MAX_MS, devolve o guardado NA HORA e relê o ClickUp em segundo
+   * plano (quem abre o app depois de um tempo parado não espera os 3–5 s da leitura).
+   * Mais velho que isso, ou com `forcar` (botão Atualizar), espera a leitura nova.
+   */
+  function comCache(ler, nome) {
+    let cache = null; let emCurso = null;
+    return async forcar => {
+      const idade = cache ? agora() - cache.lidoEm : Infinity;
+      if (idade < CACHE_MS && !(forcar && idade >= ATUALIZAR_MIN_MS)) return cache;
+      emCurso ||= ler().then(d => { cache = d; return d; }).finally(() => { emCurso = null; });
+      if (cache && !forcar && idade < ESTALE_MAX_MS) {
+        emCurso.catch(e => console.error(`fechamento: renovação do cache ${nome} falhou`, e?.message || e));
+        return cache;
+      }
+      return emCurso;
+    };
+  }
   // Uma leitura só do CRM serve a calculadora (origens), a carteira e as conversas.
-  let cacheCrm = null; let emCursoCrm = null;
-  async function crm(forcar) {
-    const idade = cacheCrm ? agora() - cacheCrm.lidoEm : Infinity;
-    if (idade < CACHE_MS && !(forcar && idade >= ATUALIZAR_MIN_MS)) return cacheCrm;
-    emCursoCrm ||= (async () => {
-      const tarefas = await lerLista(api, LISTAS.crm);
-      const atletas = tarefas.map(reduzirAtleta);
-      // O e-mail fica FORA do atleta reduzido de proposito: a carteira devolve o atleta
-      // inteiro para a tela da equipe, e o e-mail so interessa ao app do atleta.
-      const emails = new Map(tarefas.map(t => [t.id, String(campo(t, CAMPOS_CRM.email)?.value || '').trim().toLowerCase()]));
-      cacheCrm = { lidoEm: agora(), atletas, emails, origens: new Map(tarefas.map(t => [t.id, opcao(campo(t, CAMPOS.origemMarketing))])) };
-      return cacheCrm;
-    })().finally(() => { emCursoCrm = null; });
-    return emCursoCrm;
-  }
+  const crm = comCache(async () => {
+    const tarefas = await lerLista(api, LISTAS.crm);
+    const atletas = tarefas.map(reduzirAtleta);
+    // O e-mail fica FORA do atleta reduzido de proposito: a carteira devolve o atleta
+    // inteiro para a tela da equipe, e o e-mail so interessa ao app do atleta.
+    const emails = new Map(tarefas.map(t => [t.id, String(campo(t, CAMPOS_CRM.email)?.value || '').trim().toLowerCase()]));
+    return { lidoEm: agora(), atletas, emails, origens: new Map(tarefas.map(t => [t.id, opcao(campo(t, CAMPOS.origemMarketing))])) };
+  }, 'CRM');
   const origens = async forcar => (await crm(forcar)).origens;
-  async function dados(forcar) {
-    const idade = cache ? agora() - cache.lidoEm : Infinity;
-    if (idade < CACHE_MS && !(forcar && idade >= ATUALIZAR_MIN_MS)) return cache;
-    emCurso ||= (async () => {
-      const [sessoes, fortalecimento, yoga] = await Promise.all([LISTAS.sessoes, LISTAS.fortalecimento, LISTAS.yoga].map(id => lerLista(api, id)));
-      // A mensagem pós-sessão é texto clínico: fica FORA da sessão reduzida (que as telas da
-      // gestão recebem inteira) e só entra aqui quando o status diz que ela foi ENVIADA.
-      const mensagens = new Map();
-      for (const t of sessoes) {
-        const texto = String(campo(t, CAMPOS.mensagemAtleta)?.value || '').trim();
-        if (texto && opcao(campo(t, CAMPOS.statusEnvio)) === 'Enviada') mensagens.set(t.id, texto);
-      }
-      // Sessão cedida: guarda só o nome curto de quem usou, nunca a Evolução.
-      const cedidas = new Map();
-      for (const t of sessoes) {
-        const cessao = cessaoDaEvolucao(campo(t, CAMPOS.evolucaoSessao)?.value);
-        if (cessao) cedidas.set(t.id, cessao);
-      }
-      cache = { lidoEm: agora(), sessoes: sessoes.map(reduzirSessao), fortalecimento: fortalecimento.map(reduzirAula), yoga: yoga.map(reduzirAula), mensagens, cedidas };
-      return cache;
-    })().finally(() => { emCurso = null; });
-    return emCurso;
-  }
+  const dados = comCache(async () => {
+    const [sessoes, fortalecimento, yoga] = await Promise.all([LISTAS.sessoes, LISTAS.fortalecimento, LISTAS.yoga].map(id => lerLista(api, id)));
+    // A mensagem pós-sessão é texto clínico: fica FORA da sessão reduzida (que as telas da
+    // gestão recebem inteira) e só entra aqui quando o status diz que ela foi ENVIADA.
+    const mensagens = new Map();
+    for (const t of sessoes) {
+      const texto = String(campo(t, CAMPOS.mensagemAtleta)?.value || '').trim();
+      if (texto && opcao(campo(t, CAMPOS.statusEnvio)) === 'Enviada') mensagens.set(t.id, texto);
+    }
+    // Sessão cedida: guarda só o nome curto de quem usou, nunca a Evolução.
+    const cedidas = new Map();
+    for (const t of sessoes) {
+      const cessao = cessaoDaEvolucao(campo(t, CAMPOS.evolucaoSessao)?.value);
+      if (cessao) cedidas.set(t.id, cessao);
+    }
+    return { lidoEm: agora(), sessoes: sessoes.map(reduzirSessao), fortalecimento: fortalecimento.map(reduzirAula), yoga: yoga.map(reduzirAula), mensagens, cedidas };
+}, 'listas');
   return {
     async semana(texto, forcar = false) {
       const hoje = dayOf(agora());

@@ -17,10 +17,13 @@ import {
   cancelarReserva,
   capitalizar,
   ErroApp,
+  lerInicio,
+  lerReservas,
   NOME_MODALIDADE,
   type InicioDoAtleta,
   type Modalidade,
   type ReservaDoAtleta,
+  type ReservasDoAtleta,
 } from "@/services/appAtleta";
 
 /* =========================================================================
@@ -99,6 +102,8 @@ const AppAtleta = () => {
 
   const [tela, setTela] = useState<Tela>({ nome: "verificando" });
   const [inicio, setInicio] = useState<InicioDoAtleta | null>(null);
+  // null = ainda carregando; "erro" = as agendas não responderam (a tela segue sem elas).
+  const [reservas, setReservas] = useState<ReservasDoAtleta | null | "erro">(null);
   const [erroGeral, setErroGeral] = useState("");
   const [recado, setRecado] = useState("");
 
@@ -107,8 +112,17 @@ const AppAtleta = () => {
 
   const carregar = useCallback(async () => {
     setErroGeral("");
+    // Dois pedidos em paralelo: o `inicio` sai do cache do servidor e abre a tela em
+    // menos de um segundo; as reservas dependem das agendas do Google (2 a 5 s) e
+    // chegam depois, no lugar delas na tela.
+    setReservas(null);
+    const pedidoReservas = lerReservas();
+    pedidoReservas.then(setReservas).catch((erro) => {
+      // 401 aqui já é tratado pelo `inicio`, que cai na tela de entrar.
+      setReservas(erro instanceof ErroApp && erro.status === 401 ? null : "erro");
+    });
     try {
-      setInicio(await apiApp<InicioDoAtleta>("inicio"));
+      setInicio(await lerInicio());
       setTela((atual) => (atual.nome === "reservar" ? atual : { nome: "inicio" }));
     } catch (erro) {
       if (erro instanceof ErroApp && erro.status === 401) {
@@ -179,6 +193,7 @@ const AppAtleta = () => {
         ) : (
           <Inicio
             inicio={inicio}
+            reservas={reservas}
             erro={erroGeral}
             recado={recado}
             aoRecado={setRecado}
@@ -391,6 +406,7 @@ const Numero = ({ rotulo, valor }: { rotulo: string; valor: number | string }) =
 
 interface InicioProps {
   inicio: InicioDoAtleta | null;
+  reservas: ReservasDoAtleta | null | "erro";
   erro: string;
   recado: string;
   aoRecado: (texto: string) => void;
@@ -399,7 +415,7 @@ interface InicioProps {
   aoSair: () => void;
 }
 
-const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSair }: InicioProps) => {
+const Inicio = ({ inicio, reservas: carga, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSair }: InicioProps) => {
   // Aulas canceladas nesta visita: somem da lista na hora, sem esperar a releitura.
   const [canceladas, setCanceladas] = useState<string[]>([]);
 
@@ -418,7 +434,8 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
     );
   }
 
-  const reservas = inicio.reservas.filter((r) => !canceladas.includes(r.modalidade + r.token));
+  const reservas = (carga && carga !== "erro" ? carga.reservas : []).filter((r) => !canceladas.includes(r.modalidade + r.token));
+  const avisos = carga && carga !== "erro" ? carga.avisos : [];
   const pacote = inicio.fortalecimento;
   const planos = inicio.planos || [];
 
@@ -448,7 +465,7 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
         </div>
       )}
       {erro && <Alerta>{erro}</Alerta>}
-      {inicio.avisos.map((aviso) => (
+      {avisos.map((aviso) => (
         <Alerta key={aviso}>{aviso}</Alerta>
       ))}
 
@@ -456,9 +473,16 @@ const Inicio = ({ inicio, erro, recado, aoRecado, aoRecarregar, aoReservar, aoSa
         <h2 id="titulo-aulas" className="text-[13px] font-medium uppercase tracking-[0.09em] text-primary/75">
           Suas próximas aulas
         </h2>
-        {reservas.length === 0 ? (
+        {carga === null ? (
+          <p
+            className="mt-3 flex items-center justify-center gap-2 rounded-2xl border border-dashed border-primary/20 px-4 py-6 text-sm text-primary/75"
+            role="status"
+          >
+            <Loader2 className="h-4 w-4 animate-spin" /> Buscando suas reservas...
+          </p>
+        ) : reservas.length === 0 ? (
           <p className="mt-3 rounded-2xl border border-dashed border-primary/20 px-4 py-6 text-center text-sm text-primary/75">
-            Você não tem aula reservada.
+            {carga === "erro" ? "Não deu para ver suas reservas agora." : "Você não tem aula reservada."}
           </p>
         ) : (
           <ul className="mt-3 grid gap-2.5">

@@ -38,7 +38,11 @@ export const LIMITES = {
   codigoValeMs: 10 * 60000,
   tentativasPorCodigo: 5,
   pedidosPorHora: 3, // por número
+  pedidosPorHoraIp: 10, // por endereço de origem: um script não varre a base de telefones
   enviosPorDia: 60, // fusível: de todos os números somados
+  // O pedido de código responde no mínimo isto, exista o número ou não: quem mede o
+  // tempo de resposta não descobre quem é cliente (o envio pelo WhatsApp demora ~1 s).
+  respostaMinimaMs: 1500,
   sessaoMs: 60 * 86400000,
   // A varredura de reservas roda a cada 15 min; conferir depois dela pega a reserva
   // que ainda não tinha virado card `agendada` na hora do cancelamento.
@@ -287,10 +291,19 @@ export function criarSessoes(segredo, agora = () => Date.now()) {
  * `fechamento` é o serviço que já lê o ClickUp com cache (CRM e listas de aulas);
  * `api` é o cliente do ClickUp, usado só para marcar o checkbox de cancelamento.
  */
-export function criarServicoApp({ fechamento, api, agenda, whatsapp, agora = () => Date.now(), sortear = () => randomInt(0, 1000000), agendar = (fn, ms) => { const t = setTimeout(fn, ms); t.unref?.(); } }) {
+export function criarServicoApp({ fechamento, api, agenda, whatsapp, agora = () => Date.now(), sortear = () => randomInt(0, 1000000), agendar = (fn, ms) => { const t = setTimeout(fn, ms); t.unref?.(); }, dormir = ms => new Promise(r => setTimeout(r, ms)) }) {
   const anotacoes = new Map(); // atletaId → { dia, n, ultima: { texto, em } }
   const codigos = new Map(); // tel8 → { codigo, ate, tentativas, atletaId }
   const pedidos = new Map(); // tel8 → [instantes dos pedidos da última hora]
+  const pedidosIp = new Map(); // ip → [instantes dos pedidos da última hora]
+  /** Registra um pedido na janela de uma hora e diz se estourou o limite. */
+  function contarPedido(mapa, chave, limite, instante) {
+    const recentes = (mapa.get(chave) || []).filter(t => instante - t < 3600000);
+    if (recentes.length >= limite) return false;
+    recentes.push(instante); mapa.set(chave, recentes);
+    for (const [k, v] of mapa) if (!v.some(t => instante - t < 3600000)) mapa.delete(k);
+    return true;
+  }
   let fusivel = { dia: '', envios: 0 };
   const diaDe = ms => new Date(ms - 3 * 3600000).toISOString().slice(0, 10); // dia de Brasília
 
@@ -350,34 +363,40 @@ export function criarServicoApp({ fechamento, api, agenda, whatsapp, agora = () 
 
   return {
     /** Sempre a mesma resposta, exista o número no cadastro ou não: não vira consulta de clientes. */
-    async pedirCodigo(telefone) {
+    async pedirCodigo(telefone, ip = '') {
       const digitos = soDigitos(telefone);
       const tel8 = oito(digitos);
       if (digitos.length < 10 || digitos.length > 13 || !tel8) throw new PublicError('Coloque o seu WhatsApp com DDD.');
       if (!whatsapp) throw new PublicError('O acesso pelo WhatsApp ainda não foi ligado. Avise a CareFit.', 503);
       const instante = agora();
-      const recentes = (pedidos.get(tel8) || []).filter(t => instante - t < 3600000);
-      if (recentes.length >= LIMITES.pedidosPorHora) throw new PublicError('Você já pediu o código algumas vezes. Aguarde uma hora ou fale com a CareFit.', 429);
-      recentes.push(instante); pedidos.set(tel8, recentes);
-      for (const [k, v] of pedidos) if (!v.some(t => instante - t < 3600000)) pedidos.delete(k);
+      // O limite por origem vem ANTES do por número: um só endereço varrendo telefones
+      // para no décimo, antes de gastar o fusível do dia (que trancaria o login de todos).
+      if (ip && !contarPedido(pedidosIp, ip, LIMITES.pedidosPorHoraIp, instante)) throw new PublicError('Muitos pedidos de código deste aparelho. Aguarde uma hora ou fale com a CareFit.', 429);
+      if (!contarPedido(pedidos, tel8, LIMITES.pedidosPorHora, instante)) throw new PublicError('Você já pediu o código algumas vezes. Aguarde uma hora ou fale com a CareFit.', 429);
       for (const [k, v] of codigos) if (v.ate < instante) codigos.delete(k);
 
-      const atleta = await acharPorTelefone(tel8);
-      const destino = atleta && comDdi(atleta.telefone);
-      if (!destino) return { ok: true };
-
-      const hoje = diaDe(instante);
-      if (fusivel.dia !== hoje) fusivel = { dia: hoje, envios: 0 };
-      if (fusivel.envios >= LIMITES.enviosPorDia) throw new PublicError('O acesso por código está pausado por hoje. Fale com a CareFit no WhatsApp.', 503);
-      fusivel.envios += 1; // conta antes de enviar: falha de envio também gasta o fusível
-
-      const codigo = String(sortear()).padStart(6, '0');
-      codigos.set(tel8, { codigo, ate: instante + LIMITES.codigoValeMs, tentativas: 0, atletaId: atleta.id });
       try {
-        // Vai para o número do CADASTRO, nunca para o que foi digitado.
-        await whatsapp.enviar(destino, `CareFit: seu código de acesso é ${codigo}. Ele vale por 10 minutos. Se não foi você que pediu, é só ignorar esta mensagem.`);
-      } catch (erro) { codigos.delete(tel8); throw erro; }
-      return { ok: true };
+        const atleta = await acharPorTelefone(tel8);
+        const destino = atleta && comDdi(atleta.telefone);
+        if (!destino) return { ok: true };
+
+        const hoje = diaDe(instante);
+        if (fusivel.dia !== hoje) fusivel = { dia: hoje, envios: 0 };
+        if (fusivel.envios >= LIMITES.enviosPorDia) throw new PublicError('O acesso por código está pausado por hoje. Fale com a CareFit no WhatsApp.', 503);
+        fusivel.envios += 1; // conta antes de enviar: falha de envio também gasta o fusível
+
+        const codigo = String(sortear()).padStart(6, '0');
+        codigos.set(tel8, { codigo, ate: instante + LIMITES.codigoValeMs, tentativas: 0, atletaId: atleta.id });
+        try {
+          // Vai para o número do CADASTRO, nunca para o que foi digitado.
+          await whatsapp.enviar(destino, `CareFit: seu código de acesso é ${codigo}. Ele vale por 10 minutos. Se não foi você que pediu, é só ignorar esta mensagem.`);
+        } catch (erro) { codigos.delete(tel8); throw erro; }
+        return { ok: true };
+      } finally {
+        // Mesma duração mínima com ou sem envio: a resposta não denuncia quem é cliente.
+        const falta = LIMITES.respostaMinimaMs - (agora() - instante);
+        if (falta > 0) await dormir(falta);
+      }
     },
 
     async confirmarCodigo(telefone, codigo) {
@@ -399,6 +418,20 @@ export function criarServicoApp({ fechamento, api, agenda, whatsapp, agora = () 
       const mensagens = fechamento.mensagens ? await fechamento.mensagens() : new Map();
       const cedidas = fechamento.cedidas ? await fechamento.cedidas() : new Map();
       const emAberto = montarEmAberto(atleta, listas, mensagens, cedidas);
+      // As reservas NÃO entram aqui: cada Web App do Apps Script leva de 2 a 5 s para
+      // responder, e a tela inicial sai do ClickUp (cache). A tela pede `reservas` em seguida.
+      return {
+        primeiroNome: atleta.nome.split(/\s+/)[0],
+        // Primeiro nome do profissional do cadastro: a tela destaca a agenda dele.
+        fisio: atleta.fisio ? String(atleta.fisio).trim().split(/\s+/)[0] : null,
+        fortalecimento: emAberto.fortalecimento,
+        planos: emAberto.planos,
+      };
+    },
+
+    /** Próximas aulas reservadas nas duas agendas (Apps Script), em paralelo. */
+    async reservas(sessao) {
+      const atleta = await atletaDaSessao(sessao);
       const avisos = [];
       const reservas = [];
       await Promise.all(Object.keys(MODALIDADES).map(async modalidade => {
@@ -407,15 +440,7 @@ export function criarServicoApp({ fechamento, api, agenda, whatsapp, agora = () 
         } catch { avisos.push(`Não consegui ler suas reservas de ${MODALIDADES[modalidade].nome.toLowerCase()} agora.`); }
       }));
       reservas.sort((a, b) => a.aulaId.localeCompare(b.aulaId));
-      return {
-        primeiroNome: atleta.nome.split(/\s+/)[0],
-        // Primeiro nome do profissional do cadastro: a tela destaca a agenda dele.
-        fisio: atleta.fisio ? String(atleta.fisio).trim().split(/\s+/)[0] : null,
-        fortalecimento: emAberto.fortalecimento,
-        planos: emAberto.planos,
-        reservas,
-        avisos: avisos.sort(),
-      };
+      return { reservas, avisos: avisos.sort() };
     },
 
     async reservar(sessao, entrada) {

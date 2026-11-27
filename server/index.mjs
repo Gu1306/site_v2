@@ -166,10 +166,17 @@ export function createServer(env = process.env, service = createService(clickupC
     for await (const chunk of req) { size += chunk.length; if (size > limite) throw new PublicError('Conteúdo muito grande.', 413); chunks.push(chunk); }
     try { return JSON.parse(Buffer.concat(chunks).toString()); } catch { throw new PublicError('Conteúdo inválido.'); }
   }
+  // Endereço de quem pede. O container só escuta em 127.0.0.1 atrás do Caddy, então o
+  // primeiro X-Forwarded-For é o cliente real; sem proxy, vale o endereço da conexão.
+  const ipDe = req => String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket?.remoteAddress || '';
   return http.createServer(async (req, res) => {
     const send = (status, data) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' }); res.end(JSON.stringify(data)); };
     try {
       const url = new URL(req.url, 'http://localhost');
+      // Cabeçalhos de segurança em toda resposta. HSTS só quando o endereço oficial é
+      // https (em desenvolvimento não), 180 dias, sem preload: dá para voltar atrás.
+      if (secure) res.setHeader('Strict-Transport-Security', 'max-age=15552000');
+      res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
       if (hostSemWww && (req.method === 'GET' || req.method === 'HEAD') && String(req.headers.host || '').toLowerCase().replace(/:\d+$/, '') === hostSemWww) {
         res.writeHead(301, { Location: origin + url.pathname + url.search });
         return res.end();
@@ -224,7 +231,7 @@ export function createServer(env = process.env, service = createService(clickupC
         if (secret.length < 32 || !env.CLICKUP_API_TOKEN) throw new PublicError('O app ainda não foi configurado.', 503);
         if (req.method !== 'GET' && (req.headers.origin !== origin || !req.headers['content-type']?.startsWith('application/json'))) throw new PublicError('Reabra o app pelo endereço oficial.', 403);
         const rota = url.pathname.slice('/api/app/'.length);
-        if (rota === 'codigo' && req.method === 'POST') return send(200, await app.pedirCodigo((await body(req)).telefone));
+        if (rota === 'codigo' && req.method === 'POST') return send(200, await app.pedirCodigo((await body(req)).telefone, ipDe(req)));
         if (rota === 'entrar' && req.method === 'POST') {
           const entrada = await body(req);
           const quem = await app.confirmarCodigo(entrada.telefone, entrada.codigo);
@@ -235,6 +242,7 @@ export function createServer(env = process.env, service = createService(clickupC
         if (rota === 'reserva' && req.method === 'GET') return send(200, await app.detalhe(url.searchParams.get('m') || '', url.searchParams.get('t') || ''));
         if (rota === 'cancelar' && req.method === 'POST') { const entrada = await body(req); return send(200, await app.cancelar(entrada.modalidade, entrada.token)); }
         if (rota === 'inicio' && req.method === 'GET') return send(200, await app.inicio(sessaoAtleta(req)));
+        if (rota === 'reservas' && req.method === 'GET') return send(200, await app.reservas(sessaoAtleta(req)));
         if (rota === 'reservar' && req.method === 'POST') return send(200, await app.reservar(sessaoAtleta(req), await body(req)));
         if (rota === 'diario' && req.method === 'GET') return send(200, await app.diario(sessaoAtleta(req)));
         if (rota === 'diario' && req.method === 'POST') return send(200, await app.anotar(sessaoAtleta(req), await body(req)));
@@ -316,8 +324,8 @@ export function createServer(env = process.env, service = createService(clickupC
       }
       if (!['GET', 'HEAD'].includes(req.method)) return send(405, { error: 'Método não permitido.' });
       res.setHeader('X-Content-Type-Options', 'nosniff');
-      // Área logada e link pessoal de cancelamento: fora da busca.
-      if (url.pathname === '/app' || url.pathname === '/cancelar-aula') res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+      // Área logada e link pessoal de cancelamento: fora da busca e fora de iframe.
+      if (url.pathname === '/app' || url.pathname === '/cancelar-aula') { res.setHeader('X-Robots-Tag', 'noindex, nofollow'); res.setHeader('X-Frame-Options', 'DENY'); }
       if (url.pathname === '/painel-fortalecimento' || url.pathname === '/painel-avaliacao-forca' || url.pathname === '/gestao' || url.pathname.startsWith('/gestao/')) { res.setHeader('X-Robots-Tag', 'noindex, nofollow'); res.setHeader('X-Frame-Options', 'DENY'); }
 
       // A home é a do React (src/pages/Index.tsx), servida pelo index.html como

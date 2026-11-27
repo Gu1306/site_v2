@@ -127,6 +127,28 @@ test('serviço lê as três listas em páginas, guarda em cache e recusa semana 
   await assert.rejects(servico.semana('ontem'), /Semana inválida/);
 });
 
+test('cache vencido há pouco sai na hora e é renovado por trás; muito velho, espera', async () => {
+  let chamadas = 0; let agora = Date.parse('2026-11-06T15:00:00-03:00'); let versao = 'A';
+  const paginas = { [LISTAS.sessoes]: SESSOES, [LISTAS.fortalecimento]: FORT, [LISTAS.yoga]: YOGA };
+  const api = async url => { chamadas++; const [, lista] = /\/list\/(\d+)\/task/.exec(url); const page = Number(/page=(\d+)/.exec(url)[1]); const tasks = page === 0 ? paginas[lista].map(t => ({ ...t, versao })) : []; return { tasks, last_page: true }; };
+  const servico = criarServicoFechamento(api, () => agora);
+  const primeira = await servico.listas();
+  const gastas = chamadas;
+  // 3 minutos depois: devolve o cache antigo sem esperar, mas dispara a releitura.
+  agora += 3 * 60000; versao = 'B';
+  const segunda = await servico.listas();
+  assert.equal(segunda, primeira, 'devolveu o cache vencido na hora');
+  assert.ok(chamadas > gastas, 'e já pediu a releitura ao ClickUp');
+  await new Promise(r => setImmediate(r));
+  const terceira = await servico.listas();
+  assert.notEqual(terceira, primeira, 'a leitura seguinte já vem renovada');
+  // 20 minutos parado: aí espera a leitura nova.
+  agora += 20 * 60000; versao = 'C'; const antes = chamadas;
+  const quarta = await servico.listas();
+  assert.ok(chamadas > antes);
+  assert.notEqual(quarta, terceira);
+});
+
 test('nova jornada começa em 11 de novembro e separa semanas de meses', () => {
   const s = (id, data, tipo) => ({ id, atleta: id, atletaId: id, status: 'realizada', data, tipo, valor: 180 });
   const sessoes = [s('antes', '2026-11-10', 'Avaliação'), s('inicio', '2026-11-11', 'Avaliação'), s('fim', '2026-11-30', 'Primeira Sessão Dupla'), s('dez', '2026-12-01', 'Avaliação'), s('futuro', '2026-12-03', 'Avaliação')];

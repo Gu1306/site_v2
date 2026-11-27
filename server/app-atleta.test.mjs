@@ -10,7 +10,7 @@ const BIA = { id: 'crm-bia', nome: 'Bia Rocha', telefone: '16988883333', sessoes
 const TOKEN = 'T'.repeat(32);
 
 function montar(extra = {}) {
-  const enviados = []; const chamadasClickup = []; const tarefas = []; const pedidosAgenda = [];
+  const enviados = []; const chamadasClickup = []; const tarefas = []; const pedidosAgenda = []; const esperas = [];
   let relogio = Date.parse('2026-11-25T12:00:00Z');
   const estado = {
     fort: [
@@ -37,8 +37,8 @@ function montar(extra = {}) {
   const whatsapp = extra.semWhatsapp ? null : { enviar: async (numero, texto) => { if (extra.whatsappFalha) throw new Error('fora do ar'); enviados.push({ numero, texto }); } };
   const api = async (caminho, metodo, corpo) => { chamadasClickup.push({ caminho, metodo, corpo }); if (extra.clickupFalha) throw new Error('clickup'); return {}; };
   let proximo = 123456;
-  const app = criarServicoApp({ fechamento, api, agenda, whatsapp, agora: () => relogio, sortear: () => proximo, agendar: (fn, ms) => tarefas.push({ fn, ms }) });
-  return { app, enviados, chamadasClickup, tarefas, pedidosAgenda, estado, avancar: ms => { relogio += ms; }, codigo: n => { proximo = n; } };
+  const app = criarServicoApp({ fechamento, api, agenda, whatsapp, agora: () => relogio, sortear: () => proximo, agendar: (fn, ms) => tarefas.push({ fn, ms }), dormir: async ms => { esperas.push(ms); } });
+  return { app, enviados, chamadasClickup, tarefas, pedidosAgenda, esperas, estado, avancar: ms => { relogio += ms; }, codigo: n => { proximo = n; } };
 }
 const codigoDe = texto => /\b(\d{6})\b/.exec(texto)[1];
 
@@ -97,10 +97,27 @@ test('limite por número segura o envio, e volta depois de uma hora', async () =
   assert.equal(enviados.length, LIMITES.pedidosPorHora + 1);
 });
 
+test('limite por endereço de origem segura a varredura de telefones antes do fusível', async () => {
+  const { app, enviados } = montar();
+  for (let i = 0; i < LIMITES.pedidosPorHoraIp; i++) await app.pedirCodigo('1197777' + String(1000 + i), '203.0.113.9');
+  await assert.rejects(app.pedirCodigo('16991112222', '203.0.113.9'), { status: 429 });
+  assert.equal(enviados.length, 0);
+  // Outro endereço (e a chamada sem endereço, dos testes antigos) segue normal.
+  assert.deepEqual(await app.pedirCodigo('16991112222', '198.51.100.2'), { ok: true });
+  assert.equal(enviados.length, 1);
+});
+
+test('pedido de código leva o mesmo tempo mínimo com ou sem envio', async () => {
+  const { app, esperas } = montar();
+  await app.pedirCodigo('16991112222'); // cliente: envia
+  await app.pedirCodigo('11977776666'); // desconhecido: não envia
+  assert.deepEqual(esperas, [LIMITES.respostaMinimaMs, LIMITES.respostaMinimaMs]);
+});
+
 test('fusível diário fecha a porta quando estoura no mesmo dia', async () => {
   const fechamento = { atletas: async () => ({ atletas: Array.from({ length: 80 }, (_, i) => ({ id: 'a' + i, nome: 'Atleta ' + i, telefone: '1699000' + String(1000 + i), sessoes: [] })) }) };
   const enviados = [];
-  const app = criarServicoApp({ fechamento, api: async () => ({}), agenda: {}, whatsapp: { enviar: async n => { enviados.push(n); } }, agora: () => Date.parse('2026-11-25T15:00:00Z') });
+  const app = criarServicoApp({ fechamento, api: async () => ({}), agenda: {}, whatsapp: { enviar: async n => { enviados.push(n); } }, agora: () => Date.parse('2026-11-25T15:00:00Z'), dormir: async () => {} });
   let barrado = null;
   for (let i = 0; i < 80 && !barrado; i++) await app.pedirCodigo('1699000' + String(1000 + i)).catch(e => { barrado = e; });
   assert.equal(enviados.length, LIMITES.enviosPorDia);
@@ -114,25 +131,36 @@ test('sem WhatsApp configurado, ou com ele fora do ar, o código não fica valen
   await assert.rejects(app.confirmarCodigo('16991112222', '123456'), { status: 401 });
 });
 
-test('início: saldo só das aulas do próprio atleta, e as reservas das duas agendas', async () => {
+test('início: saldo só das aulas do próprio atleta, sem esperar as agendas', async () => {
   const { app, pedidosAgenda } = montar();
   const inicio = await app.inicio({ atletaId: 'crm-ana', tel8: '91112222' });
   assert.equal(inicio.primeiroNome, 'Ana');
   assert.deepEqual(inicio.fortalecimento, { temPacote: true, disponiveis: 2, agendadas: 1, feitas: 1, usadas: [{ data: '2026-11-20', faltou: false }], plano: null, validade: null });
   assert.deepEqual(inicio.planos, []);
-  assert.equal(inicio.reservas.length, 1);
-  assert.equal(inicio.reservas[0].modalidade, 'fortalecimento');
-  assert.deepEqual(inicio.avisos, []);
-  assert.ok(pedidosAgenda.every(p => p[2] === ANA.telefone));
+  // O Apps Script leva segundos: a tela inicial não pede nada a ele.
+  assert.equal(pedidosAgenda.length, 0);
+  assert.ok(!('reservas' in inicio));
   // Nada do cadastro vaza: nem telefone, nem id do ClickUp.
   assert.ok(!JSON.stringify(inicio).includes('crm-ana') && !JSON.stringify(inicio).includes('99111'));
 });
 
-test('início: agenda fora do ar vira aviso, não erro', async () => {
+test('reservas: as duas agendas em paralelo, com o telefone do cadastro', async () => {
+  const { app, pedidosAgenda } = montar();
+  const { reservas, avisos } = await app.reservas({ atletaId: 'crm-ana', tel8: '91112222' });
+  assert.equal(reservas.length, 1);
+  assert.equal(reservas[0].modalidade, 'fortalecimento');
+  assert.deepEqual(avisos, []);
+  assert.equal(pedidosAgenda.length, 2);
+  assert.ok(pedidosAgenda.every(p => p[2] === ANA.telefone));
+  assert.ok(!JSON.stringify(reservas).includes('99111'));
+  await assert.rejects(app.reservas(null), { status: 401 });
+});
+
+test('reservas: agenda fora do ar vira aviso, não erro', async () => {
   const { app } = montar({ agenda: { minhas: async () => { throw new Error('caiu'); } } });
-  const inicio = await app.inicio({ atletaId: 'crm-ana', tel8: '91112222' });
-  assert.deepEqual(inicio.reservas, []);
-  assert.equal(inicio.avisos.length, 2);
+  const r = await app.reservas({ atletaId: 'crm-ana', tel8: '91112222' });
+  assert.deepEqual(r.reservas, []);
+  assert.equal(r.avisos.length, 2);
 });
 
 test('sessão sem atleta, ou com telefone trocado no cadastro, cai', async () => {

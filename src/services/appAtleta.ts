@@ -96,9 +96,19 @@ export interface InicioDoAtleta {
   fisio?: string | null;
   /** Planos de sessão que ainda têm saldo. */
   planos: PlanoDoAtleta[];
+}
+
+/**
+ * Próximas aulas reservadas. Vem numa chamada separada do `inicio` porque as agendas
+ * (Apps Script) levam segundos para responder e a tela não precisa esperar por elas.
+ */
+export interface ReservasDoAtleta {
   reservas: ReservaDoAtleta[];
   avisos: string[];
 }
+
+export const lerInicio = () => apiApp<InicioDoAtleta>("inicio");
+export const lerReservas = () => apiApp<ReservasDoAtleta>("reservas");
 
 export interface DetalheReserva {
   modalidade: Modalidade;
